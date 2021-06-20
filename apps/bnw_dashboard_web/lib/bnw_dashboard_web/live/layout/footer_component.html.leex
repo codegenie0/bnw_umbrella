@@ -1,0 +1,17 @@
+<footer class="footer uk-background-secondary uk-light">
+  <div class="uk-flex uk-flex-right uk-margin-small-top">
+    <%= if @current_user.allow_request_app_access do %>
+      <div class="uk-padding-small uk-padding-remove-vertical">
+        <%= link "Request Access to an App", to: "#", class: "uk-button uk-button-text uk-button-small uk-margin-small" %>
+      </div>
+    <% end %>
+    <div class="uk-padding-small uk-padding-remove-vertical">
+      <%= link "IT Help Desk ",
+          to: "mailto: helpdesk@beefnw.com",
+          class: "uk-button uk-button-text uk-button-small uk-margin-small uk-preserve-width",
+          uk_icon: "mail",
+          phx_hook: "uk_icon",
+          target: "_blank" %>
+    </div>
+  </div>
+</footer>

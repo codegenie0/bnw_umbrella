@@ -1,0 +1,72 @@
+<div>
+  <h3>Borrowing Base Weight Breaks</h3>
+  <%= if Enum.count(@companies) > 1 do %>
+    <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid" phx-hook="uk_grid">
+      <%= for company <- @companies do %>
+        <label>
+          <input class="uk-radio"
+                 type="radio"
+                 name="company"
+                 phx-click="company"
+                 phx-value-company=<%= company.id %>
+                 <%= if @company == company.id, do: "checked", else: "" %>> <%= company.name %>
+        </label>
+      <% end %>
+    </div>
+  <% end %>
+  <%= if @company do %>
+    <div class="uk-width-expand@s uk-flex uk-flex-center">
+      <button class="uk-button uk-button-primary uk-border-pill uk-width-1-2 uk-text-nowrap"
+              type="button"
+              phx-click="new">Create a New Weight Break Table</button>
+    </div>
+    <%= for weight_break <- @weight_breaks do %>
+      <div class="uk-card uk-card-small uk-card-default uk-width-1-1 uk-margin">
+        <div class="uk-card-header" uk-grid phx-hook="uk_grid">
+          <div class="uk-grid-collapse" uk-grid phx-hook="uk_grid">
+            <%= link weight_break.name, to: "#",
+                                        class: "uk-button uk-button-text uk-width-expand uk-text-left",
+                                        phx_click: "weight_break",
+                                        phx_value_id: weight_break.id %>
+            <%= link "", to: "#", class: "uk-preserve-width uk-padding uk-padding-remove-vertical",
+                         uk_icon: "pencil",
+                         phx_hook: "uk_icon",
+                         phx_click: "edit",
+                         phx_value_id: weight_break.id %>
+            <%= link "", to: "#", class: "uk-preserve-width uk-padding uk-padding-remove-vertical uk-padding-remove-left",
+                         uk_icon: "trash",
+                         phx_hook: "uk_icon",
+                         phx_click: "delete",
+                         phx_value_id: weight_break.id,
+                         data: [confirm: "Are you sure?"]  %>
+          </div>
+        </div>
+        <div id="weight_break_body_<%= weight_break.id %>" class="uk-card-body <%= if @weight_break == weight_break.id, do: "", else: "uk-hidden" %>">
+          <%= if @weight_break == weight_break.id do %>
+            <div>
+              Lot Status Codes:
+              <%= for lot_status_code <- @lot_status_codes do %>
+                <%= link to: "#", class: "uk-button uk-button-text uk-margin-left",
+                                  phx_click: "lot_status_code",
+                                  phx_value_id: lot_status_code.id do %>
+                  <label>
+                    <input class="uk-checkbox"
+                           type="checkbox"
+                           <%= if lot_status_code.checked, do: "checked", else: "" %>>
+                    <%= lot_status_code.lot_status_code %>
+                  </label>
+                <% end %>
+              <% end %>
+            </div>
+            <%= live_render(@socket, EffectiveDatesLive, id: "effective_dates_live_#{weight_break.id}", session: %{"weight_break" => weight_break}) %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+<%= case @modal do
+  :change ->
+    live_component(@socket, ChangeWeightBreakComponent, id: @current_user.id, changeset: @changeset)
+  _ -> nil
+end %>

@@ -1,0 +1,142 @@
+$navbar-background: #4682b4;
+$inverse-navbar-nav-item-color: white;
+$global-background: #edf2f7;
+
+@import "~uikit/src/scss/variables-theme.scss";
+@import "~uikit/src/scss/mixins-theme.scss";
+
+.uk-alert:empty {
+  display: none;
+}
+
+.main {
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "h"
+    "c"
+    "f";
+}
+@media (min-width: 640px) {
+  .main {
+    grid-template-columns: minmax(100px, auto), 5fr;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "h h h h h h"
+      "s c c c c c"
+      "f f f f f f";
+  }
+}
+
+.main {
+  height: 100vh;
+}
+
+.header {
+  grid-area: h;
+}
+
+.sidebar {
+  grid-area: s;
+  overflow: auto;
+}
+
+.content {
+  grid-area: c;
+  overflow: auto;
+}
+
+.footer {
+  grid-area: f;
+  border-top: 1px solid black;
+}
+
+.weight_break {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.weight_break_col {
+  height: 400px;
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "t"
+    "b";
+}
+
+.top {
+  grid-area: t;
+}
+
+.bottom {
+  grid-area: b;
+  overflow: auto;
+}
+
+.borrowing_base_col {
+  height: 65vh;
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "bbt"
+    "bbb";
+}
+
+.borrowing_base_top {
+  grid-area: bbt;
+}
+
+.borrowing_base_bottom {
+  grid-area: bbb;
+  overflow: auto;
+}
+
+th {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.sticky {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+
+@import "~uikit/src/scss/uikit-theme.scss";
+
+.uk-button-success {
+  background-color: #32D296;
+  color: #fff;
+}
+/* Hover + Focus */
+.uk-button-success:hover,
+.uk-button-success:focus {
+  background-color: #209268;
+  color: #fff;
+}
+/* OnClick + Active */
+.uk-button-success:active,
+.uk-button-success.uk-active {
+  background-color: #12543C;
+  color: #fff;
+}
+
+
+.table_fix_head {
+    overflow: hidden;
+    overflow-y: scroll;
+    height: 60vh;
+}
+.table_fix_head th {
+    top: 0;
+    z-index: 2;
+    position: sticky;
+}

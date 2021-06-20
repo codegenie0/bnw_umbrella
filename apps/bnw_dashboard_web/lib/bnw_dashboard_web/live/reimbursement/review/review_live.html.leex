@@ -1,0 +1,120 @@
+<div class="uk-padding-small uk-padding-remove-horizontal">
+<!-- Header Area -->
+  <div>
+    <h3><%= @page_title %></h3>
+
+    <!-- Filter -->
+
+    <div class="uk-card">
+      <label>
+        Filter by Month
+      </label>
+
+      <%= f = form_for :search, "#",
+          [phx_change: :search,
+           phx_submit: :search,
+           class: "uk-width-auto"] %>
+        <div class="uk-inline">
+          <%= select f, :month, @available_months,
+              selected: @month,
+              class: "uk-select" %>
+        </div>
+        <div class="uk-inline">
+          <%= select f, :year, @available_years,
+              selected: @year,
+              class: "uk-select" %>
+        </div>
+      </form>
+    </div>
+
+    <!-- /Filter -->
+
+
+  </div>
+</div>
+<!-- /Header Area -->
+
+<!-- Table Area -->
+<div class="table_fix_head">
+  <table class="uk-table uk-table-striped uk-table-hover">
+
+    <!-- Table Header -->
+    <thead>
+      <tr>
+        <th class="uk-text-center uk-background-secondary">Name</th>
+        <th class="uk-text-center uk-background-secondary">Submitted</th>
+        <th class="uk-text-center uk-background-secondary"></th>
+        <th class="uk-text-center uk-background-secondary"></th>
+      </tr>
+    </thead>
+    <!-- /Table Header -->
+
+    <!-- Table Body -->
+    <tbody>
+      <%= for user <- @users do %>
+        <tr>
+          <td class="uk-text-center">
+            <%= user.username
+             <> (if !is_nil(user.email), do: " - #{user.email}", else: "")
+             <> (if user.username != user.name, do: " - #{user.name}", else: "")%>
+          </td>
+          <td class="uk-text-center">
+            <%= if user.submitted.sub == 1 do %>
+              <span phx-hook="uk_icon"
+                    uk-icon="check"
+                    style="color: green;">
+              </span>
+            <% else %>
+              <span phx-hook="uk_icon"
+                    uk-icon="ban"
+                    style="color: red;">
+              </span>
+            <% end %>
+          </td>
+          <td class="uk-text-center">
+            <%= if user.submitted.sub == 1 || user.submitted.approved == 1 do %>
+              <%= link (if user.submitted.approved == 1, do: "Unapprove", else: "Approve"), to: "#",
+                  class: "uk-preserve-width uk-button uk-button-primary uk-align-right",
+                  phx_click: "approve",
+                  phx_value_user: user.id,
+                  phx_value_approved: abs(user.submitted.approved - 1)%>
+            <% end %>
+          </td>
+          <td class="uk-text-center">
+            <%= link "Report", to: "#",
+                class: "uk-preserve-width uk-button uk-button-primary uk-align-right",
+                phx_click: "report",
+                phx_value_user: user.id%>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+    <!-- /Table Body -->
+
+  </table>
+</div>
+<!-- /Table area -->
+
+<!-- Modals -->
+<!-- Report Modal -->
+<%= if @modal == :report do
+  live_component(@socket,
+    ReportComponent,
+    id: "view_report_component_#{@current_user.id}",
+    user_id: @current_user.id,
+    url: @url,
+    user: @user,
+    parent: self())
+end %>
+<!-- /Report Modal -->
+
+<!-- No Report Modal -->
+<%= if @modal == :no_report do
+  live_component(@socket,
+    NoReportComponent,
+    id: "no_report_component_#{@current_user.id}",
+    user_id: @current_user.id,
+    parent: self())
+end %>
+<!-- /No Report Modal -->
+<!-- /Modals -->

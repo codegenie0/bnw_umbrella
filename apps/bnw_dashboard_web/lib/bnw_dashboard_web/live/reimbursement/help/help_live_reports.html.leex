@@ -1,0 +1,39 @@
+<div class="uk-card uk-card-default uk-card-body">
+  <ul class="" uk-accordion="multiple: true">
+    <!-- Reports -->
+    <li>The reports page is a list of available reports.</li>
+    <li>The report on top is the primary report. (The report that shows up in other parts of the application)</li>
+    <li>Other reports may come into this page later.</li>
+    <!-- /Reports -->
+
+    <%= if @it_admin do %>
+      <!-- IT -->
+      <li class="<%= if @reports_it, do: "uk-open", else: "" %>">
+        <a class="uk-accordion-title"
+           href="#"
+           phx_click="reports_it">
+          IT Only
+        </a>
+        <ul class="uk-accordion-content
+                   uk-padding-remove-top
+                   uk-margin-remove-top"
+            <%= if @reports_it, do: "", else: "hidden" %>>
+          <li>Most of this page is only available to IT</li>
+          <li>Add new works normally</li>
+          <li>The report URL is just copied from jasperserver. No need for any other decorations</li>
+          <li>The report modal will add all the decorations to the URL.</li>
+          <li>When a report is added it is not active or primary.</li>
+          <li>When a report is activated it will show up in general users list on the reports page.</li>
+          <li>When a report is primary it will show up when a user hits the report button on the entries and review pages.</li>
+          <li>Primary cannot be set without active</li>
+          <li>Active cannot be unset for the primary report.</li>
+          <li>Once a primary report is set it cannot be removed.</li>
+          <li>When a report is primary it cannot be deleted.</li>
+          <li>There must be a primary report.</li>
+          <li>Setting a new report as primary removes all other reports as primary. This maintains the only one primary report.</li>
+        </ul>
+      </li>
+      <!-- /IT -->
+    <% end %>
+  </ul>
+</div>

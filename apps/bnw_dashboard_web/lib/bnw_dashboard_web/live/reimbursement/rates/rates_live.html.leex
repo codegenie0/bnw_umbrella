@@ -1,0 +1,48 @@
+<div>
+  <h3><%= @page_title %></h3>
+  <%= if length(@available_years) > 0 do %>
+    <button class="uk-button uk-button-primary uk-border-pill uk-align-center uk-width-1-2@l uk-width-2-3@m"
+            type="button"
+            phx-click="new">Add New</button>
+  <% end %>
+  <div class="table_fix_head">
+    <table class="uk-table uk-table-striped uk-table-hover">
+      <thead>
+        <tr>
+          <th class="uk-text-center uk-background-secondary">Year</th>
+          <th class="uk-text-center uk-background-secondary">Value</th>
+          <th class="uk-text-center uk-background-secondary"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for rate <- @rates do %>
+           <tr>
+             <td class="uk-text-center"><%= rate.data.year %></td>
+             <td class="uk-text-center"><%= "\$" <> Decimal.to_string(rate.data.value) %></td>
+             <td class="uk-text-center">
+               <%= if rate.data.year >= @year do %>
+                 <%= link "", to: "#", class: "uk-padding-remove-vertical",
+                     uk_icon: "pencil",
+                     phx_hook: "uk_icon",
+                     phx_click: "edit",
+                     phx_value_id: rate.data.id %>
+               <% else %>
+                 Archived
+               <% end %>
+             </td>
+           </tr>
+         <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+<%= if @modal == :change_rate || @modal == :new_rate do
+    live_component(@socket,
+    ChangeRateComponent,
+    id: "change_rate_component_#{@current_user.id}",
+    rates: @rates,
+    changeset: @changeset,
+    year: @year,
+    available_years: @available_years,
+    modal: @modal)
+end %>

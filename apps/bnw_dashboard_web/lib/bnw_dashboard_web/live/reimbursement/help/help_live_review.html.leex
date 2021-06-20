@@ -1,0 +1,128 @@
+<div class="uk-card uk-card-default uk-card-body">
+  <ul class="" uk-accordion="multiple: true">
+    <!-- Filter -->
+    <li class="<%= if @review_filter, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx_click="review_filter">
+        Date Filter
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @review_filter, do: "", else: "hidden" %>>
+        <li>Chose Month and year at the top left</li>
+        <li>The default is the previous month</li>
+      </ul>
+    </li>
+    <!-- /Filter -->
+
+    <!-- Submission -->
+    <li class="<%= if @review_submission, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx_click="review_submission">
+        Submission
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @review_submission, do: "", else: "hidden" %>>
+        <li>When a user has submitted for the selected month the submitted column will become
+          <span phx-hook="uk_icon"
+                uk-icon="check"
+                style="color: green;">
+        </li>
+        <li>When a user has not submitted for that month the submitted column will become
+          <span phx-hook="uk_icon"
+                uk-icon="ban"
+                style="color: red;">
+        </li>
+        <li>The Users submission is their digital signature for the month.</li>
+        <li>Once a user has submitted an approval box will appear</li>
+      </ul>
+    </li>
+    <!-- /Submission -->
+
+    <!-- Approval -->
+    <li class="<%= if @review_approval, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx_click="review_approval">
+        Approval
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @review_approval, do: "", else: "hidden" %>>
+        <li>Once a User has Submitted an Approve box will appear</li>
+        <li>When the Users Submission is Approved
+          <ul>
+            <li>The user will no longer be able to Create, Edit, or Delete entries for that month.</li>
+            <li>The user will no longer be able to un-submit</li>
+            <li>The user will receive an Approved message on their entries page.</li>
+            <li>The Approved message will replace their submission button.</li>
+          </ul>
+        </li>
+        <li>Approval can be reversed by pressing the button again</li>
+      </ul>
+    </li>
+    <!-- /Approval -->
+
+    <!-- Reports -->
+    <li class="<%= if @review_reports, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx_click="review_reports">
+        Reports
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @review_reports, do: "", else: "hidden" %>>
+        <li>On the right side of each user's entry there is a report button.</li>
+        <li>Clicking the report button will pull up their report.</li>
+        <li>With the report open the month and year can be changed. (Defaults to the selected month)</li>
+        <li>The report shows
+          <ul>
+            <li>Mileage Data
+              <ul>
+                <li>Date</li>
+                <li>Description</li>
+                <li>Miles Driven</li>
+                <li>Rate Used</li>
+                <li>Amount</li>
+              </ul>
+            </li>
+            <li>Miscellaneous Data
+              <ul>
+                <li>Date</li>
+                <li>Amount</li>
+                <li>Description</li>
+              </ul>
+            </li>
+            <li>Submitted by user</li>
+            <li>A spot for your signature</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <!-- /Reports -->
+  </ul>
+</div>
+
+<!--
+    <li class="<%= if @review_filter, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx_click="review_filter">
+        Date Filter
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @review_filter, do: "", else: "hidden" %>>
+        <li></li>
+      </ul>
+    </li>
+-->

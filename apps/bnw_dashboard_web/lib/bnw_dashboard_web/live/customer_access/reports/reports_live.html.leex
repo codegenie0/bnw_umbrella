@@ -1,0 +1,103 @@
+<div>
+  <h3>Reports</h3>
+
+  <%= if @current_user.it_admin do %>
+    <div class="uk-flex uk-flex-center uk-padding uk-padding-remove-top">
+      <button class="uk-button uk-button-primary uk-border-pill uk-width-1-2@s uk-text-nowrap"
+              type="button"
+              phx-click="new">Create Report</button>
+      <button class="uk-button uk-button-text uk-text-nowrap uk-align-right uk-margin-remove-bottom"
+              type="button"
+              phx-click="report_types">Report Types</button>
+    </div>
+  <% end %>
+
+  <%= if !@current_user.customer do %>
+    <div class="uk-flex uk-flex-center uk-padding uk-padding-remove-top">
+      <button class="uk-button uk-button-primary uk-border-pill uk-width-1-2@s uk-text-nowrap"
+              type="button"
+              phx-click="select_customer">Select Customer</button>
+    </div>
+    <%= if @customer do %>
+      <h3 class="uk-heading-line uk-text-center uk-margin-remove-vertical">
+        <span>
+          Customer: <%= @customer.username %>, <%= @customer.name %>
+        </span>
+      </h3>
+    <% end %>
+  <% end %>
+
+  <%= if @customer || @current_user.it_admin do %>
+    <ul class="uk-list uk-padding uk-padding-remove-vertical">
+      <%= for {report_type, reports} <- @reports do %>
+        <%= if report_type && (@current_user.it_admin || Enum.find(@customer.report_types, &(&1.name == report_type))) do %>
+          <li><h4><%= report_type %></h4></li>
+        <% end %>
+        <%= if is_nil(report_type) || @current_user.it_admin || Enum.find(@customer.report_types, &(&1.name == report_type)) do %>
+          <%= for report <- reports do %>
+            <li>
+              <%= if @current_user.it_admin do %>
+                <%= link "", to: "#", class: "uk-preserve-width uk-padding uk-padding-remove-vertical uk-padding-remove-left",
+                    uk_icon: "pencil",
+                    phx_hook: "uk_icon",
+                    phx_click: "edit",
+                    phx_value_id: report.id %>
+                <%= link "", to: "#", class: "uk-preserve-width uk-padding uk-padding-remove-vertical uk-padding-remove-left",
+                    uk_icon: "trash",
+                    phx_hook: "uk_icon",
+                    phx_click: "delete",
+                    phx_value_id: report.id,
+                    data: [confirm: "Are you sure?"] %>
+              <% end %>
+              <button uk-toggle="target: #report_<%= report.id%>"
+                      type="button"
+                      class="uk-text-left uk-button uk-button-link"
+                      <%= if @customer && (is_nil(report_type) || Enum.find(@customer.report_types, &(&1.name == report_type))), do: "", else: "disabled" %>>
+                <%= report.name %>
+              </button>
+            </li>
+            <%= if @customer do %>
+              <div class="uk-hidden">
+                <div class="uk-flex-top" id="report_<%= report.id %>" uk-modal>
+                  <div class="uk-light uk-background-secondary uk-modal-dialog uk-margin-auto-vertical uk-width-auto">
+                    <button class="uk-modal-close-default" type="button" uk-close phx-click="test"></button>
+                    <div class="uk-modal-header uk-background-secondary">
+                      <h2 class="uk-modal-title"><%= report.name %></h2>
+                    </div>
+                    <div class="uk-modal-body">
+                      <embed width="1300" height="700" src=<%= "#{report.url}&g_customer_number=#{@customer.username}" %> frameboarder="0"></embed>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+          <br>
+        <% end %>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <%= case @modal do
+      :change_report ->
+        live_component(@socket, ChangeReportComponent,
+                       id: @current_user.id,
+                       changeset: @changeset,
+                       report_types: @report_types)
+      :report_types ->
+        live_component(@socket, ReportTypesComponent,
+                       id: @current_user.id,
+                       report_types: @report_types)
+      :select_customer ->
+        live_component(@socket, SelectCustomerComponent,
+                       id: @current_user.id,
+                       customers: @customers,
+                       page: @page,
+                       search: @search,
+                       per_page: @per_page,
+                       total_pages: @total_pages,
+                       update_action: @update_action)
+      _ -> nil
+    end %>
+
+</div>

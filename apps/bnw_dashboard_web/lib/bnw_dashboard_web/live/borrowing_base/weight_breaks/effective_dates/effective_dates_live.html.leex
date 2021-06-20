@@ -1,0 +1,88 @@
+<div class="uk-grid-collapse" uk-grid phx-hook="uk_grid">
+  <div class="weight_break_col uk-width-1-5">
+    <div class="top uk-padding-small">
+      <%= link "Pull Update", to: "#",
+                              class: "uk-button uk-button-danger uk-button-small uk-width-1-1",
+                              phx_click: "pull_update",
+                              data: [confirm: "Are you sure!\n\nThis might replace data!"] %>
+      <%= link "New Date", to: "#",
+                           class: "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-margin",
+                           phx_click: "new_date"%>
+      <%= f = form_for :search, "#",
+          [phx_change: :search_effective_date,
+           phx_submit: :search_effective_date] %>
+        <div class="uk-inline uk-width-1-1">
+          <%= submit "", [phx_disable_with: "",
+                          class: "uk-preserve-width uk-form-icon",
+                          uk_icon: "icon: search",
+                          phx_hook: "uk_icon"] %>
+          <%= text_input f, :search, class: "uk-input uk-form-small",
+                            placeholder:  "Search",
+                            value: @search %>
+        </div>
+      </form>
+    </div>
+    <div class="bottom" phx-hook="infinite_scroll_container">
+      <ul id="effective_dates" class="uk-list uk-width-1-1 uk-text-center"
+          phx-update="<%= @update_action %>"
+          data-page="<%= @page %>">
+        <%= for %{id: id, effective_date: effective_date, locked: locked} <- @effective_dates do %>
+          <li id="effective_date_<%= id %>">
+            <%= if @effective_date && @effective_date.id == id do %>
+              <%= link "", to: "#", class: "uk-preserve-width uk-text-primary uk-padding-small uk-padding-remove-vertical",
+                  uk_icon: "icon: copy;",
+                  phx_hook: "uk_icon",
+                  phx_click: "copy_modal",
+                  phx_value_id: @effective_date.id %>
+            <% end %>
+            <%= if locked do %>
+              <%= link "", to: "#", class: "uk-preserve-width uk-text-danger uk-padding-small uk-padding-remove-vertical uk-padding-remove-left",
+                 uk_icon: "icon: lock;",
+                 phx_hook: "uk_icon",
+                 phx_click: "change_locked",
+                 phx_value_id: id %>
+            <% else %>
+              <%= link "", to: "#", class: "uk-preserve-width uk-text-success uk-padding-small uk-padding-remove-vertical uk-padding-remove-left",
+                  uk_icon: "icon: unlock;",
+                  phx_hook: "uk_icon",
+                  phx_click: "change_locked",
+                  phx_value_id: id %>
+            <% end %>
+            <% ed_month = effective_date.month |> Integer.to_string() |> String.pad_leading(2, "00") %>
+            <% ed_day = effective_date.day |> Integer.to_string() |> String.pad_leading(2, "00") %>
+            <%= link "#{ed_month}-#{ed_day}-#{effective_date.year}", to: "#",
+                     class: "uk-button uk-button-text uk-padding-small uk-padding-remove-vertical uk-padding-remove-left #{if @effective_date && @effective_date.id == id, do: "uk-disabled uk-text-primary", else: ""}",
+                     phx_click: "select_date",
+                     phx_value_id: id %>
+             <%= if !locked do %>
+               <%= link "", to: "#", class: "uk-preserve-width uk-text-danger uk-padding-small uk-padding-remove-vertical uk-padding-remove-left",
+                  uk_icon: "icon: trash;",
+                  data: [confirm: "Are you sure!"],
+                  phx_hook: "uk_icon",
+                  phx_click: "delete",
+                  phx_value_id: id %>
+             <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+  <div class="weight_break_col uk-width-expand">
+    <%= if @effective_date do %>
+      <%= live_render(@socket, EffectiveDateLive,
+                      id: "effective_date_live_#{@effective_date.id}",
+                      session: %{"effective_date" => @effective_date, "weight_break" => @weight_break}) %>
+    <% end %>
+  </div>
+</div>
+<%= case @modal do
+  :change_date ->
+    live_component(@socket, ChangeEffectiveDateComponent, id: @weight_break.id, changeset: @changeset, weight_break: @weight_break)
+  :copy_effective_date ->
+    live_component(@socket, CopyEffectiveDateComponent,
+      id: @effective_date.id,
+      effective_date: @effective_date,
+      changeset: @changeset,
+      weight_break: @weight_break)
+  _ -> nil
+end %>

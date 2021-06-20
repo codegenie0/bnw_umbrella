@@ -1,0 +1,93 @@
+<div>
+  <h3>Borrowing Base Home</h3>
+
+  <%= if Enum.count(@companies) > 1 do %>
+    <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid" phx-hook="uk_grid">
+      <%= for company <- @companies do %>
+        <label>
+          <input class="uk-radio"
+                 type="radio"
+                 name="company"
+                 phx-click="company"
+                 phx-value-company=<%= company.id %>
+                 <%= if @company == "#{company.id}", do: "checked", else: "" %>> <%= company.name %>
+        </label>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= if Enum.count(@weight_breaks) > 1 do %>
+    <ul class="uk-tab">
+      <%= for weight_break <- @weight_breaks do %>
+        <li class="<%= if weight_break.id == String.to_integer(@weight_break), do: "uk-active", else: "" %>">
+          <%= link weight_break.name, to: "#",
+                                      phx_click: "weight_break",
+                                      phx_value_weight_break: weight_break.id %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <%= if @weight_break do %>
+    <div class="uk-grid-collapse" uk-grid phx-hook="uk_grid">
+      <div class="borrowing_base_col uk-width-1-6">
+        <div class="borrowing_base_top uk-padding-small">
+          <%= f = form_for :search, "#",
+              [phx_change: :search_effective_date,
+               phx_submit: :search_effective_date] %>
+            <div class="uk-inline uk-width-1-1">
+              <%= submit "", [phx_disable_with: "",
+                              class: "uk-preserve-width uk-form-icon",
+                              uk_icon: "icon: search",
+                              phx_hook: "uk_icon"] %>
+              <%= text_input f, :search, class: "uk-input uk-form-small",
+                                placeholder:  "Search",
+                                value: @effective_date_search %>
+            </div>
+          </form>
+        </div>
+        <div class="borrowing_base_bottom" phx-hook="infinite_scroll_container">
+          <ul id="effective_dates" class="uk-list uk-width-1-1 uk-text-center"
+              phx-update="<%= @effective_date_update_action %>"
+              data-page="<%= @effective_date_page %>">
+            <%= for %{id: id, effective_date: effective_date, locked: locked} <- @effective_dates do %>
+              <li id="effective_date_<%= id %>">
+                <%= if locked do %>
+                  <%= link "", to: "#", class: "uk-preserve-width uk-text-danger uk-padding-small uk-padding-remove-vertical uk-padding-remove-left",
+                     uk_icon: "icon: lock;",
+                     phx_hook: "uk_icon",
+                     phx_click: "change_locked",
+                     phx_value_id: id %>
+                <% else %>
+                  <%= link "", to: "#", class: "uk-preserve-width uk-text-success uk-padding-small uk-padding-remove-vertical uk-padding-remove-left",
+                      uk_icon: "icon: unlock;",
+                      phx_hook: "uk_icon",
+                      phx_click: "change_locked",
+                      phx_value_id: id %>
+                <% end %>
+                <% ed_month = effective_date.month |> Integer.to_string() |> String.pad_leading(2, "00") %>
+                <% ed_day = effective_date.day |> Integer.to_string() |> String.pad_leading(2, "00") %>
+                <%= link "#{ed_month}-#{ed_day}-#{effective_date.year}", to: "#",
+                    class: "uk-button uk-button-text #{if @effective_date != "#{id}", do: "", else: "uk-disabled uk-text-primary"}",
+                    phx_click: "select_date",
+                    phx_value_id: id %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+      <div class="borrowing_base_col uk-width-expand">
+        <%= if @effective_date do %>
+          <%= live_render(@socket, EffectiveDateLive,
+                          id: "effective_date_live_#{@effective_date}",
+                          session: %{
+                            "effective_date" => Enum.find(@effective_dates, &(@effective_date == "#{&1.id}")),
+                            "weight_break" => Enum.find(@weight_breaks, &(@weight_break == "#{&1.id}")),
+                            "current_user" => @current_user,
+                            "user_roles" => @user_roles
+                          }) %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

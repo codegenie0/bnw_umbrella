@@ -1,0 +1,22 @@
+<div class="uk-margin-small uk-card uk-card-default uk-card-body uk-card-small">
+  <div class="uk-text-lead">
+    <%= @user.username %>
+    <%= if !is_nil(@user.email), do: " - #{@user.email}", else: "" %>
+    <%= if @user.username != @user.name, do: " - #{@user.name}", else: "" %>
+  </div>
+  <div class="uk-width-1-1">
+    <%= for role <- @roles do %>
+      <%= link to: "#", class: "uk-button uk-button-text uk-margin-left",
+                        phx_click: "change_role",
+                        phx_value_user: @user.id,
+                        phx_value_role: role.id do %>
+        <label>
+          <input class="uk-checkbox"
+                 type="checkbox"
+                 <%= if role.checked, do: "checked", else: "" %>>
+          <%= role.name %>
+        </label>
+      <% end %>
+    <% end %>
+  </div>
+</div>

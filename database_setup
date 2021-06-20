@@ -1,0 +1,145 @@
+#!/bin/bash
+
+# docker-compose run app mix cmd --app $app_name mix ecto.create
+# docker-compose run app mix cmd --app $app_name mix ecto.migrate
+
+# list
+# bnw_dashboard
+# accounts
+# component_applications
+# bnw_dashboard_web
+# borrowing_base
+# customer_access
+# tentative_ship
+# ocb_report_plugs
+# cih_report_plugs
+# reimbursement
+# plugs_app
+# tentative_ship
+# cattle_purchase
+
+echo ""
+echo "bnw_dashboard"
+echo ""
+docker-compose run app mix cmd --app bnw_dashboard mix ecto.create
+docker-compose run app mix cmd --app bnw_dashboard mix ecto.migrate
+echo ""
+echo "done"
+echo ""
+
+echo ""
+echo "accounts"
+echo ""
+docker-compose run app mix cmd --app accounts mix ecto.create
+docker-compose run app mix cmd --app accounts mix ecto.migrate
+echo ""
+echo "done"
+echo ""
+
+echo ""
+echo "component_applications"
+echo ""
+docker-compose run app mix cmd --app component_applications mix ecto.create
+docker-compose run app mix cmd --app component_applications mix ecto.migrate
+echo ""
+echo "done"
+echo ""
+
+echo ""
+echo "bnw_dashboard_web"
+echo ""
+docker-compose run app mix cmd --app bnw_dashboard_web mix ecto.create
+docker-compose run app mix cmd --app bnw_dashboard_web mix ecto.migrate
+echo ""
+echo "done"
+echo ""
+
+echo ""
+echo "borrowing_base"
+echo ""
+docker-compose run app mix cmd --app borrowing_base mix ecto.create
+docker-compose run app mix cmd --app borrowing_base mix ecto.migrate
+echo ""
+echo "done"
+echo ""
+
+echo ""
+echo "customer_access"
+echo ""
+docker-compose run app mix cmd --app customer_access mix ecto.create
+docker-compose run app mix cmd --app customer_access mix ecto.migrate
+echo ""
+echo "done"
+echo ""
+
+echo ""
+echo "tentative_ship"
+echo ""
+docker-compose run app mix cmd --app tentative_ship mix ecto.create
+docker-compose run app mix cmd --app tentative_ship mix ecto.migrate
+echo ""
+echo "done"
+echo ""
+
+echo ""
+echo "ocb_report_plugs"
+echo ""
+docker-compose run app mix cmd --app ocb_report_plugs mix ecto.create
+docker-compose run app mix cmd --app ocb_report_plugs mix ecto.migrate
+echo ""
+echo "done"
+echo ""
+
+echo ""
+echo "cih_report_plugs"
+echo ""
+docker-compose run app mix cmd --app cih_report_plugs mix ecto.create
+docker-compose run app mix cmd --app cih_report_plugs mix ecto.migrate
+echo ""
+echo "done"
+echo ""
+
+echo ""
+echo "reimbursement"
+echo ""
+docker-compose run app mix cmd --app reimbursement mix ecto.create
+docker-compose run app mix cmd --app reimbursement mix ecto.migrate
+echo ""
+echo "done"
+echo ""
+
+echo ""
+echo "plugs_app"
+echo ""
+docker-compose run app mix cmd --app plugs_app mix ecto.create
+docker-compose run app mix cmd --app plugs_app mix ecto.migrate
+echo ""
+echo "done"
+echo ""
+
+echo ""
+echo "tentative_ship"
+echo ""
+docker-compose run app mix cmd --app tentative_ship mix ecto.create
+docker-compose run app mix cmd --app tentative_ship mix ecto.migrate
+echo ""
+echo "done"
+echo ""
+
+echo ""
+echo "tentative_ship"
+echo ""
+docker-compose run app mix cmd --app tentative_ship mix ecto.create
+docker-compose run app mix cmd --app tentative_ship mix ecto.migrate
+echo ""
+echo "done"
+echo ""
+
+echo ""
+echo "cattle_purchase"
+echo ""
+docker-compose run app mix cmd --app cattle_purchase mix ecto.create
+docker-compose run app mix cmd --app cattle_purchase mix ecto.migrate
+echo ""
+echo "done"
+echo ""

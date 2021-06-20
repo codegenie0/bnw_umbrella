@@ -1,0 +1,26 @@
+<header class="header">
+  <nav class="uk-navbar-container">
+    <div class="uk-navbar uk-light uk-padding uk-padding-remove-vertical" uk-navbar phx-hook="uk_navbar">
+      <div class="uk-navbar-left">
+        <%= link "", to: "#", class: "uk-navbar-toggle-icon uk-margin-small-right uk-hidden@s", uk_navbar_toggle_icon: "", phx_hook: "uk_navbar" %>
+        <%= live_patch to: Routes.live_path(@socket, BnwDashboardWeb.Home.HomeLive), class: "uk-navbar-item uk-logo" do %>
+          <img src="<%= Routes.static_path(@socket, "/images/bnw-logo.svg") %>" alt="BNW" width="200" height="" uk-svg/>
+        <% end %>
+      </div>
+      <%= if @current_user.active do %>
+        <div class="uk-navbar-right">
+          <div class="uk-padding uk-padding-remove-vertical uk-visible@s">
+            <%= if @current_user.customer, do: "#{@current_user.username} · #{@current_user.name}", else: @current_user.username %>
+          </div>
+          <%= link to: Routes.auth_path(@socket, :delete), method: :delete, class: "uk-button uk-button-default uk-border-pill",
+              phx_click: "sign-out",
+              phx_value_current_user_id: @current_user.id,
+              phx_target: @myself do %>
+            Sign-Out
+            <span uk-icon="sign-out" phx-hook="uk_icon"></span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </nav>
+</header>

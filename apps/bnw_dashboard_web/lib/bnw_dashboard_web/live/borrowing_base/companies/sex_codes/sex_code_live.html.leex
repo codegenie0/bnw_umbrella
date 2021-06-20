@@ -1,0 +1,37 @@
+<div>
+  <%= f = form_for @changeset, "#",
+      [phx_change: :validate,
+       phx_submit: :save,
+       class: "uk-grid uk-grid-small",
+       uk_grid: "",
+       phx_hook: "uk_grid"] %>
+    <div class="uk-width-1-3">
+      <%= text_input f, :sex_code, class: "uk-input", placeholder: "Sex Code", value: input_value(f, :sex_code) %>
+      <%= label f, :sex_code, class: "uk-form-label" do %>
+        <%= error_tag f, :sex_code %>
+      <% end %>
+    </div>
+    <%= hidden_input f, :id, value: @changeset.data.id %>
+    <%= hidden_input f, :company_id, value: @company %>
+    <div class="uk-width-expand">
+      <%= if @changeset.action do
+            submit "Save", [phx_disable_with: "Saving...",
+              class: "uk-button uk-button-primary uk-width-1-1",
+              phx_hook: "uk_icon"]
+          end %>
+
+    </div>
+    <div class="">
+      <%= if @changeset.data.id do %>
+        <%= link "", to: "#",
+                     class: "uk-preserve-width uk-button uk-text-danger",
+                     uk_icon: "icon: trash; ratio: 1",
+                     phx_hook: "uk_icon",
+                     phx_click: "delete",
+                     phx_value_id: @changeset.data.id,
+                     data: [confirm: "Are you sure?"] %>
+      <% end %>
+    </div>
+  </form>
+</div>
+<hr>

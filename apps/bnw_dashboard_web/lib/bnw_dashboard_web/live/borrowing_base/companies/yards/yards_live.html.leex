@@ -1,0 +1,26 @@
+<div style="display: block;" class="uk-modal uk-open">
+  <div class="uk-modal-dialog uk-width-2-3 uk-overflow-auto" phx-hook="close_modal">
+    <button class="uk-modal-close-default"
+            type="button"
+            phx-click="cancel"
+            uk-close phx-hook="uk_close"></button>
+    <div class="uk-modal-header">
+      <h2 class="uk-modal-title">
+        Yards
+      </h2>
+    </div>
+    <div class="uk-modal-body uk-background-secondary">
+      <ul class="uk-list uk-list-hyphen">
+        <li class="uk-text-meta">Use a comma to separate multiple yard numbers. e.g. 02,80</li>
+      </ul>
+      <%= for {yard, i} <- Enum.with_index(@yards) do %>
+        <%= live_render(@socket, YardLive, id: "yard_live_#{i}", session: %{"changeset" => yard, "company" => @company}) %>
+      <% end %>
+    </div>
+    <div class="uk-modal-footer uk-text-right">
+      <button class="uk-button uk-button-default"
+              type="button"
+              phx-click="cancel">Done</button>
+    </div>
+  </div>
+</div>

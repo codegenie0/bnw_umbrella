@@ -1,0 +1,25 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/development/app/Dockerfile
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/opt/app
+    depends_on:
+      - bnw-dashboard-db
+    env_file:
+      - ".env"
+  bnw-dashboard-db:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=sxkjad94
+    ports:
+      - "13306:3306"
+    volumes:
+      - bnw-dashboard-db-data:/var/lib/mysql
+volumes:
+  bnw-dashboard-db-data:
+    driver: local

@@ -1,0 +1,93 @@
+<div style="display: block;" class="uk-modal uk-open">
+  <div class="uk-modal-dialog uk-overflow-auto" phx-hook="close_modal">
+    <button class="uk-modal-close-default"
+            type="button"
+            phx-click="cancel"
+            uk-close phx-hook="uk_close"></button>
+    <div class="uk-modal-header">
+      <h2 class="uk-modal-title">Edit User</h2>
+      <%= if @it_admin do %>
+        <label>
+          Is Admin?
+          <% val = Enum.find(@my_roles, %{level: ""}, fn x->
+                     %{role: this_role} = x
+                     this_role == "admin"
+                   end).level %>
+          <% checked = val == "set" %>
+          <%= link to: "#",
+              class: "uk-button uk-button-text",
+              uk_icon: (if checked, do: "check", else: "ban"),
+              style: (if checked, do: "color: green;", else: "color: red;"),
+              phx_hook: "uk_icon",
+              phx_click: "change_role",
+              phx_value_user: @user.id,
+              phx_value_role: "admin",
+              phx_value_level: (if checked, do: "", else: "set") do %>
+          <% end %>
+        </label>
+      <% end %>
+    </div>
+
+    <div class="uk-modal-body
+                uk-background-secondary
+                uk-overflow-auto
+                uk-height-max-large
+                uk-light
+                uk-padding-remove-top
+                uk-margin-remove-top">
+      <table class="uk-table
+                    uk-table-hover">
+        <thead>
+          <tr>
+            <th class="uk-text-center uk-background-secondary">Page</th>
+            <th class="uk-text-center uk-background-secondary">View</th>
+            <th class="uk-text-center uk-background-secondary">Edit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= for role <- @secondary_roles do %>
+            <% val = Enum.find(@my_roles, %{level: ""}, fn x->
+                       %{role: this_role} = x
+                       this_role == role.name
+                     end).level %>
+            <tr>
+              <td class="uk-text-left"><%= role.external_name %></td>
+              <td class="uk-text-center">
+                <% checked = val == "view" || val == "edit" %>
+                <%= link to: "#",
+                    class: "uk-button uk-button-text",
+                    uk_icon: (if checked, do: "check", else: "ban"),
+                    style: (if checked, do: "color: green;", else: "color: red;"),
+                    phx_hook: "uk_icon",
+                    phx_click: "change_role",
+                    phx_value_user: @user.id,
+                    phx_value_role: role.name,
+                    phx_value_level: (if checked, do: "", else: "view") do %>
+                <% end %>
+              </td>
+              <td class="uk-text-center">
+                <% checked = val == "edit" %>
+                <%= link to: "#",
+                    class: "uk-button uk-button-text",
+                    uk_icon: (if checked, do: "check", else: "ban"),
+                    style: (if checked, do: "color: green;", else: "color: red;"),
+                    phx_hook: "uk_icon",
+                    phx_click: "change_role",
+                    phx_value_user: @user.id,
+                    phx_value_role: role.name,
+                    phx_value_level: (if checked, do: "view", else: "edit") do %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="uk-modal-footer uk-text-right">
+      <button class="uk-button uk-button-default"
+              type="button"
+              phx-click="cancel">Done</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,7 @@
+deps/
+.git/
+.gitignore
+Dockerfile*
+Makefile
+README*
+test/

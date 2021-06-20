@@ -1,0 +1,46 @@
+<%= link @user.username <> (if !is_nil(@user.email), do: " - #{@user.email}", else: "") <> (if @user.username != @user.name, do: " - #{@user.name}", else: ""),
+    to: "#",
+    class: "uk-text-lead uk-card uk-card-title",
+    phx_click: "edit_user"%>
+<div class="uk-margin uk-grid uk-child-width-auto uk-grid uk-padding uk-padding-remove-vertical">
+  <!--
+  <%= for %{name: role, checked: checked} <- @roles do %>
+    <%= if @it_admin or role != "admin" do %>
+      <%= link to: "#", class: "uk-button uk-button-text",
+                        phx_click: "change_role",
+                        phx_value_user: @user.id,
+                        phx_value_role: role,
+                        phx_value_level: (if checked, do: "", else: "set") do %>
+        <label>
+          <input class="uk-checkbox"
+                 type="checkbox"
+                 <%= if checked, do: "checked", else: "" %>>
+          <%= role %>
+        </label>
+      <% end %>
+    <% end %>
+  <% end %>
+-->
+</div>
+<!--
+  <button class="uk-button
+                 uk-button-primary
+                 uk-border-pill
+                 uk-align-right
+                 uk-width-1-6@l
+                 uk-width-1-8@m"
+          type="button"
+          phx-click="edit_user">
+    Edit User
+  </button>
+</div>
+-->
+
+<%= if @modal == :edit_user do
+    live_component(@socket, ChangeUserRoleComponent,
+    id: "change_role_component_#{@user.id}_#{@modal_count}",
+    user: @user,
+    secondary_roles: @secondary_roles,
+    my_roles: @my_roles,
+    it_admin: @it_admin)
+end %>

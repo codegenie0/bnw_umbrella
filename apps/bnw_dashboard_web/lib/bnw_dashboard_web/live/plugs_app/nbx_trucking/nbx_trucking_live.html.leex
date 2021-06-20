@@ -1,0 +1,89 @@
+<div>
+  <h3><%= @page_title %></h3>
+  <%= if @is_edit do %>
+    <button class="uk-button
+                   uk-button-primary
+                   uk-border-pill
+                   uk-align-center
+                   uk-width-1-2@l
+                   uk-width-2-3@m"
+            type="button"
+            phx-click="new">
+      Add New
+    </button>
+  <% end %>
+
+  <%= if @is_admin do %>
+    <button class="uk-button
+                   uk-button-primary
+                   uk-border-pill
+                   uk-align-right"
+            type="button"
+            phx-click="new_department">
+      New Department
+    </button>
+  <% end %>
+
+  <table class="uk-table
+                uk-table-striped
+                uk-table-hover">
+    <thead>
+      <tr>
+        <th class="uk-text-center">Month</th>
+        <th class="uk-text-center">Truck</th>
+        <th class="uk-text-center">Department</th>
+        <th class="uk-text-center">Miles</th>
+        <th class="uk-text-center">Tons</th>
+        <%= if @is_edit do %>
+          <th class="uk-text-center"></th>
+          <th class="uk-text-center"></th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for plug <- @plugs do %>
+        <tr>
+          <td class="uk-text-center"><%= plug.data.start_date %></td>
+          <td class="uk-text-center"><%= plug.data.truck %></td>
+          <td class="uk-text-center"><%= NbxTruckingDepartments.get_plug(plug.data.dept) %></td>
+          <td class="uk-text-center"><%= plug.data.miles %></td>
+          <td class="uk-text-center"><%= plug.data.tons %></td>
+          <%= if @is_edit do %>
+            <td class="uk-text-center">
+              <%= link "", to: "#", class: " uk-padding-remove-vertical uk-preserve-width",
+                  uk_icon: "trash",
+                  phx_hook: "uk_icon",
+                  phx_click: "delete",
+                  phx_value_id: plug.data.id,
+                  data: [confirm: "Are you sure?"]  %>
+            </td>
+            <td class="uk-text-center">
+              <%= link "", to: "#", class: "uk-padding-remove-vertical uk-preserve-width",
+                  uk_icon: "pencil",
+                  phx_hook: "uk_icon",
+                  phx_click: "edit",
+                  phx_value_id: plug.data.id %>
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<%= if @modal == :change_plug do
+  live_component(@socket, ChangePlugComponent,
+    id: "projected_breakeven_change_plug_component_#{@current_user.id}",
+    plugs: @plugs,
+    changeset: @changeset,
+    departments: @departments,
+    selected_department: @selected_department,
+    modal_title: @modal_title)
+end %>
+<%= if @modal == :change_department do
+  live_component(@socket, ChangeDepartmentComponent,
+    id: "projected_breakeven_change_department_component_#{@current_user.id}",
+    plugs: @plugs,
+    changeset: @changeset,
+    modal_title: @modal_title)
+end %>

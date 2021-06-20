@@ -1,0 +1,9 @@
+<main role="main" class="main">
+  <%= live_component @socket, BnwDashboardWeb.Layout.HeaderComponent, id: "header_#{@current_user.id}", current_user: @current_user %>
+  <%= live_component @socket, BnwDashboardWeb.Layout.SidebarComponent, id: "sidebar_#{@current_user.id}", app: Map.get(assigns, :app), current_user: @current_user %>
+  <div id="content" class="content uk-padding-small">
+    <%= live_component @socket, BnwDashboardWeb.Layout.ErrorComponent, flash: @flash  %>
+    <%= @inner_content %>
+  </div>
+  <%= live_component @socket, BnwDashboardWeb.Layout.FooterComponent, id: "footer_#{@current_user.id}", current_user: @current_user %>
+</main>

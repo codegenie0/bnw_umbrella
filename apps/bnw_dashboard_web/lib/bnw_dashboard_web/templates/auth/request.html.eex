@@ -1,0 +1,48 @@
+<div class="uk-flex uk-flex-center uk-padding-large">
+  <div class="uk-width-1-4@m">
+    <div class="uk-width-1-1">
+      <h2>Sign In</h2>
+    </div>
+    <div class="uk-width-1-1">
+      <%= form_for @changeset, Routes.auth_path(@conn, :callback, "identity"), [method: "post"], fn f -> %>
+        <%= if @changeset.action do %>
+          <div class="uk-alert-danger uk-alert">
+            <a class="uk-alert-close" uk-icon="close"></a>
+            <p>Oops, something went wrong! Please check the errors below.</p>
+          </div>
+        <% end %>
+        <div class="uk-margin-small">
+          <%= label f, :username, class: "uk-form-label" do %>
+            Username
+            <%= error_tag f, :username %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= text_input f, :username, class: "uk-input", placeholder: "Username" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :password, class: "uk-form-label" do %>
+            Password
+            <%= error_tag f, :password %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= password_input f, :password, class: "uk-input", placeholder: "Password" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= link "Reset Password",
+            to: Routes.auth_path(@conn, :reset_password),
+            class: "uk-button uk-button-link uk-align-right" %>
+        </div>
+        <%= submit "Sign In", [class: "uk-button uk-button-primary uk-width-1-1"] %>
+      <% end %>
+    </div>
+    <div class="uk-margin">
+      <p class="uk-text-center uk-text-large">or</>
+    </div>
+    <%= link to: Routes.auth_path(@conn, :request, "google"), class: "uk-button uk-button-primary uk-width-1-1 uk-text-nowrap" do %>
+      <span uk-icon="google"></span>
+      Login with Google
+    <% end %>
+  </div>
+</div>

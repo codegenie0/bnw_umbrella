@@ -1,0 +1,71 @@
+<%= if @user do %>
+  <div class="uk-card uk-card-small uk-card-default uk-card-body uk-width-1-1 uk-margin">
+    <h3 class="uk-card-title">
+      <%= @user.username %>
+      <%= if !is_nil(@user.email), do: " - #{@user.email}", else: "" %>
+      <%= if @user.username != @user.name, do: " - #{@user.name}", else: "" %>
+      <%= link "", to: "#", class: "uk-preserve-width uk-padding uk-padding-remove-vertical",
+          uk_icon: "pencil",
+          phx_hook: "uk_icon",
+          phx_click: "edit",
+          phx_value_id: @user.id %>
+      <%= link "", to: "#", class: "uk-preserve-width uk-padding uk-padding-remove-vertical uk-padding-remove-left",
+          uk_icon: "trash",
+          phx_hook: "uk_icon",
+          phx_click: "delete",
+          phx_value_id: @user.id,
+          data: [confirm: "Are you sure?"]  %>
+      <%= link "Set Password", to: "#", class: "uk-button uk-button-default uk-button-small",
+          phx_click: "change_password" %>
+    </h3>
+    <div class="uk-margin uk-grid uk-child-width-auto uk-grid uk-padding uk-padding-remove-vertical">
+      <%= link to: "#", class: "uk-button uk-button-text",
+                        phx_click: "change",
+                        phx_value_switch: "active" do %>
+        <label>
+          <input class="uk-checkbox"
+                 type="checkbox"
+                 <%= if @user.active, do: "checked", else: "" %>>
+          Active
+        </label>
+      <% end %>
+      <%= link to: "#", class: "uk-button uk-button-text",
+                        phx_click: "change",
+                        phx_value_switch: "it_admin" do %>
+        <label>
+          <input class="uk-checkbox"
+                 type="checkbox"
+                 <%= if @user.it_admin, do: "checked", else: "" %>>
+          IT Admin
+        </label>
+      <% end %>
+      <%= link to: "#", class: "uk-button uk-button-text",
+                        phx_click: "change",
+                        phx_value_switch: "allow_request_app_access" do %>
+        <label>
+          <input class="uk-checkbox"
+                 type="checkbox"
+                 <%= if @user.allow_request_app_access, do: "checked", else: "" %>>
+          Allow Request App Access
+        </label>
+      <% end %>
+      <%= link to: "#", class: "uk-button uk-button-text",
+                        phx_click: "change",
+                        phx_value_switch: "allow_password_reset" do %>
+        <label>
+          <input class="uk-checkbox"
+                 type="checkbox"
+                 <%= if @user.allow_password_reset, do: "checked", else: "" %>>
+          Allow Password Reset
+        </label>
+      <% end %>
+    </div>
+  </div>
+  <%= cond do
+        @modal == :change_user ->
+          live_component(@socket, ChangeUserComponent, id: @user.id, changeset: @changeset)
+        @modal == :change_user_password ->
+          live_component(@socket, ChangeUserPasswordComponent, id: @user.id, changeset: @changeset, random_password: nil)
+        true -> nil
+      end %>
+<% end %>

@@ -1,0 +1,84 @@
+<div class="weight_break_col uk-width-expand">
+  <div class="uk-margin-small-top top">
+    <%= if length(@yards) > 1 do %>
+      <div>
+        <ul class="uk-flex-center uk-tab">
+          <%= for yard <- @yards do %>
+            <li class="<%= if @yard && yard.id == @yard.id, do: "uk-active" %>">
+              <%= link yard.name, to: "#",
+                                  phx_click: "yard",
+                                  phx_value_id: yard.id %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    <div class="uk-flex uk-width-1-1">
+      <div class="uk-padding-small uk-padding-remove-right">
+        <%= if @effective_date.locked do %>
+          <%= link "", to: "#", class: "uk-preserve-width uk-text-danger",
+              uk_icon: "icon: lock; ratio: 1.5",
+              phx_hook: "uk_icon",
+              phx_click: "change_locked",
+              phx_value_id: @effective_date.id %>
+        <% else %>
+          <%= link "", to: "#", class: "uk-preserve-width uk-text-success",
+              uk_icon: "icon: unlock; ratio: 1.5",
+              phx_hook: "uk_icon",
+              phx_click: "change_locked",
+              phx_value_id: @effective_date.id %>
+        <% end %>
+      </div>
+      <%= if !@effective_date.locked do %>
+        <div class="uk-padding-small uk-width-1-4">
+          <%= link "New Weight Break", to: "#",
+              class: "uk-button uk-button-primary uk-button-small uk-width-1-1",
+              phx_click: "new_weight_group" %>
+        </div>
+        <%= if length(@yards) > 1 do %>
+          <div class="uk-padding-small uk-width-1-4">
+            <%= link "Duplicate to all Yards", to: "#",
+                class: "uk-button uk-button-danger uk-button-small uk-width-1-1",
+                phx_click: "duplicate",
+                data: [confirm: "Are you sure!\n\nThis will replace data in all other yards for this date!"] %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+  <div class="bottom">
+    <%= if length(@weight_groups) > 0 do %>
+      <div class="uk-width-1-1 uk-text-uppercase uk-text-small uk-text-center
+                  uk-text-muted uk-overflow-auto uk-flex uk-flex-around
+                  uk-background-default uk-padding-small sticky">
+        <div class="uk-width-auto">
+        </div>
+        <div class="uk-width-1-6">
+          Min Weight
+        </div>
+        <div class="uk-width-1-6">
+          Max Weight
+        </div>
+        <%= for gender <- @genders do %>
+          <div class="uk-width-1-6">
+            <%= gender %>
+          </div>
+        <% end %>
+      </div>
+      <%= for {weight_group, i} <- Enum.with_index(@weight_groups) do %>
+        <%= live_render(@socket, WeightGroupLive, id: weight_group.id,
+              session: %{"weight_break" => @weight_break, "weight_group" => weight_group, "genders" => @genders, "effective_date" => @effective_date, "even" => (if rem(i, 2) == 0, do: true, else: false)}) %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<%= case @modal do
+  :new_weight_group ->
+    live_component(@socket, NewWeightGroupComponent,
+                  id: @effective_date.id,
+                  changeset: @changeset,
+                  effective_date: @effective_date,
+                  yard: @yard)
+  _ -> nil
+end %>

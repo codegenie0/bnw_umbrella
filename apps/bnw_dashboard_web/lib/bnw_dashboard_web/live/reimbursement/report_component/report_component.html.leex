@@ -1,0 +1,27 @@
+<div class="uk-flex-top
+            uk-modal
+            uk-flex
+            uk-open"
+     id="user_report_<%= @user_id %>"
+     uk-modal="">
+  <div class="uk-light
+              uk-background-secondary
+              uk-modal-dialog
+              uk-margin-auto-vertical
+              uk-width-auto">
+    <button class="uk-modal-close-default
+                   uk-icon
+                   uk-close"
+            type="button"
+            uk-close=""
+            phx-click="cancel">
+    </button>
+    <div class="uk-modal-header
+                uk-background-secondary">
+      <h2 class="uk-modal-title"><%= @user.name %> Report</h2>
+    </div>
+    <div class="uk-modal-body">
+      <embed src=<%= @url %> frameboarder="0" width="1300" height="700">
+    </div>
+  </div>
+</div>

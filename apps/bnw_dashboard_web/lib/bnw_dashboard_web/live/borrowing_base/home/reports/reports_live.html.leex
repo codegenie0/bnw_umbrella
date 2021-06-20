@@ -1,0 +1,38 @@
+<div style="display: block;" class="uk-modal uk-open">
+  <div class="uk-modal-dialog uk-width-2-3 uk-overflow-auto" phx-hook="close_modal">
+    <button class="uk-modal-close-default"
+            type="button"
+            phx-click="cancel"
+            uk-close phx-hook="uk_close"></button>
+    <div class="uk-modal-header">
+      <h2 class="uk-modal-title">
+        Reports
+      </h2>
+    </div>
+    <div class="uk-modal-body uk-background-secondary">
+      <%= for {report, i} <- Enum.with_index(@reports) do %>
+        <%= live_render(@socket, ReportLive, id: "report_live_#{i}",
+          session: %{
+            "changeset" => report,
+            "current_user" => @current_user,
+            "effective_date" => @effective_date,
+            "yard" => @yard,
+            "weight_break" => @weight_break
+          }) %>
+      <% end %>
+      <%= if @current_user.it_admin do %>
+        <div class="uk-padding-small">
+          <button class="uk-button uk-button-primary uk-button-small uk-width-1-1 uk-border-pill"
+                  type="button"
+                  style="background-color: #1e87f0;"
+                  phx-click="add">New Report</button>
+        </div>
+      <% end %>
+    </div>
+    <div class="uk-modal-footer uk-text-right">
+      <button class="uk-button uk-button-default"
+              type="button"
+              phx-click="cancel">Done</button>
+    </div>
+  </div>
+</div>

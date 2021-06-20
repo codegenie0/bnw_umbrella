@@ -1,0 +1,43 @@
+<%= if live_flash(@flash, :info) do %>
+  <div class="uk-alert-primary uk-alert">
+    <a class="uk-alert-close"
+      uk-icon="close"
+      phx-hook="uk_icon"
+      phx-click="lv:clear-flash"
+      phx-value-key="info"></a>
+    <p><%= live_flash(@flash, :info) %></p>
+  </div>
+<% end %>
+
+<%= if live_flash(@flash, :error) do %>
+  <div class="uk-alert-danger uk-alert">
+    <a class="uk-alert-close"
+      uk-icon="close"
+      phx-hook="uk_icon"
+      phx-click="lv:clear-flash"
+      phx-value-key="error"></a>
+    <p><%= live_flash(@flash, :error) %></p>
+  </div>
+<% end %>
+
+<%= if live_flash(@flash, :success) do %>
+  <div class="uk-alert-success uk-alert">
+    <a class="uk-alert-close"
+      uk-icon="close"
+      phx-hook="uk_icon"
+      phx-click="lv:clear-flash"
+      phx-value-key="success"></a>
+    <p><%= live_flash(@flash, :success) %></p>
+  </div>
+<% end %>
+
+<%= if live_flash(@flash, :warning) do %>
+  <div class="uk-alert-warning uk-alert">
+    <a class="uk-alert-close"
+      uk-icon="close"
+      phx-hook="uk_icon"
+      phx-click="lv:clear-flash"
+      phx-value-key="warning"></a>
+    <p><%= live_flash(@flash, :warning) %></p>
+  </div>
+<% end %>

@@ -1,0 +1,54 @@
+<div style="display: block;" class="uk-modal uk-open">
+  <div class="uk-modal-dialog uk-overflow-auto" phx-hook="close_modal">
+    <button class="uk-modal-close-default"
+            type="button"
+            phx-click="cancel"
+            uk-close phx-hook="uk_close"></button>
+    <div class="uk-modal-header">
+      <h2 class="uk-modal-title">
+        Report Types
+      </h2>
+    </div>
+    <div class="uk-modal-body uk-background-secondary">
+      <%= for report_type <- @report_types do %>
+        <%= f = form_for report_type, "#",
+            [phx_change: :validate,
+             phx_submit: :save,
+             phx_target: @myself,
+             class: "uk-grid uk-grid-small uk-grid-match",
+             uk_grid: ""] %>
+          <div class="uk-width-3-5">
+            <%= label f, :name, class: "uk-form-label" do %>
+              <%= error_tag f, :name %>
+            <% end %>
+            <%= text_input f, :name, class: "uk-input", placeholder:  "Name" %>
+            <%= hidden_input f, :id, value: report_type.data.id %>
+          </div>
+          <div class="uk-width-1-5">
+            <%= submit "", [phx_disable_with: "Saving...",
+                            class: "uk-preserve-width",
+                            uk_icon: "icon: check; ratio: 1.25",
+                            phx_hook: "uk_icon"] %>
+          </div>
+          <div class="uk-width-1-5">
+            <%= if report_type.data.id do %>
+              <%= link "", to: "#",
+                  class: "uk-preserve-width uk-button",
+                  uk_icon: "icon: trash; ratio: 1",
+                  phx_hook: "uk_icon",
+                  phx_click: "delete",
+                  phx_value_id: report_type.data.id,
+                  phx_target: @myself,
+                  data: [confirm: "Are you sure?"] %>
+            <% end %>
+          </div>
+        </form>
+      <% end %>
+    </div>
+    <div class="uk-modal-footer uk-text-right">
+      <button class="uk-button uk-button-default"
+              type="button"
+              phx-click="cancel">Done</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,104 @@
+<%= f = form_for @changeset, "#",
+    [phx_submit: :save,
+    phx_change: :validate,
+    phx_target: @myself,
+    class: "uk-form-stacked"
+    ] %>
+  <div style="display: block;" class="uk-modal uk-open">
+    <div class="uk-modal-dialog uk-overflow-auto" phx-hook="close_modal">
+      <button class="uk-modal-close-default"
+              type="button"
+              phx-click="cancel"
+              uk-close phx-hook="uk_close"></button>
+      <div class="uk-modal-header">
+        <h2 class="uk-modal-title">Edit Entry</h2>
+      </div>
+      <%= hidden_input f, :user_id, value: @user_id %>
+      <%= hidden_input f, :radio,   value: @radio %>
+      <div class="uk-modal-body uk-background-secondary uk-light">
+        <%= if @radio_selection do %>
+          <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid" phx-hook="uk_grid">
+            <%= for %{key: key, value: value, full: full} <- @radios do %>
+              <label>
+                <input class="uk-radio"
+                       type="radio"
+                       name="option"
+                       phx-click="option"
+                       phx-value-option=<%= value %>
+                       phx-target=<%= @myself %>
+                       <%= if @radio == value, do: "checked", else: "" %>>
+                <abbr title="<%= full %>">
+                  <%= key %>
+                </abbr>
+              </label>
+            <% end %>
+          </div>
+        <% end %>
+        <div class="uk-margin-small">
+          <%= label f, :entry_date, class: "uk-form-label" do %>
+            Date
+            <%= error_tag f, :entry_date %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= date_input f, :entry_date, class: "uk-input" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :desc, class: "uk-form-label" do %>
+            Description
+            <%= error_tag f, :desc %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= textarea f, :desc, class: "uk-input", style: "height: 150px;", rows: "10", placeholder: "Description" %>
+          </div>
+        </div>
+        <%= case @radio do %>
+        <% 1 -> %>
+          <div class="uk-margin-small">
+            <%= label f, :mileage, class: "uk-form-label" do %>
+              Mileage
+              <%= error_tag f, :end_mileage %>
+            <% end %>
+            <div class="uk-form-controls">
+              <%= number_input f, :end_mileage, class: "uk-input", placeholder: "Mileage" %>
+            </div>
+          </div>
+        <% 2 -> %>
+          <div class="uk-margin-small">
+            <%= label f, :mileage, class: "uk-form-label" do %>
+              Starting Odometer
+              <%= error_tag f, :start_mileage %>
+            <% end %>
+            <div class="uk-form-controls">
+              <%= number_input f, :start_mileage, class: "uk-input", placeholder: "Starting Odometer" %>
+            </div>
+          </div>
+          <div class="uk-margin-small">
+            <%= label f, :mileage, class: "uk-form-label" do %>
+              Ending Odometer
+              <%= error_tag f, :end_mileage %>
+            <% end %>
+            <div class="uk-form-controls">
+              <%= number_input f, :end_mileage, class: "uk-input", placeholder: "Ending Odometer" %>
+            </div>
+          </div>
+        <% 3 -> %>
+          <div class="uk-margin-small">
+            <%= label f, :misc_amount, class: "uk-form-label" do %>
+              Miscellaneous Amount
+              <%= error_tag f, :misc_amount %>
+            <% end %>
+            <div class="uk-form-controls">
+              <%= number_input f, :misc_amount, class: "uk-input", step: 0.01, placeholder: "Miscellaneous Amount" %>
+            </div>
+          </div>
+        <% end %>
+      <div class="uk-modal-footer uk-text-right">
+        <button class="uk-button uk-button-default"
+                type="button"
+                phx-click="cancel">Cancel</button>
+        <%= submit "Save", [phx_disable_with: "Saving...",
+                          class: "uk-button uk-button-primary"] %>
+      </div>
+    </div>
+  </div>

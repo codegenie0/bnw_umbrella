@@ -1,0 +1,110 @@
+<div class="uk-card uk-card-default uk-card-body">
+  <ul class="" uk-accordion="multiple: true">
+    <!-- Activate Users -->
+    <li class="<%= if @users_activate, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx_click="users_activate">
+        Activate Users
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @users_activate, do: "", else: "hidden" %>>
+        <li>To activate a new user in the application.</li>
+        <li>Click Add Users at the top of the page.</li>
+        <li>Check Active by each user you wish to activate.</li>
+        <li>To deactivate un-check the users you wish to deactivate.</li>
+        <li>Done</li>
+        <li>All the checked users will appear in the home screen now.</li>
+        <li>Note: The user will not have access to the application until they are given a role.</li>
+        <li>Note: If a user is deactivated they will no longer have any access to the application.
+          However, their roles and reviewer will persist.</li>
+      </ul>
+    </li>
+    <!-- /Activate Users -->
+
+    <!-- Assign User Roles -->
+    <li class="<%= if @users_assign_roles, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx_click="users_assign_roles">
+        Assign User Roles
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @users_assign_roles, do: "", else: "hidden" %>>
+        <li>Click the box next to each role to give a User.</li>
+        <li>Click again to remove.</li>
+        <li>Hovering over a role will give a brief explanation of the role.</li>
+        <li>When a user has a role removed they will immediately not have access to those pages.</li>
+        <li>If they were currently viewing the page they will be redirected to the BNW Dashboard Home page.</li>
+        <li>See Roles for a detailed explanation of each role.</li>
+      </ul>
+    </li>
+    <!-- /Assign User Roles -->
+
+    <!-- Assign User Reviewer -->
+    <li class="<%= if @users_assign_reviewer, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx_click="users_assign_reviewer">
+        Assign User Reviewer
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @users_assign_reviewer, do: "", else: "hidden" %>>
+        <li>To the right of each user is a reviewer drop down</li>
+        <li>This list will be populated by all users with the Reviewer role.</li>
+        <li>The list only appears for users marked with a user role.</li>
+      </ul>
+    </li>
+    <!-- /Assign User Reviewer -->
+
+    <!-- Roles -->
+    <li class="<%= if @users_roles, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx_click="users_roles">
+        Roles
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @users_roles, do: "", else: "hidden" %>>
+        <li>User
+          <ul>
+            <li>This role is the generic user for this application.</li>
+            <li>A user with the user role can access the Entries page.</li>
+            <li>This allows the user to create reimbursement entries, submit them for approval, and view the primary report. (see reports)</li>
+          </ul>
+        </li>
+        <li>Report
+          <ul>
+            <li>This role allows a user to access all reports.</li>
+            <li>See Reports for details.</li>
+            <li>Note: It is assumed that a user with the Report role also has the User role.</li>
+          </ul>
+        </li>
+        <li>Reviewer
+          <ul>
+            <li>This role allows a user to access the Review page.</li>
+            <li>When this role is granted the users name shows up in the reviewer drop down.</li>
+            <li>Reviewees must be marked as user and active in order to show up in the reviewers review page.</li>
+          </ul>
+        </li>
+        <li>Admin
+          <ul>
+            <li>If you see this you are an Admin.</li>
+            <li>Only IT can grant this role.</li>
+            <li>This role gives you access to every page in the application.</li>
+            <li>If you need to step down from this role please contact IT.</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <!-- /Roles -->
+  </ul>
+</div>

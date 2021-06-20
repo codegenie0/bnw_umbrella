@@ -1,0 +1,68 @@
+<div class="uk-padding-small uk-padding-remove-horizontal">
+  <!-- Header -->
+  <div>
+    <h3><%= @page_title %></h3>
+  </div>
+  <!-- /Header -->
+
+  <!-- Body -->
+  <div>
+    <ul class="uk-accordion uk-list uk-list-divider" uk-accordion="multiple: true">
+      <%= if @is_user || @is_admin do %>
+        <!-- Entries -->
+        <li class="<%= if @entries_show, do: "uk-open", else: "" %>">
+          <a class="uk-accordion-title" href="#" phx-click="entries_show">Entries</a>
+          <div class="uk-accordion-content"<%= if @entries_show, do: "", else: "hidden" %>>
+            <%= live_render(@socket, HelpLiveEntries, id: "entries_live_#{@current_user.id}") %>
+          </div>
+        </li>
+        <!-- /Entries -->
+      <% end %>
+
+      <%= if @is_review || @is_admin do %>
+      <!-- Review -->
+      <li class="<%= if @review_show, do: "uk-open", else: "" %>">
+        <a class="uk-accordion-title" href="#" phx-click="review_show">Review</a>
+        <div class="uk-accordion-content"<%= if @review_show, do: "", else: "hidden" %>>
+          <%= live_render(@socket, HelpLiveReview, id: "review_live_#{@current_user.id}") %>
+        </div>
+      </li>
+      <!-- /Review -->
+      <% end %>
+
+      <%= if @is_admin do %>
+      <!-- Rates -->
+      <li class="<%= if @rate_show, do: "uk-open", else: "" %>">
+        <a class="uk-accordion-title" href="#" phx-click="rate_show">Rates</a>
+        <div class="uk-accordion-content"<%= if @rate_show, do: "", else: "hidden" %>>
+          <%= live_render(@socket, HelpLiveRate, id: "rate_live_#{@current_user.id}") %>
+        </div>
+      </li>
+      <!-- /Rates -->
+
+      <!-- Users -->
+      <li class="<%= if @users_show, do: "uk-open", else: "" %>">
+        <a class="uk-accordion-title" href="#" phx-click="users_show">Users</a>
+        <div class="uk-accordion-content"<%= if @users_show, do: "", else: "hidden" %>>
+          <%= live_render(@socket, HelpLiveUsers, id: "users_live_#{@current_user.id}") %>
+        </div>
+      </li>
+      <!-- /Users -->
+      <% end %>
+
+      <%= if @is_report || @is_admin do %>
+      <!-- Reports -->
+      <li class="<%= if @reports_show, do: "uk-open", else: "" %>">
+        <a class="uk-accordion-title" href="#" phx-click="reports_show">Reports</a>
+        <div class="uk-accordion-content"<%= if @reports_show, do: "", else: "hidden" %>>
+          <%= live_render(@socket, HelpLiveReports, id: "reports_live_#{@current_user.id}",
+              session: %{"it_admin" => @current_user.it_admin}) %>
+        </div>
+      </li>
+      <!-- /Reports -->
+      <% end %>
+    </ul>
+  </div>
+  <!-- /Body -->
+  <h5 class="uk-position-large uk-position-bottom-right"><%= @draft_number %></h5>
+</div>

@@ -1,0 +1,25 @@
+<div style="display: block;" class="uk-modal uk-open">
+  <div class="uk-modal-dialog uk-width-2-3 uk-overflow-auto" phx-hook="close_modal">
+    <button class="uk-modal-close-default"
+            type="button"
+            phx-click="cancel"
+            uk-close phx-hook="uk_close"></button>
+    <div class="uk-modal-header">
+      <h2 class="uk-modal-title">
+        Roles
+      </h2>
+    </div>
+    <div class="uk-modal-body uk-background-secondary">
+      <%= for {role, i} <- Enum.with_index(@roles) do %>
+        <%= if !role.data.company_admin do %>
+          <%= live_render(@socket, RoleLive, id: "role_live_#{i}", session: %{"changeset" => role, "company" => @company}) %>
+        <% end %>
+      <% end %>
+    </div>
+    <div class="uk-modal-footer uk-text-right">
+      <button class="uk-button uk-button-default"
+              type="button"
+              phx-click="cancel">Done</button>
+    </div>
+  </div>
+</div>

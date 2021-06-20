@@ -1,0 +1,49 @@
+<div style="display: block;" class="uk-modal uk-open">
+  <div class="uk-modal-dialog" phx-hook="close_modal">
+    <button class="uk-modal-close-default"
+            type="button"
+            phx-click="cancel"
+            uk-close phx-hook="uk_close"></button>
+    <div class="uk-modal-header">
+      <h2 class="uk-modal-title">
+        Customers
+      </h2>
+      <%= f = form_for :search, "#",
+          [phx_change: :search_customers,
+           phx_submit: :search_customers,
+           phx_target: @myself] %>
+        <div class="uk-inline">
+          <%= submit "", [phx_disable_with: "",
+                          class: "uk-preserve-width uk-form-icon",
+                          uk_icon: "icon: search",
+                          phx_hook: "uk_icon"] %>
+          <%= text_input f, :search, class: "uk-input",
+                            placeholder:  "Search",
+                            value: @search %>
+        </div>
+      </form>
+    </div>
+    <div id="customers"
+         class="uk-modal-body uk-background-secondary uk-light"
+         uk-overflow-auto
+         phx-hook="infinite_scroll_modal"
+         data-page="<%= @page %>"
+         phx-update="<%= @update_action %>">
+      <%= for customer <- @customers do %>
+        <div id="customer_<%= customer.id %>">
+          <%= link to: "#", class: "uk-button uk-button-text uk-padding-small",
+                            phx_click: "select_customer",
+                            phx_value_customer: customer.username,
+                            phx_target: @myself do %>
+            <%= customer.username <> " " <> customer.name %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+    <div class="uk-modal-footer uk-text-right">
+      <button class="uk-button uk-button-default"
+              type="button"
+              phx-click="cancel">Done</button>
+    </div>
+  </div>
+</div>

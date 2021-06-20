@@ -1,0 +1,38 @@
+<div class="uk-text-lead">
+  <%= @user.username %>
+  <%= if !is_nil(@user.email), do: " - #{@user.email}", else: "" %>
+  <%= if @user.username != @user.name, do: " - #{@user.name}", else: "" %>
+</div>
+<div class="uk-margin uk-grid uk-child-width-auto uk-grid uk-padding uk-padding-remove-vertical">
+  <%= for %{name: role, desc: desc, checked: checked} <- @roles do %>
+    <%= if (@it_admin or role != "admin") and role != "active" do %>
+      <%= link to: "#", class: "uk-button uk-button-text",
+                        phx_click: "change_role",
+                        phx_value_user: @user.id,
+                        phx_value_role: role do %>
+        <label>
+          <input class="uk-checkbox"
+                 type="checkbox"
+                 <%= if checked, do: "checked", else: "" %>>
+          <abbr title="<%= desc %>">
+            <%= role %>
+          </abbr>
+        </label>
+      <% end %>
+    <% end %>
+  <% end %>
+
+
+  <%= if @is_user do %>
+    <div>
+      <%= f = form_for :change_reviewer, "#",
+          [phx_change: :change_reviewer,
+           phx_submit: :change_reviewer] %>
+        <div class="uk-inline">
+          <%= select f, :change_reviewer, @reviewers, selected: @my_reviewer, class: "uk-select"%>
+          <%= hidden_input f, :user_id, value: @user.id %>
+        </div>
+      </form>
+    </div>
+  <% end %>
+</div>

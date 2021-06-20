@@ -1,0 +1,99 @@
+<div class="uk-card uk-card-default uk-card-body">
+  <ul class="" uk-accordion="multiple: true">
+    <!-- Create New Rate -->
+    <li class="<%= if @rate_new, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx_click="rate_new">
+        Create a New Rate
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @rate_new, do: "", else: "hidden" %>>
+        <li>Select the Add New button at the top of the page</li>
+        <li>Note: If the Add New button does not exist it is because you can only add current year - two years into the future</li>
+        <li>Pick a year from the drop down</li>
+        <li>Select a rate in Dollars / Miles</li>
+        <li>Note: A rate must be greater then $0</li>
+        <li>Save</li>
+      </ul>
+    </li>
+    <!-- /Create New Rate -->
+
+    <!-- Edit Rate -->
+    <li class="<%= if @rate_edit, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx_click="rate_edit">
+        Edit a Rate
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @rate_edit, do: "", else: "hidden" %>>
+        <li>Select the Pencil Icon to the right of the rate</li>
+        <li>Note: The Pencil Icon will only appear for rates the are current or future. Past rates get archived and cannot be edited</li>
+        <li>Set a new rate in Dollars / Miles</li>
+        <li>Note: A rate must be greater then $0</li>
+        <li>Save</li>
+      </ul>
+    </li>
+    <!-- /Edit Rate -->
+
+    <!-- Delete Rate -->
+    <li class="<%= if @rate_delete, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx_click="rate_delete">
+        Delete a Rate
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @rate_delete, do: "", else: "hidden" %>>
+        <li>Rates cannot be deleted.</li>
+        <li>This is because there is little reason to delete a rate.</li>
+        <li>If a rate is deleted it causes other parts of the application to break.</li>
+        <li>If for some reason deletion of a rate is required please contact IT.</li>
+      </ul>
+    </li>
+    <!-- /Delete Rate -->
+
+    <!-- Archived Rates -->
+    <li class="<%= if @rate_archive, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx_click="rate_archive">
+        Archived Rates
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @rate_archive, do: "", else: "hidden" %>>
+        <li>When the year ends Rates become Archived and can no longer be changed.</li>
+        <li>This is so we can keep records of the rates as they were.</li>
+      </ul>
+    </li>
+    <!-- /Archived Rates -->
+
+    <!-- Rate Propagation -->
+    <li class="<%= if @rate_propagation, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx_click="rate_propagation">
+        Rate Propagation
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @rate_propagation, do: "", else: "hidden" %>>
+        <li>When a rate is edited it will propagate to all entries that the rate effects.</li>
+        <li>Modify rates sparingly.</li>
+        <li>Changing a rate can drastically change users results.</li>
+        <li>The ability to change a rate is for mistakes that should be changed within the first month at the latest.</li>
+      </ul>
+    </li>
+    <!-- /Rate Propagation -->
+  </ul>
+</div>

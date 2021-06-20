@@ -1,0 +1,80 @@
+<div>
+  <h3><%= @page_title %></h3>
+  <%= if @current_user.it_admin do %>
+    <button class="uk-button
+                   uk-button-primary
+                   uk-border-pill
+                   uk-align-center
+                   uk-width-1-2@l
+                   uk-width-2-3@m"
+            type="button"
+            phx-click="new">Add New</button>
+  <% end %>
+
+  <table class="uk-table uk-table-striped uk-table-hover">
+    <thead>
+      <tr>
+       <th class="uk-text-center">Projected Out Weight</th>
+       <th class="uk-text-center">Max Out Weight</th>
+       <th class="uk-text-center">Railer BE</th>
+       <th class="uk-text-center">Projected BE</th>
+       <th class="uk-text-center">Projected Ship Days</th>
+       <th class="uk-text-center">B Freight</th>
+       <th class="uk-text-center">N Freight</th>
+       <th class="uk-text-center">Q Freight</th>
+       <th class="uk-text-center">B Bic</th>
+       <th class="uk-text-center">N Bic</th>
+       <th class="uk-text-center">Q Bic</th>
+       <th class="uk-text-center">B Feed</th>
+       <th class="uk-text-center">N Feed</th>
+       <th class="uk-text-center">Q Feed</th>
+       <th class="uk-text-center">TSP Days</th>
+       <th class="uk-text-center">Recalc BE Days</th>
+       <th class="uk-text-center">Recalc Feed Days</th>
+      </tr>
+    </thead>
+    </tbody>
+      <%= for plug <- @plugs do %>
+        <tr>
+          <td class="uk-text-center"><%= plug.data.projected_out_weight %></td>
+          <td class="uk-text-center"><%= plug.data.max_out_weight %></td>
+          <td class="uk-text-center"><%= plug.data.railer_be %></td>
+          <td class="uk-text-center"><%= plug.data.projected_be %></td>
+          <td class="uk-text-center"><%= plug.data.projected_ship_days %></td>
+          <td class="uk-text-center"><%= plug.data.b_freight %></td>
+          <td class="uk-text-center"><%= plug.data.n_freight %></td>
+          <td class="uk-text-center"><%= plug.data.q_freight %></td>
+          <td class="uk-text-center"><%= plug.data.b_bic %></td>
+          <td class="uk-text-center"><%= plug.data.n_bic %></td>
+          <td class="uk-text-center"><%= plug.data.q_bic %></td>
+          <td class="uk-text-center"><%= plug.data.b_feed %></td>
+          <td class="uk-text-center"><%= plug.data.n_feed %></td>
+          <td class="uk-text-center"><%= plug.data.q_feed %></td>
+          <td class="uk-text-center"><%= plug.data.tsp_days %></td>
+          <td class="uk-text-center"><%= plug.data.recalc_be_days %></td>
+          <td class="uk-text-center"><%= plug.data.recalc_feed_days %></td>
+          <%= if @current_user.it_admin do %>
+            <td class="uk-text-center">
+              <%= link "", to: "#", class: " uk-padding-remove-vertical",
+                  uk_icon: "trash",
+                  phx_hook: "uk_icon",
+                  phx_click: "delete",
+                  phx_value_id: plug.data.id,
+                  data: [confirm: "Are you sure?"]  %>
+            </td>
+          <% end %>
+          <td class="uk-text-center">
+            <%= link "", to: "#", class: "uk-padding-remove-vertical",
+                uk_icon: "pencil",
+                phx_hook: "uk_icon",
+                phx_click: "edit",
+                phx_value_id: plug.data.id %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+<%= if @modal == :change_plug do
+  live_component(@socket, ChangePlugComponent, id: "change_plug_component_#{@current_user.id}", plugs: @plugs, changeset: @changeset)
+end %>

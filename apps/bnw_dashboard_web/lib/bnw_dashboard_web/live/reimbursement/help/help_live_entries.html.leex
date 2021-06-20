@@ -1,0 +1,188 @@
+<div class="uk-card uk-card-default uk-card-body">
+  <ul class="" uk-accordion="multiple: true">
+    <!-- Create new entry -->
+    <li class="<%= if @entries_new, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx-click="entries_new">
+        Create a New Entry
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @entries_new, do: "", else: "hidden" %>>
+        <li>Select the Add New button at the top of the page.</li>
+        <li>Choose weather you want to enter a Mileage Amount, an Odometer Reading, or a Miscellaneous Amount
+          <ul>
+            <li>Mileage Amount
+              <ul>
+                <li>Select a Date for the entry
+                  <ul>
+                    <li>Date defaults to today.</li>
+                    <li>Use the selection tool to chose the correct date.</li>
+                  </ul>
+                </li>
+                <li>If a date is unavailable. It is because...
+                  <ul>
+                    <li>1. You have already Submitted for that month.</li>
+                    <li>2. There is no rate data available for that year.</li>
+                  </ul>
+                </li>
+                <li>Enter a Description</li>
+                <li>Enter a Mileage Amount</li>
+                <li>Save</li>
+              </ul>
+            </li>
+            <li>Odometer Reading
+              <ul>
+                <li>Select a Date for the entry</li>
+                <li>Enter a Description</li>
+                <li>Enter a Starting Odometer Reading</li>
+                <li>Enter an Ending Odometer Reading</li>
+                <li>Save</li>
+              </ul>
+            </li>
+            <li>Miscellaneous Amount
+              <ul>
+                <li>Select a Date for the entry</li>
+                <li>Enter a Description</li>
+                <li>Enter a Miscellaneous Amount</li>
+                <li>Save</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li>Note: at any point after selecting a valid date the entry can be saved and resumed later.
+          This is especially useful for the Odometer Reading allowing you to enter the Starting Odometer Reading, drive, Then enter the Ending Odometer Reading.</li>
+      </ul>
+    </li>
+    <!-- /Create new entry -->
+
+    <!-- edit entry -->
+    <li class="<%= if @entries_edit, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx-click="entries_edit">
+        Edit an Existing Entry
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @entries_edit, do: "", else: "hidden" %>>
+        <li>Find the entry you wish to edit</li>
+        <li>Select the pencil icon on the right side</li>
+        <li>Modify any relevant data</li>
+        <li>Save</li>
+        <li>Note: The type of entry (Mileage, Odometer, or Miscellaneous) cannot be changed</li>
+      </ul>
+    </li>
+    <!-- /edit entry -->
+
+    <!-- delete entry -->
+    <li class="<%= if @entries_delete, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx-click="entries_delete">
+        Delete Entry
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @entries_delete, do: "", else: "hidden" %>>
+        <li>Find the entry you wish to delete</li>
+        <li>Select the trash icon on the right side</li>
+        <li>A confirmation dialogue will appear</li>
+      </ul>
+    </li>
+    <!-- /delete entry -->
+
+    <!-- submission -->
+    <li class="<%= if @entries_submission, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx-click="entries_submission">
+        Submission
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @entries_submission, do: "", else: "hidden" %>>
+        <li>Clicking the Submit for Approval button in the upper right corner will let your reviewer know that you are done entering data for that month.</li>
+        <li>Bellow the Submit button will show your reviewer's name and email</li>
+        <li>When the month is submitted
+          <ul>
+            <li>New, Edit, and Delete will no longer be available.</li>
+            <li>Your Reviewer will be able to see that you have submitted.</li>
+            <li>Your Reviewer will be able to mark it as Approved. See Approval.</li>
+            <li>Submission is undo-able until your Reviewer Approves.</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <!-- /submission -->
+
+    <!-- approval -->
+    <li class="<%= if @entries_approval, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx-click="entries_approval">
+        Approval
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @entries_approval, do: "", else: "hidden" %>>
+        <li>After you have submitted, your Reviewer can mark your Submission as Approved</li>
+        <li>When Approved
+          <ul>
+            <li>You can no longer un-submit.</li>
+            <li>This month has now been Approved by your reviewer.</li>
+            <li>A notice of this Approval will display at the top of the page.</li>
+            <li>If their are any mistakes please email your reviewer as soon as possible</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <!-- /approval -->
+
+    <!-- Reports -->
+    <li class="<%= if @entries_reports, do: "uk-open", else: "" %>">
+      <a class="uk-accordion-title"
+         href="#"
+         phx_click="entries_reports">
+        Reports
+      </a>
+      <ul class="uk-accordion-content
+                 uk-padding-remove-top
+                 uk-margin-remove-top"
+          <%= if @entries_reports, do: "", else: "hidden" %>>
+        <li>On the top right side there is a report button.</li>
+        <li>Clicking the report button will pull up the report.</li>
+        <li>With the report open the month and year can be changed. (Defaults to the selected month)</li>
+        <li>The report shows
+          <ul>
+            <li>Mileage Data
+              <ul>
+                <li>Date</li>
+                <li>Description</li>
+                <li>Miles Driven</li>
+                <li>Rate Used</li>
+                <li>Amount</li>
+              </ul>
+            </li>
+            <li>Miscellaneous Data
+              <ul>
+                <li>Date</li>
+                <li>Amount</li>
+                <li>Description</li>
+              </ul>
+            </li>
+            <li>Submitted by user</li>
+            <li>A spot for your reviewer's signature</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <!-- /Reports -->
+  </ul>
+</div>

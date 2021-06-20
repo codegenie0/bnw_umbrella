@@ -1,0 +1,36 @@
+<div>
+  <h3>External Applications.</h3>
+  <button class="uk-button uk-button-primary uk-border-pill uk-align-center uk-width-1-2@l uk-width-2-3@m"
+          type="button"
+          phx-click="new">Create External Application</button>
+  <table class="uk-table uk-table-middle uk-table-divider uk-table-striped uk-table-hover uk-table-small uk-margin-small">
+    <tbody>
+      <%= for external_application <- @external_applications do %>
+        <tr>
+          <td class="uk-table-shrink">
+            <%= link "", to: "#", class: "uk-preserve-width",
+                uk_icon: "pencil",
+                phx_hook: "uk_icon",
+                phx_click: "edit",
+                phx_value_id: external_application.id %>
+          </td>
+          <td class="uk-table-shrink">
+            <%= link "", to: "#", class: "uk-preserve-width",
+                uk_icon: "trash",
+                phx_hook: "uk_icon",
+                phx_click: "delete",
+                phx_value_id: external_application.id,
+                data: [confirm: "Are you sure?"] %>
+          </td>
+          <td class="uk-table-shrink uk-text-center uk-text-nowrap"><%= external_application.name %></td>
+          <td>
+            <%= link external_application.url, to: external_application.url, class: "uk-button-link", target: "_blank" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <%= if @modal == :change_external_application do %>
+    <%= live_component(@socket, ChangeExternalApplicationComponent, id: 1, changeset: @changeset) %>
+  <% end %>
+</div>

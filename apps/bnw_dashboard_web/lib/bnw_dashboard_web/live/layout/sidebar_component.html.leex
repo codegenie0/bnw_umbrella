@@ -1,0 +1,20 @@
+<nav class="sidebar uk-visible@s uk-background-secondary">
+  <ul class="uk-nav-default uk-padding-small" uk-nav phx-hook="uk_nav">
+    <%= for internal_application <- @internal_applications do %>
+      <li class="uk-parent uk-text-nowrap <%= if @app == internal_application.name, do: "uk-open", else: ""%>">
+        <%= link internal_application.name, to: "#",
+            phx_click: "select_app",
+            phx_value_name: internal_application.name,
+            phx_target: @myself %>
+        <ul class="uk-nav-sub">
+          <%= for page <- internal_application.pages do %>
+            <li><%= live_patch page.name, to: page.url, replace: true %></li>
+          <% end %>
+        </ul>
+      </li>
+    <% end %>
+    <%= for external_application <- @external_applications do %>
+      <li><%= link external_application.name, to: external_application.url, target: "_blank" %></li>
+    <% end %>
+  </ul>
+</nav>

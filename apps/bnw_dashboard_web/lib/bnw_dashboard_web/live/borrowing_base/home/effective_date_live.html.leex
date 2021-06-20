@@ -1,0 +1,209 @@
+<div class="borrowing_base_col uk-width-expand uk-padding-small uk-padding-remove-vertical">
+  <div class="borrowing_base_top uk-padding-small">
+    <div>
+      <ul class="uk-flex-center uk-tab">
+        <%= for yard <- @yards do %>
+          <li class="<%= if @yard && yard.id == @yard.id, do: "uk-active" %>">
+            <%= link yard.name, to: "#",
+                                phx_click: "yard",
+                                phx_value_id: yard.id %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+    <div class="uk-grid-small uk-width-1-1" uk-grid phx-hook="uk_grid">
+      <%= if @current_user.it_admin || Enum.any?(@user_roles, fn ur -> ur.app_admin || (ur.company_id == @weight_break.company_id && ur.company_admin) end) do %>
+        <div>
+          <%= if @effective_date.locked do %>
+            <%= link "", to: "#", class: "uk-preserve-width uk-text-danger",
+                uk_icon: "icon: lock; ratio: 1.5",
+                phx_hook: "uk_icon",
+                phx_click: "change_locked",
+                phx_value_id: @effective_date.id %>
+          <% else %>
+            <%= link "", to: "#", class: "uk-preserve-width uk-text-success",
+                uk_icon: "icon: unlock; ratio: 1.5",
+                phx_hook: "uk_icon",
+                phx_click: "change_locked",
+                phx_value_id: @effective_date.id %>
+          <% end %>
+        </div>
+        <%= if !@effective_date.locked do %>
+          <div>
+            <%= link "Reload Lots", to: "#",
+                class: "uk-button uk-button-danger",
+                phx_click: "update_lots",
+                data: [confirm: "Are you sure? This will replace all lot data."] %>
+          </div>
+          <div>
+            <%= link "Set Values", to: "#",
+                class: "uk-button uk-button-danger",
+                phx_click: "update_values",
+                data: [confirm: "Are you sure?"] %>
+          </div>
+        <% end %>
+        <div>
+          <%= link "Adjustments", to: "#",
+              class: "uk-button uk-button-primary",
+              phx_click: "adjustments" %>
+        </div>
+      <% end %>
+      <div class="uk-width-expand">
+        <%= link "Reports", to: "#",
+            class: "uk-preserve-width uk-button uk-button-primary uk-align-right",
+            phx_click: "reports" %>
+        <%= link "CSV ",
+            to: Routes.borrowing_base_path(@socket, :csv_export,
+              effective_date_id: @effective_date.id,
+              yard_id: Map.get(@yard, :id),
+              sort_by: @sort_by,
+              sort_order: @sort_order,
+              search_col: @search_col,
+              search: @search
+            ),
+            class: "uk-preserve-width uk-button uk-button-primary uk-align-right",
+            uk_icon: "download",
+            phx_hook: "uk_icon",
+            target: "_blank" %>
+      </div>
+    </div>
+    <p class="uk-inline uk-text-lead uk-text-left">Total Current Head Count: <%= Number.Delimit.number_to_delimited(@total_head_count, precision: 0) %></p>
+    <div class="uk-padding-small uk-padding-remove-bottom uk-margin-remove uk-align-right">
+      <%= f = form_for :search, "#", [phx_change: :search, phx_submit: :search] %>
+        <div class="uk-inline">
+          <%= select f, :search_col, @search_opt, selected: @search_col, class: "uk-select"%>
+        </div>
+        <div class="uk-inline">
+          <%= submit "", [phx_disable_with: "",
+                          class: "uk-preserve-width uk-form-icon",
+                          uk_icon: "icon: search",
+                          phx_hook: "uk_icon"] %>
+          <%= text_input f, :search, class: "uk-input",
+                            placeholder:  "Search",
+                            value: @search %>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="borrowing_base_bottom">
+    <table class="uk-table uk-table-divider uk-table-hover uk-table-small uk-table-middle">
+      <thead>
+        <tr>
+          <th class="uk-text-center uk-background-default">
+            <%= link "Yard Number", to: "#", class: "uk-icon-link", phx_click: "sort", phx_value_column: "yard_number", hidden: false %>
+            <%= if @sort_by == "yard_number" do %>
+              <span class="uk-preserve-width" uk-icon="icon: <%= if @sort_order == "asc", do: "triangle-down", else: "triangle-up" %>">
+            <% end %>
+          </th>
+          <th class="uk-text-center uk-background-default">
+            <%= link "Lot Number", to: "#", class: "uk-icon-link", phx_click: "sort", phx_value_column: "lot_number", hidden: false %>
+            <%= if @sort_by == "lot_number" do %>
+              <span class="uk-preserve-width" uk-icon="icon: <%= if @sort_order == "asc", do: "triangle-down", else: "triangle-up" %>">
+            <% end %>
+          </th>
+          <th class="uk-text-center uk-background-default">
+            <%= link "Pen Number", to: "#", class: "uk-icon-link", phx_click: "sort", phx_value_column: "pen_number", hidden: false %>
+            <%= if @sort_by == "pen_number" do %>
+              <span class="uk-preserve-width" uk-icon="icon: <%= if @sort_order == "asc", do: "triangle-down", else: "triangle-up" %>">
+            <% end %>
+          </th>
+          <th class="uk-text-center uk-background-default">
+            <%= link "Customer Number", to: "#", class: "uk-icon-link", phx_click: "sort", phx_value_column: "customer_number", hidden: false %>
+            <%= if @sort_by == "customer_number" do %>
+              <span class="uk-preserve-width" uk-icon="icon: <%= if @sort_order == "asc", do: "triangle-down", else: "triangle-up" %>">
+            <% end %>
+          </th>
+          <th class="uk-text-center uk-background-default">
+            <%= link "Customer Name", to: "#", class: "uk-icon-link", phx_click: "sort", phx_value_column: "customer_name", hidden: false %>
+            <%= if @sort_by == "customer_name" do %>
+              <span class="uk-preserve-width" uk-icon="icon: <%= if @sort_order == "asc", do: "triangle-down", else: "triangle-up" %>">
+            <% end %>
+          </th>
+          <th class="uk-text-center uk-background-default">
+            <%= link "Current Head Count", to: "#", class: "uk-icon-link", phx_click: "sort", phx_value_column: "current_head_count", hidden: false %>
+            <%= if @sort_by == "current_head_count" do %>
+              <span class="uk-preserve-width" uk-icon="icon: <%= if @sort_order == "asc", do: "triangle-down", else: "triangle-up" %>">
+            <% end %>
+          </th>
+          <th class="uk-text-center uk-background-default">
+            <%= link "Sex Code", to: "#", class: "uk-icon-link", phx_click: "sort", phx_value_column: "sex_code", hidden: false %>
+            <%= if @sort_by == "sex_code" do %>
+              <span class="uk-preserve-width" uk-icon="icon: <%= if @sort_order == "asc", do: "triangle-down", else: "triangle-up" %>">
+            <% end %>
+          </th>
+          <th class="uk-text-center uk-background-default">
+            <%= link "Sex", to: "#", class: "uk-icon-link", phx_click: "sort", phx_value_column: "sex", hidden: false %>
+            <%= if @sort_by == "sex" do %>
+              <span class="uk-preserve-width" uk-icon="icon: <%= if @sort_order == "asc", do: "triangle-down", else: "triangle-up" %>">
+            <% end %>
+          </th>
+          <th class="uk-text-center uk-background-default">
+            <%= link "Lot Status Code", to: "#", class: "uk-icon-link", phx_click: "sort", phx_value_column: "lot_status_code", hidden: false %>
+            <%= if @sort_by == "lot_status_code" do %>
+              <span class="uk-preserve-width" uk-icon="icon: <%= if @sort_order == "asc", do: "triangle-down", else: "triangle-up" %>">
+            <% end %>
+          </th>
+          <th class="uk-text-center uk-background-default">
+            <%= link "Current Average Weight", to: "#", class: "uk-icon-link", phx_click: "sort", phx_value_column: "average_current_weight", hidden: false %>
+            <%= if @sort_by == "average_current_weight" do %>
+              <span class="uk-preserve-width" uk-icon="icon: <%= if @sort_order == "asc", do: "triangle-down", else: "triangle-up" %>">
+            <% end %>
+          </th>
+          <th class="uk-text-center uk-background-default">
+            <%= link "Market Value", to: "#", class: "uk-icon-link", phx_click: "sort", phx_value_column: "market_value", hidden: false %>
+            <%= if @sort_by == "market_value" do %>
+              <span class="uk-preserve-width" uk-icon="icon: <%= if @sort_order == "asc", do: "triangle-down", else: "triangle-up" %>">
+            <% end %>
+          </th>
+          <th class="uk-text-center uk-background-default">
+            <%= link "Total Value", to: "#", class: "uk-icon-link", phx_click: "sort", phx_value_column: "total_value", hidden: false %>
+            <%= if @sort_by == "total_value" do %>
+              <span class="uk-preserve-width" uk-icon="icon: <%= if @sort_order == "asc", do: "triangle-down", else: "triangle-up" %>">
+            <% end %>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for lot_adjustment <- @lot_adjustments do %>
+          <tr>
+            <td class="uk-text-center"><%= lot_adjustment.yard_number %></td>
+            <td class="uk-text-center"><%= lot_adjustment.lot_number %></td>
+            <td class="uk-text-center"><%= lot_adjustment.pen_number %></td>
+            <td class="uk-text-center"><%= lot_adjustment.customer_number %></td>
+            <td><%= lot_adjustment.customer_name %></td>
+            <td class="uk-text-center"><%= lot_adjustment.head_count_current %></td>
+            <td class="uk-text-center"><%= lot_adjustment.sex_code %></td>
+            <td class="uk-text-center"><%= lot_adjustment.gender %></td>
+            <td class="uk-text-center"><%= lot_adjustment.lot_status_code %></td>
+            <td><%= lot_adjustment.average_current_weight %></td>
+            <td><%= Number.Currency.number_to_currency(lot_adjustment.market_value) %></td>
+            <td><%= Number.Currency.number_to_currency(lot_adjustment.total_value) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+<%= case @modal do
+  :adjustments ->
+    live_component(@socket, MarketValueAdjustmentsComponent,
+      id: @current_user.id,
+      effective_date: @effective_date,
+      yard: @yard,
+      weight_break: @weight_break
+    )
+  :reports ->
+    live_render(
+      @socket,
+      ReportsLive,
+      id: @current_user.id,
+      session: %{
+        "current_user" => @current_user,
+        "effective_date" => @effective_date,
+        "yard" => @yard,
+        "weight_break" => @weight_break,
+        "parent" => self()
+      }
+    )
+  _ -> ""
+end %>

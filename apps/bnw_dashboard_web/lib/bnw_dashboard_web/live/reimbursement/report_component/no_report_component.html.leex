@@ -1,0 +1,28 @@
+<div class="uk-flex-top
+            uk-modal
+            uk-flex
+            uk-open"
+     id="user_report_<%= @user_id %>"
+     uk-modal="">
+  <div class="uk-light
+              uk-background-secondary
+              uk-modal-dialog
+              uk-margin-auto-vertical
+              uk-width-auto">
+    <button class="uk-modal-close-default
+                   uk-icon
+                   uk-close"
+            type="button"
+            uk-close=""
+            phx-click="cancel">
+    </button>
+    <div class="uk-modal-header
+                uk-background-secondary">
+      <h2 class="uk-modal-title">No Report Available</h2>
+    </div>
+    <div class="uk-modal-body">
+      There is no report available at this time.
+      Please contact IT.
+    </div>
+  </div>
+</div>

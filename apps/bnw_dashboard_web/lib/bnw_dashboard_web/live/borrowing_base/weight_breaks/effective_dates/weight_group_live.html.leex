@@ -1,0 +1,39 @@
+<%= f = form_for @changeset, "#",
+        [phx_change: :save,
+        phx_submit: :save,
+        class: "uk-width-1-1 uk-text-uppercase uk-text-small
+                uk-text-center uk-overflow-auto uk-flex
+                uk-flex-around uk-padding-small uk-box-shadow-hover-small
+                #{if @even, do: "uk-background-muted", else: "uk-background-default"}"] %>
+  <%= hidden_inputs_for(f) %>
+  <div class="uk-width-auto">
+    <%= if !@effective_date.locked do %>
+      <%= link "", to: "#", class: "uk-preserve-width",
+                   uk_icon: "trash",
+                   phx_hook: "uk_icon",
+                   phx_click: "delete",
+                   phx_value_id: @changeset.data.id,
+                   data: [confirm: "Are you sure?"]  %>
+    <% end %>
+  </div>
+  <div class="uk-width-1-6">
+    <%= number_input f, :min_weight, class: "uk-input uk-form-small #{if @effective_date.locked, do: "uk-disabled", else: ""}", id: "weight_group_#{@changeset.data.id}_min_weight" %>
+    <%= label f, :min_weight, class: "uk-form-label" do %>
+      <%= error_tag f, :min_weight %>
+    <% end %>
+  </div>
+  <div class="uk-width-1-6">
+    <%= number_input f, :max_weight, class: "uk-input uk-form-small #{if @effective_date.locked, do: "uk-disabled", else: ""}", id: "weight_group_#{@changeset.data.id}_max_weight" %>
+    <%= label f, :max_weight, class: "uk-form-label" do %>
+      <%= error_tag f, :max_weight %>
+    <% end %>
+  </div>
+  <%= for price <- inputs_for(f, :prices) do %>
+    <%= if Enum.member?(@genders, Map.get(price.data, :gender)) do %>
+      <div class="uk-width-1-6">
+        <%= hidden_inputs_for(price) %>
+        <%= number_input price, :amount, class: "uk-input uk-form-small #{if @effective_date.locked, do: "uk-disabled", else: ""}", step: 0.01, id: "weight_group_#{@changeset.data.id}_prices_#{price.data.id}_amount" %>
+      </div>
+    <% end %>
+  <% end %>
+</form>

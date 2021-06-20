@@ -1,0 +1,62 @@
+<div>
+  <h3>Borrowing Base Companies</h3>
+  <%= if @current_user.it_admin || Enum.any?(@user_roles, &(&1.app_admin)) do %>
+    <div class="uk-width-expand@s uk-flex uk-flex-center">
+      <button class="uk-button uk-button-primary uk-border-pill uk-width-1-2 uk-text-nowrap"
+              type="button"
+              phx-click="new">Create Company</button>
+    </div>
+  <% end %>
+  <%= for company <- @companies do %>
+    <div class="uk-card uk-card-small uk-card-default uk-width-1-1 uk-margin">
+      <div class="uk-card-header">
+        <h3 class="uk-card-title">
+          <%= company.name %>
+          <%= link "", to: "#", class: "uk-preserve-width uk-padding uk-padding-remove-vertical",
+                       uk_icon: "pencil",
+                       phx_hook: "uk_icon",
+                       phx_click: "edit",
+                       phx_value_id: company.id %>
+          <%= link "", to: "#", class: "uk-preserve-width uk-padding uk-padding-remove-vertical uk-padding-remove-left",
+                       uk_icon: "trash",
+                       phx_hook: "uk_icon",
+                       phx_click: "delete",
+                       phx_value_id: company.id,
+                       data: [confirm: "Are you sure?"]  %>
+        </h3>
+      </div>
+      <div class="uk-card-body">
+        <%= link "Yards", to: "#", class: "uk-button uk-button-text uk-padding-small uk-padding-remove-vertical",
+                          phx_click: "yards",
+                          phx_value_company: company.id %>
+        <%= link "Roles", to: "#", class: "uk-button uk-button-text uk-padding-small uk-padding-remove-vertical",
+                          phx_click: "roles",
+                          phx_value_company: company.id %>
+        <%= link "Users", to: "#", class: "uk-button uk-button-text uk-padding-small uk-padding-remove-vertical",
+                          phx_click: "users",
+                          phx_value_company: company.id %>
+        <%= link "Sex Codes", to: "#", class: "uk-button uk-button-text uk-padding-small uk-padding-remove-vertical",
+                          phx_click: "sex_codes",
+                          phx_value_company: company.id %>
+        <%= link "Lot Status Codes", to: "#", class: "uk-button uk-button-text uk-padding-small uk-padding-remove-vertical",
+                          phx_click: "lot_status_codes",
+                          phx_value_company: company.id %>
+      </div>
+    </div>
+  <% end %>
+</div>
+<%= case @modal do
+  :change ->
+    live_component(@socket, ChangeCompanyComponent, id: @current_user.id, changeset: @changeset)
+  :yards ->
+    live_render(@socket, YardsLive, id: @current_user.id, session: %{"company" => @company})
+  :roles ->
+    live_render(@socket, RolesLive, id: @current_user.id, session: %{"company" => @company})
+  :users ->
+    live_render(@socket, UsersLive, id: @current_user.id, session: %{"company" => @company, "current_user" => @current_user})
+  :sex_codes ->
+    live_render(@socket, SexCodesLive, id: @current_user.id, session: %{"company" => @company})
+  :lot_status_codes ->
+    live_render(@socket, LotStatusCodesLive, id: @current_user.id, session: %{"company" => @company})
+  _ -> nil
+end %>

@@ -1,0 +1,36 @@
+<%= f = form_for @changeset, "#",
+    [phx_change: :validate, phx_submit: :save, phx_target: @myself, class: "uk-form-stacked"] %>
+  <div style="display: block;" class="uk-modal uk-open">
+    <div class="uk-modal-dialog uk-overflow-auto" phx-hook="close_modal">
+      <button class="uk-modal-close-default"
+              type="button"
+              phx-click="cancel"
+              uk-close phx-hook="uk_close"></button>
+      <div class="uk-modal-header">
+        <h2 class="uk-modal-title">
+          <%= if Ecto.get_meta(@changeset.data, :state) == :built, do: "New ", else: "Edit " %>Weight Break Table
+        </h2>
+      </div>
+      <div class="uk-modal-body uk-background-secondary uk-light">
+
+        <div class="uk-margin-small">
+          <%= label f, :name, class: "uk-form-label" do %>
+            Name
+            <%= error_tag f, :name %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= text_input f, :name, class: "uk-input", placeholder: "Name" %>
+          </div>
+        </div>
+
+      </div>
+      <div class="uk-modal-footer uk-text-right">
+        <button class="uk-button uk-button-default"
+                type="button"
+                phx-click="cancel">Cancel</button>
+        <%= submit "Save", [phx_disable_with: "Saving...",
+                          class: "uk-button uk-button-primary"] %>
+      </div>
+    </div>
+  </div>
+</form>

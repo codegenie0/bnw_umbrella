@@ -1,0 +1,39 @@
+<main role="main" class="container">
+  <header class="header">
+    <nav class="uk-navbar-container">
+      <div class="uk-navbar uk-light uk-padding uk-padding-remove-vertical" uk-navbar phx-hook="uk_navbar">
+        <div class="uk-navbar-left">
+          <%= link "", to: "#", class: "uk-navbar-toggle-icon uk-margin-small-right uk-hidden@s", uk_navbar_toggle_icon: "" %>
+          <%= link to: "#", class: "uk-navbar-item uk-logo" do %>
+            <img src="<%= Routes.static_path(@conn, "/images/bnw-logo.svg") %>" alt="BNW" width="130" height="" uk-svg/>
+          <% end %>
+        </div>
+      </div>
+    </nav>
+  </header>
+  <%= if get_flash(@conn, :info) do %>
+    <div class="uk-alert-primary uk-alert" uk-alert>
+      <a class="uk-alert-close" uk-icon="close"></a>
+      <p><%= get_flash(@conn, :info) %></p>
+    </div>
+  <% end %>
+  <%= if get_flash(@conn, :error) do %>
+    <div class="uk-alert-danger uk-alert" uk-alert>
+      <a class="uk-alert-close" uk-icon="close"></a>
+      <p><%= get_flash(@conn, :error) %></p>
+    </div>
+  <% end %>
+  <%= if get_flash(@conn, :success) do %>
+    <div class="uk-alert-success uk-alert" uk-alert>
+      <a class="uk-alert-close" uk-icon="close"></a>
+      <p><%= get_flash(@conn, :success) %></p>
+    </div>
+  <% end %>
+  <%= if get_flash(@conn, :warning) do %>
+    <div class="uk-alert-warning uk-alert" uk-alert>
+      <a class="uk-alert-close" uk-icon="close"></a>
+      <p><%= get_flash(@conn, :warning) %></p>
+    </div>
+  <% end %>
+  <%= @inner_content %>
+</main>

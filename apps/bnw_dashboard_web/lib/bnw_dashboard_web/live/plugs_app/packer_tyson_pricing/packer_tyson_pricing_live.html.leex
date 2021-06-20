@@ -1,0 +1,123 @@
+<div>
+  <h3><%= @page_title %></h3>
+  <%= if @is_edit do %>
+    <button class="uk-button
+                   uk-button-primary
+                   uk-border-pill
+                   uk-align-center
+                   uk-width-1-2@l
+                   uk-width-2-3@m"
+            type="button"
+            phx-click="new">
+      Add New
+    </button>
+  <% end %>
+
+  <table class="uk-table
+                uk-table-striped
+                uk-table-hover">
+    <thead>
+      <tr>
+        <th class="uk-text-center" colspan="2"></th>
+        <th></th>
+        <th class="uk-text-center" colspan="14">Regular</th>
+        <th></th>
+        <th class="uk-text-center" colspan="12">Holsteins</th>
+        <th class="uk-text-center" colspan="2"></th>
+      </tr>
+      <tr>
+        <th class="uk-text-center">MPC Week End Date</th>
+        <th class="uk-text-center">USDA</th>
+        <th class="uk-background-secondary uk-table-shrink"></td>
+        <th class="uk-text-center">reg tyson base price</th>
+        <th class="uk-text-center">plt yld%</th>
+        <th class="uk-text-center">prime</th>
+        <th class="uk-text-center">cab</th>
+        <th class="uk-text-center">select</th>
+        <th class="uk-text-center">no roll</th>
+        <th class="uk-text-center">low quality</th>
+        <th class="uk-text-center">heiferette</th>
+        <th class="uk-text-center">yg1</th>
+        <th class="uk-text-center">yg2</th>
+        <th class="uk-text-center">yg4</th>
+        <th class="uk-text-center">yg5</th>
+        <th class="uk-text-center">549/dn</th>
+        <th class="uk-text-center">1050/up</th>
+        <th class="uk-background-secondary uk-table-shrink"></td>
+        <th class="uk-text-center">base price (c y3)</th>
+        <th class="uk-text-center">plt yld%</th>
+        <th class="uk-text-center">prime</th>
+        <th class="uk-text-center">select</th>
+        <th class="uk-text-center">no roll</th>
+        <th class="uk-text-center">low quality</th>
+        <th class="uk-text-center">yg1</th>
+        <th class="uk-text-center">yg2</th>
+        <th class="uk-text-center">yg4</th>
+        <th class="uk-text-center">yg5</th>
+        <th class="uk-text-center">550/dn</th>
+        <th class="uk-text-center">1050/up</th>
+        <%= if @is_edit do %>
+          <th class="uk-text-center"></th>
+          <th class="uk-text-center"></th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for plug <- @plugs do %>
+        <tr>
+          <td class="uk-text-center"><%= plug.data.mpc_week_end_date %></td>
+          <td class="uk-text-center"><%= plug.data.usda %></td>
+          <td class="uk-background-secondary uk-table-shrink"></td>
+          <td class="uk-text-center"><%= plug.data.reg_tyson_base_price %></td>
+          <td class="uk-text-center"><%= plug.data.reg_plt_yld_percent %></td>
+          <td class="uk-text-center"><%= plug.data.reg_prime %></td>
+          <td class="uk-text-center"><%= plug.data.reg_cab %></td>
+          <td class="uk-text-center"><%= plug.data.reg_select %></td>
+          <td class="uk-text-center"><%= plug.data.reg_no_roll %></td>
+          <td class="uk-text-center"><%= plug.data.reg_low_quality %></td>
+          <td class="uk-text-center"><%= plug.data.reg_heiferette %></td>
+          <td class="uk-text-center"><%= plug.data.reg_yg1 %></td>
+          <td class="uk-text-center"><%= plug.data.reg_yg2 %></td>
+          <td class="uk-text-center"><%= plug.data.reg_yg4 %></td>
+          <td class="uk-text-center"><%= plug.data.reg_yg5 %></td>
+          <td class="uk-text-center"><%= plug.data.reg_dn_549 %></td>
+          <td class="uk-text-center"><%= plug.data.reg_up_1050 %></td>
+          <td class="uk-background-secondary uk-table-shrink"></td>
+          <td class="uk-text-center"><%= plug.data.hol_base_price_cy3 %></td>
+          <td class="uk-text-center"><%= plug.data.hol_plt_yld_percent %></td>
+          <td class="uk-text-center"><%= plug.data.hol_prime %></td>
+          <td class="uk-text-center"><%= plug.data.hol_select %></td>
+          <td class="uk-text-center"><%= plug.data.hol_no_roll %></td>
+          <td class="uk-text-center"><%= plug.data.hol_low_quality %></td>
+          <td class="uk-text-center"><%= plug.data.hol_yg1 %></td>
+          <td class="uk-text-center"><%= plug.data.hol_yg2 %></td>
+          <td class="uk-text-center"><%= plug.data.hol_yg4 %></td>
+          <td class="uk-text-center"><%= plug.data.hol_yg5 %></td>
+          <td class="uk-text-center"><%= plug.data.hol_dn_550 %></td>
+          <td class="uk-text-center"><%= plug.data.hol_up_1050 %></td>
+          <%= if @is_edit do %>
+            <td class="uk-text-center">
+              <%= link "", to: "#", class: " uk-padding-remove-vertical uk-preserve-width",
+                  uk_icon: "trash",
+                  phx_hook: "uk_icon",
+                  phx_click: "delete",
+                  phx_value_id: plug.data.id,
+                  data: [confirm: "Are you sure?"]  %>
+            </td>
+            <td class="uk-text-center">
+              <%= link "", to: "#", class: "uk-padding-remove-vertical uk-preserve-width",
+                  uk_icon: "pencil",
+                  phx_hook: "uk_icon",
+                  phx_click: "edit",
+                  phx_value_id: plug.data.id %>
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<%= if @modal == :change_plug do
+  live_component(@socket, ChangePlugComponent, id: "projected_breakeven_change_plug_component_#{@current_user.id}", plugs: @plugs, changeset: @changeset, modal_title: @modal_title)
+end %>

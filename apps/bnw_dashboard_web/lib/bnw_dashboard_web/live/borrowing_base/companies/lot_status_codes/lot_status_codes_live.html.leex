@@ -1,0 +1,25 @@
+<div style="display: block;" class="uk-modal uk-open">
+  <div class="uk-modal-dialog uk-width-1-3 uk-overflow-auto" phx-hook="close_modal">
+    <button class="uk-modal-close-default"
+            type="button"
+            phx-click="cancel"
+            uk-close phx-hook="uk_close"></button>
+    <div class="uk-modal-header">
+      <h2 class="uk-modal-title">
+        Lot Status Codes
+      </h2>
+    </div>
+    <div class="uk-modal-body uk-background-secondary">
+      <div class="uk-margin-small uk-card uk-card-body uk-card-default uk-card-small">
+        <%= for {lot_status_code, i} <- Enum.with_index(@lot_status_codes) do %>
+          <%= live_render(@socket, LotStatusCodeLive, id: "lot_status_code_live_#{i}", session: %{"changeset" => lot_status_code, "company" => @company}) %>
+        <% end %>
+      </div>
+    </div>
+    <div class="uk-modal-footer uk-text-right">
+      <button class="uk-button uk-button-default"
+              type="button"
+              phx-click="cancel">Done</button>
+    </div>
+  </div>
+</div>
