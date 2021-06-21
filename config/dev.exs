@@ -209,3 +209,4 @@ config :ocb_report_plugs, env: :dev
 config :cih_report_plugs, env: :dev
 config :reimbursement, env: :dev
 config :plugs_app, env: :dev
+config :cattle_purchase, env: :dev
