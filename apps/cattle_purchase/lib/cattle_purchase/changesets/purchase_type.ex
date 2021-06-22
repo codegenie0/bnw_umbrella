@@ -22,7 +22,7 @@ defmodule CattlePurchase.PurchaseType do
   end
 
   @required ~w(name)a
-  @optional ~w(active exclude)
+  @optional ~w(active exclude)a
   @allowed @required ++ @optional
 
   def changeset(%__MODULE__{} = model, attrs \\ %{}) do
