@@ -24,7 +24,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Page.PurchaseTypeLive do
   def mount(_, session, socket) do
     socket =
       assign_defaults(session, socket)
-      |> fetch_purchase_types()
+      |> fetch_active_purchase_types()
       |> assign(
         page_title: "BNW Dashboard · Active Purchase Type",
         app: "Cattle Purchase",
@@ -61,12 +61,18 @@ defmodule BnwDashboardWeb.CattlePurchase.Page.PurchaseTypeLive do
   @impl true
   def handle_info({[:purchase_types, :created_or_updated], _}, socket) do
     socket = assign(socket, modal: nil, changeset: nil)
-    {:noreply, fetch_purchase_types(socket)}
+    purchase_type = socket.assigns.purchase_type
+    result = fetch_by_type(purchase_type)
+
+    {:noreply, assign(socket, purchase_types: result)}
   end
 
   @impl true
   def handle_info({[:purchase_types, :deleted], _}, socket) do
-    {:noreply, fetch_purchase_types(socket)}
+    purchase_type = socket.assigns.purchase_type
+    result = fetch_by_type(purchase_type)
+
+    {:noreply,  assign(socket, purchase_types: result)}
   end
 
   # @impl true
@@ -118,19 +124,37 @@ defmodule BnwDashboardWeb.CattlePurchase.Page.PurchaseTypeLive do
          assign(socket,
            purchase_type: "inactive",
            page_title: "BNW Dashboard · Inactive Purchase Type"
-         )}
+         )
+         |> fetch_inactive_purchase_types()}
 
       _ ->
         {:noreply,
          assign(socket,
            purchase_type: "active",
            page_title: "BNW Dashboard · Active Purchase Type"
-         )}
+         )
+         |> fetch_active_purchase_types()}
     end
   end
 
-  defp fetch_purchase_types(socket) do
-    purchase_types = PurchaseTypes.list_purchase_types()
+  defp fetch_by_type(purchase_type) do
+    case purchase_type do
+      "active" ->
+        PurchaseTypes.get_active_purchase_types()
+
+      _ ->
+        PurchaseTypes.get_inactive_purchase_types()
+    end
+  end
+
+  defp fetch_active_purchase_types(socket) do
+    purchase_types = PurchaseTypes.get_active_purchase_types()
+
+    assign(socket, purchase_types: purchase_types)
+  end
+
+  defp fetch_inactive_purchase_types(socket) do
+    purchase_types = PurchaseTypes.get_inactive_purchase_types()
 
     assign(socket, purchase_types: purchase_types)
   end

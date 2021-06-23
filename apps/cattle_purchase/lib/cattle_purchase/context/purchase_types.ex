@@ -4,6 +4,7 @@ defmodule CattlePurchase.PurchaseTypes do
     Repo
   }
 
+  import Ecto.Query, only: [from: 2]
   @topic "cattle_purchase:purchase_types"
 
   def subscribe(), do: Phoenix.PubSub.subscribe(CattlePurchase.PubSub, @topic)
@@ -17,6 +18,24 @@ defmodule CattlePurchase.PurchaseTypes do
 
   def list_purchase_types() do
     Repo.all(PurchaseType)
+  end
+
+  def get_inactive_purchase_types() do
+    query =
+      from p in PurchaseType,
+        where: p.active != true,
+        select: p
+
+    Repo.all(query)
+  end
+
+  def get_active_purchase_types() do
+    query =
+      from p in PurchaseType,
+        where: p.active == true,
+        select: p
+
+    Repo.all(query)
   end
 
   @doc """
