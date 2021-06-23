@@ -1,4 +1,4 @@
-defmodule CattlePurchase.PurchaseType do
+defmodule CattlePurchase.PurchaseGroup do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -13,26 +13,21 @@ defmodule CattlePurchase.PurchaseType do
 
   @schema_prefix prefix
 
-  schema "purchase_types" do
+  schema "purchase_groups" do
     field :name, :string
-    field :active, :boolean, default: false
-    field :exclude, :boolean, default: false
+    field :include_in_partnership, :boolean, default: false
+    field :include_in_kills, :boolean, default: false
 
     timestamps()
   end
 
   @required ~w(name)a
-  @optional ~w(active exclude)a
+  @optional ~w(include_in_partnership include_in_kills)a
   @allowed @required ++ @optional
 
   def changeset(%__MODULE__{} = model, attrs \\ %{}) do
     model
     |> cast(attrs, @allowed)
     |> validate_required(@required)
-  end
-
-  def new_changeset(%__MODULE__{} = model, attrs \\ %{}) do
-    model
-    |> cast(attrs, @allowed)
   end
 end
