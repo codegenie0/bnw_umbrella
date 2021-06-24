@@ -1,6 +1,7 @@
-defmodule CattlePurchase.PurchaseGroup do
+defmodule CattlePurchase.Sex do
   use Ecto.Schema
   import Ecto.Changeset
+  alias CattlePurchase.AnimalSexOrder
 
   prefix = "bnw_dashboard_cattle_purchase"
 
@@ -13,26 +14,21 @@ defmodule CattlePurchase.PurchaseGroup do
 
   @schema_prefix prefix
 
-  schema "purchase_groups" do
+  schema "sexes" do
     field :name, :string
-    field :include_in_partnership, :boolean, default: false
-    field :include_in_kills, :boolean, default: false
+    field :code, :string
+    has_one :animal_sex_order, AnimalSexOrder
 
     timestamps()
   end
 
   @required ~w(name)a
-  @optional ~w(include_in_partnership include_in_kills)a
+  @optional ~w(code)a
   @allowed @required ++ @optional
 
   def changeset(%__MODULE__{} = model, attrs \\ %{}) do
     model
     |> cast(attrs, @allowed)
     |> validate_required(@required)
-  end
-
-  def new_changeset(%__MODULE__{} = model, attrs \\ %{}) do
-    model
-    |> cast(attrs, @allowed)
   end
 end
