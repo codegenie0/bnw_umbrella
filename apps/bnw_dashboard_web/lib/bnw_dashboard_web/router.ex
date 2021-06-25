@@ -2,7 +2,7 @@ defmodule BnwDashboardWeb.Router do
   import Phoenix.LiveDashboard.Router
   use BnwDashboardWeb, :router
 
-  if Mix.env == :dev do
+  if Mix.env() == :dev do
     forward "/sent_emails", Bamboo.SentEmailViewerPlug
   end
 
@@ -87,29 +87,30 @@ defmodule BnwDashboardWeb.Router do
 
     scope "/reimbursement" do
       live "/entries", Reimbursement.Update.UpdateLive
-      live "/review",  Reimbursement.Review.ReviewLive
-      live "/rates",   Reimbursement.Rates.RatesLive
-      live "/users",   Reimbursement.Users.UsersLive
+      live "/review", Reimbursement.Review.ReviewLive
+      live "/rates", Reimbursement.Rates.RatesLive
+      live "/users", Reimbursement.Users.UsersLive
       live "/reports", Reimbursement.Report.ReportsLive
-      live "/help",    Reimbursement.Help.HelpLive
+      live "/help", Reimbursement.Help.HelpLive
     end
 
     scope "/plugs" do
-      live "/projected_breakeven",  PlugsApp.ProjectedBreakeven.ProjectedBreakevenLive
-      live "/mpc_comparisons",      PlugsApp.MpcComparison.MpcComparisonLive
+      live "/projected_breakeven", PlugsApp.ProjectedBreakeven.ProjectedBreakevenLive
+      live "/mpc_comparisons", PlugsApp.MpcComparison.MpcComparisonLive
       live "/packer_tyson_pricing", PlugsApp.PackerTysonPricing.PackerTysonPricingLive
-      live "/packer_ab_pricing",    PlugsApp.PackerAbPricing.PackerAbPricingLive
-      live "/nbx_trucking",         PlugsApp.NbxTrucking.NbxTruckingLive
-      live "/fuel_usage",           PlugsApp.FuelUsage.FuelUsageLive
-      live "/profit_center_key",    PlugsApp.ProfitCenterKey.ProfitCenterKeyLive
-      live "/company_vehicles",     PlugsApp.CompanyVehicleMile.CompanyVehicleMileLive
-      live "/users",                PlugsApp.Users.UsersLive
-      live "/help",                 PlugsApp.Help.HelpLive
-      live "/template",             PlugsApp.Template.TemplateLive
+      live "/packer_ab_pricing", PlugsApp.PackerAbPricing.PackerAbPricingLive
+      live "/nbx_trucking", PlugsApp.NbxTrucking.NbxTruckingLive
+      live "/fuel_usage", PlugsApp.FuelUsage.FuelUsageLive
+      live "/profit_center_key", PlugsApp.ProfitCenterKey.ProfitCenterKeyLive
+      live "/company_vehicles", PlugsApp.CompanyVehicleMile.CompanyVehicleMileLive
+      live "/users", PlugsApp.Users.UsersLive
+      live "/help", PlugsApp.Help.HelpLive
+      live "/template", PlugsApp.Template.TemplateLive
     end
 
     scope "/cattle_purchase" do
       live "/page", CattlePurchase.Page.PageLive
+      live "/purchase_type", CattlePurchase.Page.PurchaseTypeLive
     end
   end
 

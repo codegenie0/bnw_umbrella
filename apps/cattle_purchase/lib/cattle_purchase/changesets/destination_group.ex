@@ -1,4 +1,4 @@
-defmodule CattlePurchase.PurchaseFlag do
+defmodule CattlePurchase.DestinationGroup do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -13,23 +13,21 @@ defmodule CattlePurchase.PurchaseFlag do
 
   @schema_prefix prefix
 
-  schema "purchase_flags" do
+  schema "destination_groups" do
     field :name, :string
+    field :lft, :integer
+    field :rgt, :integer
 
     timestamps()
   end
 
-  @allowed ~w(name)a
   @required ~w(name)a
+  @optional ~w(lft rgt)a
+  @allowed @required ++ @optional
 
   def changeset(%__MODULE__{} = model, attrs \\ %{}) do
     model
     |> cast(attrs, @allowed)
     |> validate_required(@required)
-  end
-
-  def new_changeset(%__MODULE__{} = model, attrs \\ %{}) do
-    model
-    |> cast(attrs, @allowed)
   end
 end

@@ -1,8 +1,9 @@
-defmodule BnwDashboardWeb.CattlePurchase.Page.PageLive do
+defmodule BnwDashboardWeb.CattlePurchase.Page.PurchaseTypeLive do
   use BnwDashboardWeb, :live_view
 
   alias CattlePurchase.{
-    Authorize
+    Authorize,
+    PurchaseTypes
   }
 
   defp authenticate(socket) do
@@ -21,18 +22,31 @@ defmodule BnwDashboardWeb.CattlePurchase.Page.PageLive do
   def mount(_, session, socket) do
     socket =
       assign_defaults(session, socket)
+      |> fetch_purchase_types()
       |> assign(
-        page_title: "BNW Dashboard · Cattle Purchase Page",
-        app: "Cattle Purchase"
+        page_title: "Active Purchase Type",
+        app: "Cattle Purchase",
+        purchase_type: "active",
+        modal: nil
       )
 
     if connected?(socket) do
-      # subscribe here
+      PurchaseTypes.subscribe()
     end
 
     case authenticate(socket) do
       true -> {:ok, socket}
       false -> {:ok, redirect(socket, to: "/")}
     end
+  end
+
+  @impl true
+  def handle_params(_, _, socket) do
+    {:noreply, socket}
+  end
+
+  defp fetch_purchase_types(socket) do
+    purchase_types = PurchaseTypes.list_purchase_types()
+    assign(socket, purchase_types: purchase_types)
   end
 end

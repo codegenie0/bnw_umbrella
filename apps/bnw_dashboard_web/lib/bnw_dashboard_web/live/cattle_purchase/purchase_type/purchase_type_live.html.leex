@@ -1,0 +1,73 @@
+<div>
+  <h3><%= @page_title %></h3>
+  <div class="uk-flex uk-flex-left uk-flex-middle">
+  <button class="uk-button uk-button-primary uk-border-pill uk-margin-small-right uk-margin-remove-vertical  uk-width-1-3@l uk-width-2-3@m"
+            type="button"
+            phx-click="toggle-purchase-type">
+            <%= if @purchase_type == "active" do%>
+              InActive Purchase Type
+            <% else %>
+              Active Purchase Type
+            <% end %>
+            </button>
+  <button class="uk-button uk-button-primary uk-border-pill uk-margin-remove  uk-margin-remove-bottom uk-align-center uk-width-1-3@l uk-width-2-3@m"
+            type="button"
+            phx-click="new">New Purchase Type</button>
+  </div>
+  <table class="uk-table uk-table-striped uk-table-middle uk-table-hover">
+    <%= if @purchase_type == "active" do%>
+    <thead>
+      <tr>
+       <th class="uk-width-1-2">Name</th>
+       <th>Excluded</th>
+       <th>edit | delete</th>
+      </tr>
+    </thead>
+    </tbody>
+    <tr>
+      <%= for purchase_type <- @purchase_types do %>
+      <tr>
+      <td><%= purchase_type.name %></td>
+      <td><%= purchase_type.exclude %></td>
+      <td>
+        <td>
+          <%= link "", to: "#", class: "uk-padding-remove-vertical uk-margin-small-right",
+          uk_icon: "pencil",
+          phx_hook: "uk_icon",
+          phx_click: "edit",
+          phx_value_id: purchase_type.id %>
+          <%= link "", to: "#", class: "uk-padding-remove-vertical",
+          uk_icon: "trash",
+          phx_hook: "uk_icon",
+          phx_click: "delete",
+          phx_value_id: purchase_type.id %>
+        </td>
+      </td>
+    </tr>
+      <% end %>
+    </tbody>
+    <% else %>
+    <thead>
+      <tr>
+       <th class="uk-width-1-2">Name</th>
+       <th>edit | delete</th>
+      </tr>
+    </thead>
+    </tbody>
+    <tr>
+      <td>Hello</td>
+      <td>
+        <%= link "", to: "purchase_type/1/edit", class: "uk-padding-remove-vertical",
+        uk_icon: "pencil",
+        phx_hook: "uk_icon",
+        phx_click: "edit",
+        phx_value_id: 1 %>
+      </td>
+    </tr>
+    </tbody>
+    <% end %>
+  </table>
+</div>
+<%= if @modal == :change_purchase_type do
+  live_component(@socket, ChangePurchaseTypeComponent, id: "#{@current_user.id}",changeset: @changeset)
+end %>
