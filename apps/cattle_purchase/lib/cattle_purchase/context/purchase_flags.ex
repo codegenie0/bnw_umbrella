@@ -4,6 +4,14 @@ defmodule CattlePurchase.PurchaseFlags do
     Repo
   }
 
+  import Ecto.Query, only: [from: 2]
+  @topic "cattle_purchase:purchase_flags"
+
+  def subscribe(), do: Phoenix.PubSub.subscribe(CattlePurchase.PubSub, @topic)
+  def subscribe(id), do: Phoenix.PubSub.subscribe(CattlePurchase.PubSub, "#{@topic}:#{id}")
+  def unsubscribe(), do: Phoenix.PubSub.unsubscribe(CattlePurchase.PubSub, @topic)
+  def unsubscribe(id), do: Phoenix.PubSub.unsubscribe(CattlePurchase.PubSub, "#{@topic}:#{id}")
+
   @doc """
   List all purchase_flags
   """
@@ -36,6 +44,7 @@ defmodule CattlePurchase.PurchaseFlags do
     purchase_flag
     |> PurchaseFlag.changeset(attrs)
     |> Repo.insert_or_update()
+    |> notify_subscribers([:purchase_flags, :created_or_updated])
   end
 
   @doc """
@@ -43,5 +52,15 @@ defmodule CattlePurchase.PurchaseFlags do
   """
   def delete_purchase_flag(%PurchaseFlag{} = purchase_flag) do
     Repo.delete(purchase_flag)
+    |> notify_subscribers([:purchase_flags, :deleted])
   end
+
+  def notify_subscribers({:ok, result}, event) do
+    Phoenix.PubSub.broadcast(CattlePurchase.PubSub, @topic, {event, result})
+    Phoenix.PubSub.broadcast(CattlePurchase.PubSub, "#{@topic}:#{result.id}", {event, result})
+
+    {:ok, result}
+  end
+
+  def notify_subscribers({:error, reason}, _event), do: {:error, reason}
 end
