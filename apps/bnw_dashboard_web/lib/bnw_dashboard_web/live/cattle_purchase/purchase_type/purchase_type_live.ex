@@ -5,6 +5,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
     Authorize,
     PurchaseTypes
   }
+
   alias BnwDashboardWeb.CattlePurchase.PurchaseTypes.ChangePurchaseTypeComponent
 
   defp authenticate(socket) do
@@ -23,16 +24,19 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
   def mount(_, session, socket) do
     socket =
       assign_defaults(session, socket)
-      |> fetch_purchase_types()
+      |> fetch_active_purchase_types()
       |> assign(
-        page_title: "Active Purchase Type",
+        page_title: "BNW Dashboard · Active Purchase Type",
         app: "Cattle Purchase",
         purchase_type: "active",
         modal: nil
       )
 
     if connected?(socket) do
-      PurchaseTypes.subscribe()
+      # subscribe here
+      if connected?(socket) do
+        PurchaseTypes.subscribe()
+      end
     end
 
     case authenticate(socket) do
@@ -46,20 +50,53 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
     {:noreply, socket}
   end
 
+  # @impl true
+  # def handle_info({[:user, :updated], _customer}, socket) do
+  #   case authenticate(socket) do
+  #     true -> {:noreply, socket}
+  #     false -> {:noreply, redirect(socket, to: "/")}
+  #   end
+  # end
 
   @impl true
-  def handle_event("new", _, socket) do
-    changeset = PurchaseTypes.new_purchase_type()
+  def handle_info({[:purchase_types, :created_or_updated], _}, socket) do
+    socket = assign(socket, modal: nil, changeset: nil)
+    purchase_type = socket.assigns.purchase_type
+    result = fetch_by_type(purchase_type)
+
+    {:noreply, assign(socket, purchase_types: result)}
+  end
+
+  @impl true
+  def handle_info({[:purchase_types, :deleted], _}, socket) do
+    purchase_type = socket.assigns.purchase_type
+    result = fetch_by_type(purchase_type)
+
+    {:noreply, assign(socket, purchase_types: result)}
+  end
+
+  # @impl true
+  # def handle_info(_, socket) do
+  #   {:noreply, socket}
+  # end
+
+  # end handle_info
+  @impl true
+  def handle_event("edit", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+
+    changeset =
+      Enum.find(socket.assigns.purchase_types, fn pt -> pt.id == id end)
+      |> PurchaseTypes.change_purchase_type()
+
     socket = assign(socket, changeset: changeset, modal: :change_purchase_type)
     {:noreply, socket}
   end
 
   @impl true
-  def handle_event("edit", params, socket) do
-    {id, ""} = Integer.parse(params["id"])
-    changeset =
-      Enum.find(socket.assigns.purchase_types, fn pt -> pt.id == id end)
-      |> PurchaseTypes.change_purchase_type()
+  def handle_event("new", _, socket) do
+    changeset = PurchaseTypes.new_purchase_type()
+    IO.inspect(changeset)
     socket = assign(socket, changeset: changeset, modal: :change_purchase_type)
     {:noreply, socket}
   end
@@ -67,8 +104,10 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
   @impl true
   def handle_event("delete", params, socket) do
     {id, ""} = Integer.parse(params["id"])
+
     Enum.find(socket.assigns.purchase_types, fn pt -> pt.id == id end)
     |> PurchaseTypes.delete_purchase_type()
+
     {:noreply, socket}
   end
 
@@ -84,31 +123,39 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
         {:noreply,
          assign(socket,
            purchase_type: "inactive",
-           page_title: "Inactive Purchase Type"
-         )}
+           page_title: "BNW Dashboard · Inactive Purchase Type"
+         )
+         |> fetch_inactive_purchase_types()}
+
       _ ->
         {:noreply,
          assign(socket,
            purchase_type: "active",
-           page_title: "Active Purchase Type"
-         )}
+           page_title: "BNW Dashboard · Active Purchase Type"
+         )
+         |> fetch_active_purchase_types()}
     end
   end
 
-  @impl true
-  def handle_info({[:purchase_types, :created_or_updated], _}, socket) do
-    socket = assign(socket, modal: nil, changeset: nil)
-    {:noreply, fetch_purchase_types(socket)}
+  defp fetch_by_type(purchase_type) do
+    case purchase_type do
+      "active" ->
+        PurchaseTypes.get_active_purchase_types()
+
+      _ ->
+        PurchaseTypes.get_inactive_purchase_types()
+    end
   end
 
-  @impl true
-  def handle_info({[:purchase_types, :deleted], _}, socket) do
-    {:noreply, fetch_purchase_types(socket)}
+  defp fetch_active_purchase_types(socket) do
+    purchase_types = PurchaseTypes.get_active_purchase_types()
+
+    assign(socket, purchase_types: purchase_types)
   end
 
+  defp fetch_inactive_purchase_types(socket) do
+    purchase_types = PurchaseTypes.get_inactive_purchase_types()
 
-  defp fetch_purchase_types(socket) do
-    purchase_types = PurchaseTypes.list_purchase_types()
     assign(socket, purchase_types: purchase_types)
   end
 end

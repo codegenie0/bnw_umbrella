@@ -35,7 +35,9 @@ defmodule CattlePurchase.PurchaseTypes do
         where: p.active == true,
         select: p
 
-    Repo.all(query)
+    result = Repo.all(query)
+    IO.inspect(result)
+    result
   end
 
   @doc """
