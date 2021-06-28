@@ -17,7 +17,7 @@ defmodule CattlePurchase.Sex do
   schema "sexes" do
     field :name, :string
     field :code, :string
-    has_one :animal_sex_order, AnimalSexOrder
+    has_one :animal_sex_order, AnimalSexOrder, on_replace: :delete
 
     timestamps()
   end
