@@ -21,21 +21,17 @@ defmodule CattlePurchase.PurchaseTypes do
   end
 
   def get_inactive_purchase_types() do
-    query =
-      from p in PurchaseType,
-        where: p.active != true,
-        select: p
-
-    Repo.all(query)
+    from(p in PurchaseType,
+      where: p.active != true
+    )
+    |> Repo.all()
   end
 
   def get_active_purchase_types() do
-    query =
-      from p in PurchaseType,
-        where: p.active == true,
-        select: p
-
-    Repo.all(query)
+    from(p in PurchaseType,
+      where: p.active == true
+    )
+    |> Repo.all()
   end
 
   @doc """

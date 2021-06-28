@@ -23,11 +23,11 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
   def mount(_, session, socket) do
     socket =
       assign_defaults(session, socket)
-      |> fetch_purchase_types()
       |> assign(
         page_title: "Active Purchase Type",
         app: "Cattle Purchase",
         purchase_type: "active",
+        purchase_types: PurchaseTypes.get_active_purchase_types,
         modal: nil
       )
 
@@ -84,13 +84,18 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
         {:noreply,
          assign(socket,
            purchase_type: "inactive",
-           page_title: "Inactive Purchase Type"
+           page_title: "Inactive Purchase Type",
+           purchase_types: PurchaseTypes.get_inactive_purchase_types
+
          )}
+
       _ ->
         {:noreply,
          assign(socket,
            purchase_type: "active",
-           page_title: "Active Purchase Type"
+           page_title: "Active Purchase Type",
+           purchase_types: PurchaseTypes.get_active_purchase_types
+
          )}
     end
   end
@@ -98,17 +103,21 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
   @impl true
   def handle_info({[:purchase_types, :created_or_updated], _}, socket) do
     socket = assign(socket, modal: nil, changeset: nil)
-    {:noreply, fetch_purchase_types(socket)}
+    purchase_type = socket.assigns.purchase_type
+    data = fetch_by_type(purchase_type)
+    {:noreply, assign(socket, purchase_types: data)}
   end
 
   @impl true
   def handle_info({[:purchase_types, :deleted], _}, socket) do
-    {:noreply, fetch_purchase_types(socket)}
+    purchase_type = socket.assigns.purchase_type
+    data = fetch_by_type(purchase_type)
+    {:noreply, assign(socket, purchase_types: data)}
   end
 
-
-  defp fetch_purchase_types(socket) do
-    purchase_types = PurchaseTypes.list_purchase_types()
-    assign(socket, purchase_types: purchase_types)
+  defp fetch_by_type(purchase_type) do
+    if purchase_type == "active", do:
+      PurchaseTypes.get_active_purchase_types,
+      else: PurchaseTypes.get_inactive_purchase_types
   end
 end
