@@ -30,4 +30,9 @@ defmodule CattlePurchase.DestinationGroup do
     |> cast(attrs, @allowed)
     |> validate_required(@required)
   end
+
+  def new_changeset(%__MODULE__{} = model, attrs \\ %{}) do
+    model
+    |> cast(attrs, @allowed)
+  end
 end
