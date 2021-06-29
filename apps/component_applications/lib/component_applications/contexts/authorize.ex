@@ -23,7 +23,9 @@ defmodule ComponentApplications.Authorize do
           BorrowingBase.Authorize.list_pages(user, internal_applications) ++
           CihReportPlugs.Authorize.list_pages(user, internal_applications) ++
           PlugsApp.Authorize.list_pages(user, internal_applications) ++
-          OcbReportPlugs.Authorize.list_pages(user, internal_applications)
+          OcbReportPlugs.Authorize.list_pages(user, internal_applications) ++
+          CattlePurchase.Authorize.list_pages(user, internal_applications)
+
 
         external_applications = []
         %{internal_applications: internal_applications, external_applications: external_applications}
