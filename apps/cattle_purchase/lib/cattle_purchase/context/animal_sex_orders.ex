@@ -6,6 +6,13 @@ defmodule CattlePurchase.AnimalSexOrders do
   }
   import Ecto.Query
 
+  @topic "cattle_purchase:animal_sex_orders"
+
+  def subscribe(), do: Phoenix.PubSub.subscribe(CattlePurchase.PubSub, @topic)
+  def subscribe(id), do: Phoenix.PubSub.subscribe(CattlePurchase.PubSub, "#{@topic}:#{id}")
+  def unsubscribe(), do: Phoenix.PubSub.unsubscribe(CattlePurchase.PubSub, @topic)
+  def unsubscribe(id), do: Phoenix.PubSub.unsubscribe(CattlePurchase.PubSub, "#{@topic}:#{id}")
+
   @doc """
   List all animal_sex_orders
   """
@@ -48,12 +55,15 @@ defmodule CattlePurchase.AnimalSexOrders do
     animal_sex_order
     |> AnimalSexOrder.changeset(attrs)
     |> Repo.insert_or_update()
+    |> notify_subscribers([:animal_sex_orders, :created_or_updated])
   end
 
-  @doc """
-  Delete a purchase type
-  """
-  def delete_animal_sex_order(%AnimalSexOrder{} = animal_sex_order) do
-    Repo.delete(animal_sex_order)
+  def notify_subscribers({:ok, result}, event) do
+    Phoenix.PubSub.broadcast(CattlePurchase.PubSub, @topic, {event, result})
+    Phoenix.PubSub.broadcast(CattlePurchase.PubSub, "#{@topic}:#{result.id}", {event, result})
+
+    {:ok, result}
   end
+
+  def notify_subscribers({:error, reason}, _event), do: {:error, reason}
 end

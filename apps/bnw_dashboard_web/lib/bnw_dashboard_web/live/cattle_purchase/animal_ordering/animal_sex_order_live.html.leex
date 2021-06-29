@@ -1,0 +1,36 @@
+<div>
+  <h3><%= @page_title %></h3>
+  <div class="uk-flex uk-flex-left uk-flex-middle">
+  <button class="uk-button uk-button-primary uk-border-pill uk-margin-remove  uk-margin-remove-bottom uk-align-center uk-width-1-3@l uk-width-2-3@m"
+            type="button"
+            phx-click="new">New Animal Sex Order</button>
+  </div>
+
+  <table class="uk-table uk-table-striped uk-table-middle uk-table-hover">
+    <thead>
+      <tr>
+       <th class="uk-width-1-3">Sex</th>
+       <th class="uk-width-1-3">Order</th>
+       <th>edit</th>       
+      </tr>
+    </thead>
+    </tbody>    
+      <%= for animal_sex_order <- @animal_sex_orders do %>
+      <tr>
+      <td><%= animal_sex_order.name %></td>
+      <td><%= animal_sex_order.animal_sex_order.order %></td>    
+      <td>
+          <%= link "", to: "#", class: "uk-padding-remove-vertical uk-margin-small-right",
+          uk_icon: "pencil",
+          phx_hook: "uk_icon",
+          phx_click: "edit",
+          phx_value_id: animal_sex_order.id %>        
+        </td>
+    </tr>
+      <% end %>                   
+    </tbody>
+  </table>
+</div>
+<%= if @modal == :change_animal_sex_order do 
+  live_component(@socket, ChangeAnimalSexOrderComponent, id: "#{@current_user.id}",changeset: @changeset, sex: @sex)
+end %>

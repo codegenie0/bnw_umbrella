@@ -112,6 +112,7 @@ defmodule BnwDashboardWeb.Router do
       live "/page", CattlePurchase.Page.PageLive
       live "/purchase_type", CattlePurchase.PurchaseType.PurchaseTypeLive
       live "/purchase_group", CattlePurchase.PurchaseGroup.PurchaseGroupLive
+      live "/animal_sex_order", CattlePurchase.AnimalSexOrder.AnimalSexOrderLive
     end
   end
 
