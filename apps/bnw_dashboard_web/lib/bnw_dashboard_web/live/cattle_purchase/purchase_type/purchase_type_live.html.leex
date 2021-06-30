@@ -30,7 +30,6 @@
       <td><%= purchase_type.name %></td>    
       <td><%= purchase_type.exclude %></td>        
       <td>
-        <td>
           <%= link "", to: "#", class: "uk-padding-remove-vertical uk-margin-small-right",
           uk_icon: "pencil",
           phx_hook: "uk_icon",
@@ -42,7 +41,6 @@
           phx_click: "delete",
           phx_value_id: purchase_type.id %>
         </td>
-      </td>
     </tr>
       <% end %>                   
     </tbody>
@@ -56,10 +54,8 @@
     </tbody>
     <%= for purchase_type <- @purchase_types do %>
     <tr>
-    <td><%= purchase_type.name %></td>    
-    <td><%= purchase_type.exclude %></td>        
+    <td><%= purchase_type.name %></td>                
     <td>
-      <td>
         <%= link "", to: "#", class: "uk-padding-remove-vertical uk-margin-small-right",
         uk_icon: "pencil",
         phx_hook: "uk_icon",
@@ -69,8 +65,7 @@
         uk_icon: "trash",
         phx_hook: "uk_icon",
         phx_click: "delete",
-        phx_value_id: purchase_type.id %>
-      </td>
+        phx_value_id: purchase_type.id %>      
     </td>
   </tr>
     <% end %>  
