@@ -11,7 +11,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
     current_user = Map.get(socket.assigns, :current_user)
 
     cond do
-      current_user && Authorize.authorize(current_user, "page") ->
+      current_user && Authorize.authorize(current_user, "purchase_types") ->
         true
 
       true ->
@@ -24,7 +24,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
     socket =
       assign_defaults(session, socket)
       |> assign(
-        page_title: "Active Purchase Type",
+        page_title: "BNW Dashboard · Active Purchase Type",
         app: "Cattle Purchase",
         purchase_type: "active",
         purchase_types: PurchaseTypes.get_active_purchase_types,
@@ -84,7 +84,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
         {:noreply,
          assign(socket,
            purchase_type: "inactive",
-           page_title: "Inactive Purchase Type",
+           page_title: "BNW Dashboard · Inactive Purchase Type",
            purchase_types: PurchaseTypes.get_inactive_purchase_types
 
          )}
@@ -93,7 +93,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
         {:noreply,
          assign(socket,
            purchase_type: "active",
-           page_title: "Active Purchase Type",
+           page_title: "BNW Dashboard · Active Purchase Type",
            purchase_types: PurchaseTypes.get_active_purchase_types
 
          )}

@@ -28,7 +28,6 @@
       <tr>
       <td><%= purchase_type.name %></td>
       <td><%= purchase_type.exclude %></td>
-      <td>
         <td>
           <%= link "", to: "#", class: "uk-padding-remove-vertical uk-margin-small-right",
           uk_icon: "pencil",
@@ -40,7 +39,6 @@
           phx_hook: "uk_icon",
           phx_click: "delete",
           phx_value_id: purchase_type.id %>
-        </td>
       </td>
     </tr>
       <% end %>
@@ -49,6 +47,7 @@
     <thead>
       <tr>
        <th class="uk-width-1-2">Name</th>
+       <th>Excluded</th>
        <th>edit | delete</th>
       </tr>
     </thead>
@@ -58,7 +57,6 @@
     <td><%= purchase_type.name %></td>
     <td><%= purchase_type.exclude %></td>
     <td>
-      <td>
         <%= link "", to: "#", class: "uk-padding-remove-vertical uk-margin-small-right",
         uk_icon: "pencil",
         phx_hook: "uk_icon",
@@ -69,7 +67,6 @@
         phx_hook: "uk_icon",
         phx_click: "delete",
         phx_value_id: purchase_type.id %>
-      </td>
     </td>
   </tr>
     <% end %>
