@@ -76,11 +76,13 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseGroup.PurchaseGroupLive do
     {:noreply, socket}
   end
 
+  @impl true
   def handle_info({[:purchase_groups, :created_or_updated], _}, socket) do
     socket = assign(socket, modal: nil, changeset: nil)
     {:noreply, assign(socket, purchase_groups: PurchaseGroups.list_purchase_groups() )}
   end
 
+  @impl true
   def handle_info({[:purchase_groups, :deleted], _}, socket) do
     socket = assign(socket, modal: nil, changeset: nil)
     {:noreply, assign(socket, purchase_groups: PurchaseGroups.list_purchase_groups() )}

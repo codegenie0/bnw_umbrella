@@ -1,7 +1,6 @@
 defmodule CattlePurchase.Sex do
   use Ecto.Schema
   import Ecto.Changeset
-  alias CattlePurchase.AnimalSexOrder
 
   prefix = "bnw_dashboard_cattle_purchase"
 
@@ -16,19 +15,27 @@ defmodule CattlePurchase.Sex do
 
   schema "sexes" do
     field :name, :string
-    field :code, :string
-    has_one :animal_sex_order, AnimalSexOrder
+    field :description, :string
+    field :order, :integer
+    field :active, :boolean, default: false
 
     timestamps()
   end
 
-  @required ~w(name)a
-  @optional ~w(code)a
+  @required ~w(name order)a
+  @optional ~w(description active)a
   @allowed @required ++ @optional
 
   def changeset(%__MODULE__{} = model, attrs \\ %{}) do
     model
     |> cast(attrs, @allowed)
     |> validate_required(@required)
+    |> unique_constraint(:name)
+    |> unique_constraint(:order)
+  end
+
+  def new_changeset(%__MODULE__{} = model, attrs \\ %{}) do
+    model
+    |> cast(attrs, @allowed)
   end
 end
