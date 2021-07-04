@@ -74,6 +74,6 @@
     <% end %>
   </table>
 </div>
-<%= if @modal == :change_purchase_type do
-  live_component(@socket, ChangePurchaseTypeComponent, id: "#{@current_user.id}",changeset: @changeset)
+<%= if @modal == :change_animal_ordering do
+  live_component(@socket, ChangeAnimalOrderingComponent, id: "#{@current_user.id}",changeset: @changeset)
 end %>

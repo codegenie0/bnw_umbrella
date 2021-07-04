@@ -6,6 +6,8 @@ defmodule BnwDashboardWeb.CattlePurchase.AnimalOrdering.AnimalOrderingLive do
     Sexes
   }
 
+  alias BnwDashboardWeb.CattlePurchase.AnimalOrdering.ChangeAnimalOrderingComponent
+
   defp authenticate(socket) do
     current_user = Map.get(socket.assigns, :current_user)
 
@@ -26,7 +28,7 @@ defmodule BnwDashboardWeb.CattlePurchase.AnimalOrdering.AnimalOrderingLive do
         page_title: "BNW Dashboard · Active Sexes",
         app: "Cattle Purchase",
         sex: "active",
-        sexes: Sexes.get_active_sexes,
+        sexes: Sexes.get_active_sexes(),
         modal: nil
       )
 
@@ -46,6 +48,41 @@ defmodule BnwDashboardWeb.CattlePurchase.AnimalOrdering.AnimalOrderingLive do
   end
 
   @impl true
+  def handle_event("new", _, socket) do
+    changeset = Sexes.new_sex()
+    socket = assign(socket, changeset: changeset, modal: :change_animal_ordering)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("edit", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+
+    changeset =
+      Enum.find(socket.assigns.sexes, fn pt -> pt.id == id end)
+      |> Sexes.change_sex()
+
+    socket = assign(socket, changeset: changeset, modal: :change_animal_ordering)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("delete", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+
+    Enum.find(socket.assigns.sexes, fn pt -> pt.id == id end)
+    |> Sexes.delete_sex()
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("cancel", _, socket) do
+    socket = assign(socket, modal: nil)
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("toggle-sexes", _params, socket) do
     case socket.assigns.sex do
       "active" ->
@@ -53,8 +90,7 @@ defmodule BnwDashboardWeb.CattlePurchase.AnimalOrdering.AnimalOrderingLive do
          assign(socket,
            sex: "inactive",
            page_title: "BNW Dashboard · Inactive Sex",
-           sexes: Sexes.get_inactive_sexes
-
+           sexes: Sexes.get_inactive_sexes()
          )}
 
       _ ->
@@ -62,9 +98,29 @@ defmodule BnwDashboardWeb.CattlePurchase.AnimalOrdering.AnimalOrderingLive do
          assign(socket,
            sex: "active",
            page_title: "BNW Dashboard · Active Sex",
-           sexes: Sexes.get_active_sexes
-
+           sexes: Sexes.get_active_sexes()
          )}
     end
+  end
+
+  @impl true
+  def handle_info({[:sexes, :created_or_updated], _}, socket) do
+    socket = assign(socket, modal: nil, changeset: nil)
+    sexes = socket.assigns.sexes
+    data = fetch_by_type(socket.assigns.sex)
+    {:noreply, assign(socket, sexes: data)}
+  end
+
+  @impl true
+  def handle_info({[:sexes, :deleted], _}, socket) do
+    sexes = socket.assigns.sexes
+    data = fetch_by_type(socket.assigns.sex)
+    {:noreply, assign(socket, sexes: data)}
+  end
+
+  defp fetch_by_type(sex_type) do
+    if sex_type == "active",
+      do: Sexes.get_active_sexes(),
+      else: Sexes.get_inactive_sexes()
   end
 end
