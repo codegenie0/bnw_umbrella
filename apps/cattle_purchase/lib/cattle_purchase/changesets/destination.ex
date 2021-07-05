@@ -1,4 +1,4 @@
-defmodule CattlePurchase.DestinationGroup do
+defmodule CattlePurchase.Destination do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -13,15 +13,17 @@ defmodule CattlePurchase.DestinationGroup do
 
   @schema_prefix prefix
 
-  schema "destination_groups" do
+  schema "destinations" do
     field :name, :string
-    has_many(:destinations, CattlePurchase.DestinationGroup)
+    field :active, :boolean, default: false
+    belongs_to(:destination_group, CattlePurchase.DestinationGroup)
 
     timestamps()
   end
 
-  @required ~w(name)a
-  @allowed @required
+  @required ~w(name destination_group_id)a
+  @optional ~w(active)a
+  @allowed @required ++ @optional
 
   def changeset(%__MODULE__{} = model, attrs \\ %{}) do
     model

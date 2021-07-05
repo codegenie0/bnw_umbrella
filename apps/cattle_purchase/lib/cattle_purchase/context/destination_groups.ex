@@ -39,7 +39,7 @@ defmodule CattlePurchase.DestinationGroups do
   end
 
   @doc """
-  Delete a purchase type
+  Delete a destination group
   """
   def delete_destination_group(%DestinationGroup{} = destination_group) do
     Repo.delete(destination_group)
