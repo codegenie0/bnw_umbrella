@@ -1,18 +1,16 @@
 <div>
   <h3><%= @page_title %></h3>
-  <div class="uk-flex uk-flex-left uk-flex-middle">
-  <button class="uk-button uk-button-primary uk-border-pill uk-margin-small-right uk-margin-remove-vertical  uk-width-1-3@l uk-width-2-3@m"
-            type="button"
-            phx-click="toggle-sexes">
-            <%= if @sex == "active" do%>
-              InActive Sexes
-            <% else %>
-              Active Sexes
-            <% end %>
-            </button>
-  <button class="uk-button uk-button-primary uk-border-pill uk-margin-remove  uk-margin-remove-bottom uk-align-center uk-width-1-3@l uk-width-2-3@m"
-            type="button"
-            phx-click="new">New Sexes</button>
+  <div class="uk-flex uk-flex-column uk-flex-left  uk-flex-center">
+    <button class="uk-button uk-button-primary uk-border-pill uk-margin-remove  uk-margin-remove-bottom uk-align-center uk-width-1-3@l uk-width-2-3@m"
+    type="button"
+    phx-click="new">New Sexes</button>
+    <div class="uk-block uk-margin-top">
+      <ul uk-tab class="uk-tab">           
+        <li phx-click="set-active-sexes" class='<%= if @sex == "active", do: "uk-active", else: "" %>'><a href="#">Active</a></li>      
+        <li phx-click="set-inactive-sexes"  class='<%= if @sex != "active", do: "uk-active", else: "" %>'><a href="#">In Active</a></li>                      
+      </ul>
+    </div>
+ 
   </div>
   <table class="uk-table uk-table-striped uk-table-middle uk-table-hover">
     <%= if @sex == "active" do%>

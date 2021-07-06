@@ -26,7 +26,7 @@ defmodule BnwDashboardWeb.CattlePurchase.AnimalOrdering.AnimalOrderingLive do
         page_title: "BNW Dashboard · Active Sexes",
         app: "Cattle Purchase",
         sex: "active",
-        sexes: Sexes.get_active_sexes,
+        sexes: Sexes.get_active_sexes(),
         modal: nil
       )
 
@@ -46,25 +46,22 @@ defmodule BnwDashboardWeb.CattlePurchase.AnimalOrdering.AnimalOrderingLive do
   end
 
   @impl true
-  def handle_event("toggle-sexes", _params, socket) do
-    case socket.assigns.sex do
-      "active" ->
-        {:noreply,
-         assign(socket,
-           sex: "inactive",
-           page_title: "BNW Dashboard · Inactive Sex",
-           sexes: Sexes.get_inactive_sexes
+  def handle_event("set-active-sexes", _params, socket) do
+    {:noreply,
+     assign(socket,
+       sex: "active",
+       page_title: "BNW Dashboard · Active Sex",
+       sexes: Sexes.get_active_sexes()
+     )}
+  end
 
-         )}
-
-      _ ->
-        {:noreply,
-         assign(socket,
-           sex: "active",
-           page_title: "BNW Dashboard · Active Sex",
-           sexes: Sexes.get_active_sexes
-
-         )}
-    end
+  @impl true
+  def handle_event("set-inactive-sexes", _params, socket) do
+    {:noreply,
+     assign(socket,
+       sex: "inactive",
+       page_title: "BNW Dashboard · Inactive Sex",
+       sexes: Sexes.get_inactive_sexes()
+     )}
   end
 end

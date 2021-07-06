@@ -1,18 +1,16 @@
 <div>
   <h3><%= @page_title %></h3>
-  <div class="uk-flex uk-flex-left uk-flex-middle">
-  <button class="uk-button uk-button-primary uk-border-pill uk-margin-small-right uk-margin-remove-vertical  uk-width-1-3@l uk-width-2-3@m"
-            type="button"
-            phx-click="toggle-purchase-type">
-            <%= if @purchase_type == "active" do%>
-              InActive Purchase Type
-            <% else %>
-              Active Purchase Type
-            <% end %>
-            </button>
-  <button class="uk-button uk-button-primary uk-border-pill uk-margin-remove  uk-margin-remove-bottom uk-align-center uk-width-1-3@l uk-width-2-3@m"
-            type="button"
-            phx-click="new">New Purchase Type</button>
+  <div class="uk-flex uk-flex-column uk-flex-left  uk-flex-center">
+    <button class="uk-button uk-button-primary uk-border-pill uk-margin-remove  uk-margin-remove-bottom uk-align-center uk-width-1-3@l uk-width-2-3@m"
+    type="button"
+    phx-click="new">New Purchase Type</button>
+    <div class="uk-block uk-margin-top">
+      <ul uk-tab class="uk-tab">           
+        <li phx-click="set-active-purchase-type" class='<%= if @purchase_type == "active", do: "uk-active", else: "" %>'><a href="#">Active</a></li>      
+        <li phx-click="set-inactive-purchase-type"  class='<%= if @purchase_type != "active", do: "uk-active", else: "" %>'><a href="#">In Active</a></li>                      
+      </ul>
+    </div>
+ 
   </div>
   <table class="uk-table uk-table-striped uk-table-middle uk-table-hover">
     <%= if @purchase_type == "active" do%>

@@ -5,6 +5,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
     Authorize,
     PurchaseTypes
   }
+
   alias BnwDashboardWeb.CattlePurchase.PurchaseTypes.ChangePurchaseTypeComponent
 
   defp authenticate(socket) do
@@ -27,7 +28,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
         page_title: "BNW Dashboard · Active Purchase Type",
         app: "Cattle Purchase",
         purchase_type: "active",
-        purchase_types: PurchaseTypes.get_active_purchase_types,
+        purchase_types: PurchaseTypes.get_active_purchase_types(),
         modal: nil
       )
 
@@ -46,7 +47,6 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
     {:noreply, socket}
   end
 
-
   @impl true
   def handle_event("new", _, socket) do
     changeset = PurchaseTypes.new_purchase_type()
@@ -57,9 +57,11 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
   @impl true
   def handle_event("edit", params, socket) do
     {id, ""} = Integer.parse(params["id"])
+
     changeset =
       Enum.find(socket.assigns.purchase_types, fn pt -> pt.id == id end)
       |> PurchaseTypes.change_purchase_type()
+
     socket = assign(socket, changeset: changeset, modal: :change_purchase_type)
     {:noreply, socket}
   end
@@ -67,8 +69,10 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
   @impl true
   def handle_event("delete", params, socket) do
     {id, ""} = Integer.parse(params["id"])
+
     Enum.find(socket.assigns.purchase_types, fn pt -> pt.id == id end)
     |> PurchaseTypes.delete_purchase_type()
+
     {:noreply, socket}
   end
 
@@ -78,26 +82,24 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
     {:noreply, socket}
   end
 
-  def handle_event("toggle-purchase-type", _params, socket) do
-    case socket.assigns.purchase_type do
-      "active" ->
-        {:noreply,
-         assign(socket,
-           purchase_type: "inactive",
-           page_title: "BNW Dashboard · Inactive Purchase Type",
-           purchase_types: PurchaseTypes.get_inactive_purchase_types
+  @impl true
+  def handle_event("set-active-purchase-type", _params, socket) do
+    {:noreply,
+     assign(socket,
+       purchase_type: "active",
+       page_title: "BNW Dashboard · Active Purchase Type",
+       purchase_types: PurchaseTypes.get_active_purchase_types()
+     )}
+  end
 
-         )}
-
-      _ ->
-        {:noreply,
-         assign(socket,
-           purchase_type: "active",
-           page_title: "BNW Dashboard · Active Purchase Type",
-           purchase_types: PurchaseTypes.get_active_purchase_types
-
-         )}
-    end
+  @impl true
+  def handle_event("set-inactive-purchase-type", _params, socket) do
+    {:noreply,
+     assign(socket,
+       purchase_type: "inactive",
+       page_title: "BNW Dashboard · Inactive Purchase Type",
+       purchase_types: PurchaseTypes.get_inactive_purchase_types()
+     )}
   end
 
   @impl true
@@ -116,8 +118,8 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
   end
 
   defp fetch_by_type(purchase_type) do
-    if purchase_type == "active", do:
-      PurchaseTypes.get_active_purchase_types,
-      else: PurchaseTypes.get_inactive_purchase_types
+    if purchase_type == "active",
+      do: PurchaseTypes.get_active_purchase_types(),
+      else: PurchaseTypes.get_inactive_purchase_types()
   end
 end
