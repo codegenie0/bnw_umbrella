@@ -18,8 +18,9 @@
     <%= if @sex == "active" do%>
     <thead>
       <tr>
-       <th class="uk-width-1-2">Sex</th>
+       <th>Sex</th>
        <th>Order</th>
+       <th>Description</th>
        <th>edit | delete</th>
       </tr>
     </thead>
@@ -28,6 +29,7 @@
       <tr>
       <td><%= sex.name %></td>
       <td><%= sex.order %></td>
+      <td><%= sex.description %></td>
         <td>
           <%= link "", to: "#", class: "uk-padding-remove-vertical uk-margin-small-right",
           uk_icon: "pencil",
@@ -46,8 +48,9 @@
     <% else %>
     <thead>
       <tr>
-       <th class="uk-width-1-2">Sex</th>
-       <th>order</th>
+       <th>Sex</th>
+       <th>Order</th>
+       <th>Description</th>
        <th>edit | delete</th>
       </tr>
     </thead>
@@ -56,6 +59,7 @@
     <tr>
     <td><%= sex.name %></td>
     <td><%= sex.order %></td>
+    <td><%= sex.description %></td>
     <td>
         <%= link "", to: "#", class: "uk-padding-remove-vertical uk-margin-small-right",
         uk_icon: "pencil",
@@ -74,6 +78,6 @@
     <% end %>
   </table>
 </div>
-<%= if @modal == :change_purchase_type do
-  live_component(@socket, ChangePurchaseTypeComponent, id: "#{@current_user.id}",changeset: @changeset)
+<%= if @modal == :change_animal_ordering do
+  live_component(@socket, ChangeAnimalOrderingComponent, id: "#{@current_user.id}",changeset: @changeset)
 end %>
