@@ -1,4 +1,4 @@
-defmodule CattlePurchase.PurchaseType do
+defmodule CattlePurchase.PurchaseTypeFilter do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -13,18 +13,16 @@ defmodule CattlePurchase.PurchaseType do
 
   @schema_prefix prefix
 
-  schema "purchase_types" do
+  schema "purchase_type_filters" do
     field :name, :string
-    field :active, :boolean, default: false
-    field :exclude, :boolean, default: false
-    many_to_many(:purchase_type_filters, CattlePurchase.PurchaseTypeFilter , join_through: "purchase_type_purchase_type_filters")
-
+    field :default_group, :boolean, default: false
+    many_to_many(:purchase_types, CattlePurchase.PurchaseType , join_through: "purchase_type_purchase_type_filters")
 
     timestamps()
   end
 
   @required ~w(name)a
-  @optional ~w(active exclude)a
+  @optional ~w(default_group)a
   @allowed @required ++ @optional
 
   def changeset(%__MODULE__{} = model, attrs \\ %{}) do
