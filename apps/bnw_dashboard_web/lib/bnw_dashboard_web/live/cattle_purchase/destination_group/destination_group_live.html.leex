@@ -34,5 +34,5 @@
   </table>
 </div>
 <%= if @modal == :change_destination_group do
-  live_component(@socket, ChangePurchaseFlagComponent, id: "#{@current_user.id}",changeset: @changeset)
+  live_component(@socket, ChangeDestinationGroupComponent, id: "#{@current_user.id}",changeset: @changeset)
 end %>

@@ -6,7 +6,7 @@ defmodule BnwDashboardWeb.CattlePurchase.DestinationGroup.DestinationGroupLive d
     DestinationGroups
   }
 
-  # alias BnwDashboardWeb.CattlePurchase.DestinationGroup.ChangeDestinationGroupComponent
+  alias BnwDashboardWeb.CattlePurchase.DestinationGroup.ChangeDestinationGroupComponent
 
   defp authenticate(socket) do
     current_user = Map.get(socket.assigns, :current_user)
@@ -31,9 +31,9 @@ defmodule BnwDashboardWeb.CattlePurchase.DestinationGroup.DestinationGroupLive d
         modal: nil
       )
 
-    # if connected?(socket) do
-    #   Sexes.subscribe()
-    # end
+    if connected?(socket) do
+      DestinationGroups.subscribe()
+    end
 
     case authenticate(socket) do
       true -> {:ok, socket}
@@ -46,5 +46,46 @@ defmodule BnwDashboardWeb.CattlePurchase.DestinationGroup.DestinationGroupLive d
     {:noreply, socket}
   end
 
+  @impl true
+  def handle_event("new", _, socket) do
+    changeset = DestinationGroups.new_destination_group()
+    socket = assign(socket, changeset: changeset, modal: :change_destination_group)
+    {:noreply, socket}
+  end
 
+  @impl true
+  def handle_event("cancel", _, socket) do
+    socket = assign(socket, modal: nil)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("edit", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+    changeset =
+          Enum.find(socket.assigns.destination_groups, fn pg -> pg.id == id end )
+          |>DestinationGroups.change_destination_group()
+    socket = assign(socket, changeset: changeset, modal: :change_destination_group)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("delete", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+    Enum.find(socket.assigns.destination_groups, fn pg -> pg.id == id end )
+    |>DestinationGroups.delete_destination_group()
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({[:destination_groups, :created_or_updated], _}, socket) do
+    socket = assign(socket, modal: nil, changeset: nil)
+    {:noreply, assign(socket, destination_groups: DestinationGroups.list_destination_groups() )}
+  end
+
+  @impl true
+  def handle_info({[:destination_groups, :deleted], _}, socket) do
+    socket = assign(socket, modal: nil, changeset: nil)
+    {:noreply, assign(socket, destination_groups: DestinationGroups.list_destination_groups() )}
+  end
 end

@@ -7,6 +7,11 @@ defmodule CattlePurchase.DestinationGroups do
   @doc """
   List all destination_groups
   """
+  @topic "cattle_purchase:destination_groups"
+  def subscribe(), do: Phoenix.PubSub.subscribe(CattlePurchase.PubSub, @topic)
+  def subscribe(id), do: Phoenix.PubSub.subscribe(CattlePurchase.PubSub, "#{@topic}:#{id}")
+  def unsubscribe(), do: Phoenix.PubSub.unsubscribe(CattlePurchase.PubSub, @topic)
+  def unsubscribe(id), do: Phoenix.PubSub.unsubscribe(CattlePurchase.PubSub, "#{@topic}:#{id}")
 
   def list_destination_groups() do
     Repo.all(DestinationGroup)
@@ -36,6 +41,8 @@ defmodule CattlePurchase.DestinationGroups do
     destination_group
     |> DestinationGroup.changeset(attrs)
     |> Repo.insert_or_update()
+    |> notify_subscribers([:destination_groups, :created_or_updated])
+
   end
 
   @doc """
@@ -43,5 +50,15 @@ defmodule CattlePurchase.DestinationGroups do
   """
   def delete_destination_group(%DestinationGroup{} = destination_group) do
     Repo.delete(destination_group)
+    |> notify_subscribers([:destination_groups, :deleted])
+
   end
+
+  def notify_subscribers({:ok, result}, event) do
+    Phoenix.PubSub.broadcast(CattlePurchase.PubSub, @topic, {event, result})
+    Phoenix.PubSub.broadcast(CattlePurchase.PubSub, "#{@topic}:#{result.id}", {event, result})
+    {:ok, result}
+  end
+
+  def notify_subscribers({:error, reason}, _event), do: {:error, reason}
 end
