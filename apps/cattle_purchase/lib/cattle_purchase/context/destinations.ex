@@ -6,16 +6,24 @@ defmodule CattlePurchase.Destinations do
 
   import Ecto.Query, only: [from: 2]
 
+  @topic "cattle_purchase:destinations"
+
+  def subscribe(), do: Phoenix.PubSub.subscribe(CattlePurchase.PubSub, @topic)
+  def subscribe(id), do: Phoenix.PubSub.subscribe(CattlePurchase.PubSub, "#{@topic}:#{id}")
+  def unsubscribe(), do: Phoenix.PubSub.unsubscribe(CattlePurchase.PubSub, @topic)
+  def unsubscribe(id), do: Phoenix.PubSub.unsubscribe(CattlePurchase.PubSub, "#{@topic}:#{id}")
+
   @doc """
   List all active destinations
   """
 
   def list_active_destinations(parent_id) do
     from(destination in Destination,
-          where: destination.destination_group_id == ^parent_id
-            and destination.active == true
-        )
-        |> Repo.all()
+      where:
+        destination.destination_group_id == ^parent_id and
+          destination.active == true
+    )
+    |> Repo.all()
   end
 
   @doc """
@@ -24,10 +32,11 @@ defmodule CattlePurchase.Destinations do
 
   def list_inactive_destinations(parent_id) do
     from(destination in Destination,
-          where: destination.destination_group_id == ^parent_id
-            and destination.active == false
-        )
-        |> Repo.all()
+      where:
+        destination.destination_group_id == ^parent_id and
+          destination.active == false
+    )
+    |> Repo.all()
   end
 
   @doc """
@@ -54,6 +63,7 @@ defmodule CattlePurchase.Destinations do
     destination
     |> Destination.changeset(attrs)
     |> Repo.insert_or_update()
+    |> notify_subscribers([:destinations, :created_or_updated])
   end
 
   @doc """
@@ -61,5 +71,15 @@ defmodule CattlePurchase.Destinations do
   """
   def delete_destination(%Destination{} = destination) do
     Repo.delete(destination)
+    |> notify_subscribers([:destinations, :deleted])
   end
+
+  def notify_subscribers({:ok, result}, event) do
+    Phoenix.PubSub.broadcast(CattlePurchase.PubSub, @topic, {event, result})
+    Phoenix.PubSub.broadcast(CattlePurchase.PubSub, "#{@topic}:#{result.id}", {event, result})
+
+    {:ok, result}
+  end
+
+  def notify_subscribers({:error, reason}, _event), do: {:error, reason}
 end

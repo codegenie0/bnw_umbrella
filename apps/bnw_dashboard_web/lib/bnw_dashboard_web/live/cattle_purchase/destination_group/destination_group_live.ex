@@ -7,6 +7,7 @@ defmodule BnwDashboardWeb.CattlePurchase.DestinationGroup.DestinationGroupLive d
   }
 
   # alias BnwDashboardWeb.CattlePurchase.DestinationGroup.ChangeDestinationGroupComponent
+  alias BnwDashboardWeb.CattlePurchase.Destination.DestinationLive
 
   defp authenticate(socket) do
     current_user = Map.get(socket.assigns, :current_user)
@@ -27,8 +28,8 @@ defmodule BnwDashboardWeb.CattlePurchase.DestinationGroup.DestinationGroupLive d
       |> assign(
         page_title: "BNW Dashboard · Destination Groups",
         app: "Cattle Purchase",
-        destination_groups: DestinationGroups.list_destination_groups,
-        modal: nil
+        destination_groups: DestinationGroups.list_destination_groups(),
+        modal: nil,
       )
 
     # if connected?(socket) do
@@ -46,5 +47,11 @@ defmodule BnwDashboardWeb.CattlePurchase.DestinationGroup.DestinationGroupLive d
     {:noreply, socket}
   end
 
+  @impl true
+  def handle_event("go-to-destination", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
 
+    {:noreply,
+     push_redirect(socket, to: Routes.live_path(socket, DestinationLive, id), replace: true)}
+  end
 end
