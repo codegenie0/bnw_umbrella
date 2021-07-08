@@ -7,7 +7,8 @@ defmodule CattlePurchase.Pages do
       %{name: "Purchase Type", url: "/cattle_purchase/purchase_types"},
       %{name: "Purchase Group", url: "/cattle_purchase/purchase_groups"},
       %{name: "Purchase Flag", url: "/cattle_purchase/purchase_flags"},
-      %{name: "Users", url: "/cattle_purchase/users"}
+      %{name: "Users", url: "/cattle_purchase/users"},
+      %{name: "Purchase Buyer", url: "/cattle_purchase/purchase_buyers"},
 
     ]
   end
