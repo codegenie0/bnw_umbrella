@@ -111,6 +111,7 @@ defmodule BnwDashboardWeb.Router do
     scope "/cattle_purchase" do
       live "/animal_ordering", CattlePurchase.AnimalOrdering.AnimalOrderingLive
       live "/destination_groups", CattlePurchase.DestinationGroup.DestinationGroupLive
+      live "/destination_groups/:id/destinations", CattlePurchase.Destination.DestinationLive
       live "/page", CattlePurchase.Page.PageLive
       live "/purchase_types", CattlePurchase.PurchaseType.PurchaseTypeLive
       live "/purchase_groups", CattlePurchase.PurchaseGroup.PurchaseGroupLive

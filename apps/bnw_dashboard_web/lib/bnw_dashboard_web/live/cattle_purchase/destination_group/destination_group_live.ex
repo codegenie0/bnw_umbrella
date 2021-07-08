@@ -7,6 +7,7 @@ defmodule BnwDashboardWeb.CattlePurchase.DestinationGroup.DestinationGroupLive d
   }
 
   alias BnwDashboardWeb.CattlePurchase.DestinationGroup.ChangeDestinationGroupComponent
+  alias BnwDashboardWeb.CattlePurchase.Destination.DestinationLive
 
   defp authenticate(socket) do
     current_user = Map.get(socket.assigns, :current_user)
@@ -75,6 +76,13 @@ defmodule BnwDashboardWeb.CattlePurchase.DestinationGroup.DestinationGroupLive d
     Enum.find(socket.assigns.destination_groups, fn pg -> pg.id == id end )
     |>DestinationGroups.delete_destination_group()
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("go-to-destination", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+    {:noreply,
+     push_redirect(socket, to: Routes.live_path(socket, DestinationLive, id), replace: true)}
   end
 
   @impl true

@@ -15,7 +15,12 @@
     </tbody>
       <%= for destination_group <- @destination_groups do %>
       <tr>
-      <td><%= destination_group.name %></td>
+      <td> <%= link to: "#", class: "uk-link-reset",
+        phx_click: "go-to-destination",
+        phx_value_id: destination_group.id do %>
+        <%= destination_group.name %>
+        <% end %>
+      </td>
       <td>
           <%= link "", to: "#", class: "uk-padding-remove-vertical uk-margin-small-right",
           uk_icon: "pencil",
