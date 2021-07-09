@@ -97,4 +97,9 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseBuyer.PurchaseBuyerLive do
     socket = assign(socket, modal: nil, changeset: nil)
     {:noreply, assign(socket, purchase_buyers: PurchaseBuyers.list_purchase_buyers() )}
   end
+
+  @impl true
+  def handle_event("search", %{"search_buyer" => %{"query" => query}}, socket) do
+    {:noreply, assign(socket, purchase_buyers: PurchaseBuyers.search_query(query) )}
+  end
 end
