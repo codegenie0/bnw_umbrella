@@ -113,6 +113,7 @@ defmodule BnwDashboardWeb.Router do
       live "/destination_groups", CattlePurchase.DestinationGroup.DestinationGroupLive
       live "/destination_groups/:id/destinations", CattlePurchase.Destination.DestinationLive
       live "/page", CattlePurchase.Page.PageLive
+      live "/purchase_buyers", CattlePurchase.PurchaseBuyer.PurchaseBuyerLive
       live "/purchase_types", CattlePurchase.PurchaseType.PurchaseTypeLive
       live "/purchase_groups", CattlePurchase.PurchaseGroup.PurchaseGroupLive
       live "/purchase_flags", CattlePurchase.PurchaseFlag.PurchaseFlagLive
