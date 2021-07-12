@@ -17,7 +17,7 @@ defmodule CattlePurchase.PurchaseType do
     field :name, :string
     field :active, :boolean, default: false
     field :exclude, :boolean, default: false
-    many_to_many(:purchase_type_filters, CattlePurchase.PurchaseTypeFilter , join_through: "purchase_type_purchase_type_filters")
+    many_to_many(:purchase_type_filters, CattlePurchase.PurchaseTypeFilter , join_through: "purchase_type_purchase_type_filters", on_delete: :delete_all)
 
 
     timestamps()

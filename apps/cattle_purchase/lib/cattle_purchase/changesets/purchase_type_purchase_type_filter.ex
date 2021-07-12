@@ -29,4 +29,9 @@ defmodule CattlePurchase.PurchaseTypePurchaseTypeFilter do
     |> validate_required(@required)
     |> unique_constraint(:purchase_type_filter, name: :purchase_type_filters_unique_index)
   end
+
+  def changeset_for_purchase_types(%__MODULE__{} = model, attrs \\ %{}) do
+    model
+    |> cast(attrs, @allowed)
+  end
 end
