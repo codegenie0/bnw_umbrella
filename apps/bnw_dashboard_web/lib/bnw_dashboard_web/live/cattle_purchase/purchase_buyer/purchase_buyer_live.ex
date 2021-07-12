@@ -4,7 +4,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseBuyer.PurchaseBuyerLive do
     Authorize,
     PurchaseBuyers
   }
-  # alias BnwDashboardWeb.CattlePurchase.PurchaseBuyers.ChangePurchaseBuyerComponent
+  alias BnwDashboardWeb.CattlePurchase.PurchaseBuyers.ChangePurchaseBuyerComponent
 
   defp authenticate(socket) do
     current_user = Map.get(socket.assigns, :current_user)
@@ -41,6 +41,49 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseBuyer.PurchaseBuyerLive do
   end
 
   @impl true
+  def handle_event("new", _, socket) do
+    changeset = PurchaseBuyers.new_purchase_buyer()
+    socket = assign(socket, changeset: changeset, modal: :change_purchase_buyer)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("edit", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+    changeset =
+          Enum.find(socket.assigns.purchase_buyers, fn pg -> pg.id == id end )
+          |>PurchaseBuyers.change_purchase_buyer()
+    socket = assign(socket, changeset: changeset, modal: :change_purchase_buyer)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("delete", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+    Enum.find(socket.assigns.purchase_buyers, fn pg -> pg.id == id end )
+    |>PurchaseBuyers.delete_purchase_buyer()
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("cancel", _, socket) do
+    socket = assign(socket, modal: nil)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({[:purchase_buyers, :created_or_updated], _}, socket) do
+    socket = assign(socket, modal: nil, changeset: nil)
+    {:noreply, assign(socket, purchase_buyers: PurchaseBuyers.list_purchase_buyers() )}
+  end
+
+  @impl true
+  def handle_info({[:purchase_buyers, :deleted], _}, socket) do
+    socket = assign(socket, modal: nil, changeset: nil)
+    {:noreply, assign(socket, purchase_buyers: PurchaseBuyers.list_purchase_buyers() )}
+  end
+
+  @impl true
   def handle_event("sort-up", _params, socket) do
     {:noreply, assign(socket, purchase_buyers: PurchaseBuyers.sort_by("asc") )}
   end
@@ -48,5 +91,10 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseBuyer.PurchaseBuyerLive do
   @impl true
   def handle_event("sort-down", _params, socket) do
     {:noreply, assign(socket, purchase_buyers: PurchaseBuyers.sort_by("desc") )}
+  end
+
+  @impl true
+  def handle_event("search", %{"search_buyer" => %{"query" => query}}, socket) do
+    {:noreply, assign(socket, purchase_buyers: PurchaseBuyers.search_query(query) )}
   end
 end
