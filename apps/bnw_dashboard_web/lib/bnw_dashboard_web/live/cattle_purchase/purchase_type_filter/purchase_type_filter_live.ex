@@ -70,11 +70,34 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseTypeFilter.PurchaseTypeFilterLi
   def handle_event("edit", params, socket) do
     {id, ""} = Integer.parse(params["id"])
 
-    changeset =
+    purchase_type_filter =
       Enum.find(socket.assigns.purchase_type_filters, fn pg -> pg.id == id end)
+
+    purchase_types = Enum.map(purchase_type_filter.purchase_types, fn item -> item.id end)
+
+    changeset =
+      purchase_type_filter
       |> PurchaseTypeFilters.change_purchase_type_filter()
 
-    socket = assign(socket, changeset: changeset, modal: :change_purchase_type_filter)
+    active_purchase_types =
+      PurchaseTypes.get_active_purchase_types()
+      |> Enum.map(fn item ->
+        result = Enum.find(purchase_types, nil, fn purchase_type -> item.id == purchase_type end)
+
+        if(result) do
+          %{id: item.id, name: item.name, checked: true}
+        else
+          %{id: item.id, name: item.name, checked: false}
+        end
+      end)
+
+    socket =
+      assign(socket,
+        changeset: changeset,
+        modal: :change_purchase_type_filter,
+        active_purchase_types: active_purchase_types
+      )
+
     {:noreply, socket}
   end
 
