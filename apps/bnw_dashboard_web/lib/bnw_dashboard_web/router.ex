@@ -118,6 +118,8 @@ defmodule BnwDashboardWeb.Router do
       live "/purchase_groups", CattlePurchase.PurchaseGroup.PurchaseGroupLive
       live "/purchase_flags", CattlePurchase.PurchaseFlag.PurchaseFlagLive
       live "/users", CattlePurchase.Users.UsersLive
+      live "/weight_categories", CattlePurchase.WeightCategory.WeightCategoryLive
+
     end
   end
 

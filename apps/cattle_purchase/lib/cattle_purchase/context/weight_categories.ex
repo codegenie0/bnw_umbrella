@@ -44,7 +44,6 @@ defmodule CattlePurchase.WeightCategories do
     |> WeightCategory.changeset(attrs)
     |> Repo.insert_or_update()
     |> notify_subscribers([:weight_categories, :created_or_updated])
-
   end
 
   @doc """

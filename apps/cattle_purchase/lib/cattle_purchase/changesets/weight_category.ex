@@ -38,10 +38,10 @@ defmodule CattlePurchase.WeightCategory do
   end
 
   def check_weights_valid(cs, params) when cs.valid? do
-    if params.end_weight < params.start_weight do
+    if params["end_weight"] < params["start_weight"] do
       add_error(cs, :end_weight, "can't be less than start_weight")
     else
-      if params.end_weight == params.start_weight do
+      if params["end_weight"] == params["start_weight"] do
         add_error(cs, :end_weight, "can't be same as start weight")
       else
         cs
@@ -61,22 +61,24 @@ defmodule CattlePurchase.WeightCategory do
                             )
                             |> Repo.one()
 
-    if (max_end_weight && params.start_weight > max_end_weight)
-        || (min_start_weight && params.end_weight <  min_start_weight) do
+
+    if (max_end_weight && params["start_weight"] |> String.to_integer() > max_end_weight)
+        || (min_start_weight && params["end_weight"] |> String.to_integer() <  min_start_weight) do
         cs
     else
         result = from( wc in __MODULE__,
-                        where: (wc.start_weight >= ^params.start_weight
-                        and wc.end_weight >= ^params.end_weight) or
-                        (wc.start_weight <= ^params.start_weight
-                        and wc.end_weight >= ^params.end_weight) or
-                        (wc.start_weight >= ^params.start_weight
-                        and wc.end_weight <= ^params.end_weight) or
-                        wc.end_weight == ^params.start_weight or
-                        wc.end_weight <= ^params.start_weight,
+                        where: (wc.start_weight >= ^params["start_weight"]
+                        and wc.end_weight >= ^params["end_weight"]) or
+                        (wc.start_weight <= ^params["start_weight"]
+                        and wc.end_weight >= ^params["end_weight"]) or
+                        (wc.start_weight >= ^params["start_weight"]
+                        and wc.end_weight <= ^params["end_weight"]) or
+                        wc.end_weight == ^params["start_weight"] or
+                        wc.end_weight <= ^params["start_weight"],
                         select: %{id: wc.id}
                       )
                       |> Repo.all()
+
       if result == [] do
         cs
       else
