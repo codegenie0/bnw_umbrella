@@ -15,7 +15,10 @@
   </form>
   <table class="uk-table uk-table-striped uk-table-middle uk-table-hover">
     <thead>
-      <tr>
+    <tr>
+      <th>
+        ID
+      </th>
        <th class="uk-width-1-4">
         <button phx-click="sort-up" class="uk-icon">
           <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><polygon points="10.5,4 15.37,9.4 14.63,10.08 10.5,5.49 6.37,10.08 5.63,9.4"></polygon><line fill="none" stroke="#000" x1="10.5" y1="16" x2="10.5" y2="5"></line></svg>
@@ -26,11 +29,12 @@
         Name
        </th>
        <th>edit | delete</th>
-      </tr>
+    </tr>
     </thead>
     </tbody>
       <%= for purchase_buyer <- @purchase_buyers do %>
       <tr>
+      <td><%= purchase_buyer.id %></td>
       <td><%= purchase_buyer.name %></td>
       <td>
           <%= link "", to: "#", class: "uk-padding-remove-vertical uk-margin-small-right",

@@ -28,8 +28,8 @@ defmodule CattlePurchase.WeightCategory do
     model
     |> cast(attrs, @allowed)
     |> validate_required(@required)
-    |> check_weights_valid(attrs)
-    |> overlap_weight_ranges(attrs)
+    |> check_weights_valid(attrs["start_weight"], attrs["end_weight"])
+    |> overlap_weight_ranges(attrs["start_weight"], attrs["end_weight"])
   end
 
   def new_changeset(%__MODULE__{} = model, attrs \\ %{}) do
@@ -37,11 +37,13 @@ defmodule CattlePurchase.WeightCategory do
     |> cast(attrs, @allowed)
   end
 
-  def check_weights_valid(cs, params) when cs.valid? do
-    if params["end_weight"] < params["start_weight"] do
+  def check_weights_valid(cs, nil, nil), do: cs
+
+  def check_weights_valid(cs, start_weight, end_weight) when cs.valid?  do
+    if end_weight|> String.to_integer() < start_weight|> String.to_integer() do
       add_error(cs, :end_weight, "can't be less than start_weight")
     else
-      if params["end_weight"] == params["start_weight"] do
+      if end_weight|> String.to_integer() == start_weight|> String.to_integer() do
         add_error(cs, :end_weight, "can't be same as start weight")
       else
         cs
@@ -49,9 +51,11 @@ defmodule CattlePurchase.WeightCategory do
     end
   end
 
-  def check_weights_valid(cs, _params), do: cs
+  def check_weights_valid(cs, _start_weight,_end_weight), do: cs
 
-  def overlap_weight_ranges(cs, params) when cs.valid? do
+  def overlap_weight_ranges(cs, nil, nil), do: cs
+
+  def overlap_weight_ranges(cs, start_weight, end_weight) when cs.valid? do
     max_end_weight = from( wc in __MODULE__,
                             select: max(wc.end_weight)
                           )
@@ -62,19 +66,19 @@ defmodule CattlePurchase.WeightCategory do
                             |> Repo.one()
 
 
-    if (max_end_weight && params["start_weight"] |> String.to_integer() > max_end_weight)
-        || (min_start_weight && params["end_weight"] |> String.to_integer() <  min_start_weight) do
+    if (max_end_weight && start_weight|> String.to_integer() > max_end_weight)
+        || (min_start_weight && end_weight|> String.to_integer() <  min_start_weight) do
         cs
     else
         result = from( wc in __MODULE__,
-                        where: (wc.start_weight >= ^params["start_weight"]
-                        and wc.end_weight >= ^params["end_weight"]) or
-                        (wc.start_weight <= ^params["start_weight"]
-                        and wc.end_weight >= ^params["end_weight"]) or
-                        (wc.start_weight >= ^params["start_weight"]
-                        and wc.end_weight <= ^params["end_weight"]) or
-                        wc.end_weight == ^params["start_weight"] or
-                        wc.end_weight <= ^params["start_weight"],
+                        where: (wc.start_weight >= ^start_weight
+                        and wc.end_weight >= ^end_weight) or
+                        (wc.start_weight <= ^start_weight
+                        and wc.end_weight >= ^end_weight) or
+                        (wc.start_weight >= ^start_weight
+                        and wc.end_weight <= ^end_weight) or
+                        wc.end_weight == ^start_weight or
+                        wc.end_weight <= ^start_weight,
                         select: %{id: wc.id}
                       )
                       |> Repo.all()
@@ -87,5 +91,5 @@ defmodule CattlePurchase.WeightCategory do
     end
   end
 
-  def overlap_weight_ranges(cs, _params), do: cs
+  def overlap_weight_ranges(cs, _start_weight, _end_weight), do: cs
 end
