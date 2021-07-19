@@ -19,17 +19,16 @@ defmodule CattlePurchase.PurchaseTypeFilters do
   """
 
   def list_purchase_type_filters() do
-    from( ptf in PurchaseTypeFilter,
-          join: ptfpt in PurchaseTypePurchaseTypeFilter,
-          on: ptf.id == ptfpt.purchase_type_filter_id,
-          join: pt in PurchaseType,
-          on: pt.id == ptfpt.purchase_type_id,
-          preload: [:purchase_types],
-          distinct: true
-        )
-        |>Repo.all()
+    from(ptf in PurchaseTypeFilter,
+      join: ptfpt in PurchaseTypePurchaseTypeFilter,
+      on: ptf.id == ptfpt.purchase_type_filter_id,
+      join: pt in PurchaseType,
+      on: pt.id == ptfpt.purchase_type_id,
+      preload: [:purchase_types],
+      distinct: true
+    )
+    |> Repo.all()
   end
-
 
   @doc """
   Create a new purchase_type_filter
@@ -51,7 +50,10 @@ defmodule CattlePurchase.PurchaseTypeFilters do
   @doc """
   Create or update a purchase_type_filter
   """
-  def create_or_update_purchase_type_filter(%PurchaseTypeFilter{} = purchase_type_filter, attrs \\ %{}) do
+  def create_or_update_purchase_type_filter(
+        %PurchaseTypeFilter{} = purchase_type_filter,
+        attrs \\ %{}
+      ) do
     purchase_type_filter
     |> PurchaseTypeFilter.changeset(attrs)
     |> Repo.insert_or_update()
@@ -70,23 +72,35 @@ defmodule CattlePurchase.PurchaseTypeFilters do
   Check if any acitve purchase type exist
   """
   def check_active_purchase_types_exist?() do
-    result = from( p in CattlePurchase.PurchaseType,
-                    where: p.active == true
-                  )
-                  |> Repo.all()
+    result =
+      from(p in CattlePurchase.PurchaseType,
+        where: p.active == true
+      )
+      |> Repo.all()
 
     if result == [], do: false, else: true
+  end
+
+  def is_default_set?() do
+    result =
+      from(ptf in PurchaseTypeFilter,
+        where: ptf.default_group == true,
+        select: ptf
+      )
+      |> Repo.all()
+
+    !Enum.empty?(result)
   end
 
   @doc """
     set previous purchase type filter default groups to false
   """
   def set_default_group_to_false() do
-    from( ptf in PurchaseTypeFilter,
-          where: ptf.default_group == true,
-          update: [set: [default_group: false]]
-        )
-        |> Repo.update_all([])
+    from(ptf in PurchaseTypeFilter,
+      where: ptf.default_group == true,
+      update: [set: [default_group: false]]
+    )
+    |> Repo.update_all([])
   end
 
   def notify_subscribers({:ok, result}, event) do

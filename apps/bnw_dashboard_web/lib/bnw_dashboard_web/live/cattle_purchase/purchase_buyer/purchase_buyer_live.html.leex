@@ -20,13 +20,13 @@
         ID
       </th>
        <th class="uk-width-1-4">
-        <button phx-click="sort-up" class="uk-icon">
-          <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><polygon points="10.5,4 15.37,9.4 14.63,10.08 10.5,5.49 6.37,10.08 5.63,9.4"></polygon><line fill="none" stroke="#000" x1="10.5" y1="16" x2="10.5" y2="5"></line></svg>
-        </button>
-        <button phx-click="sort-down" class="uk-icon">
-          <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><polygon points="10.5,16.08 5.63,10.66 6.37,10 10.5,14.58 14.63,10 15.37,10.66"></polygon><line fill="none" stroke="#000" x1="10.5" y1="4" x2="10.5" y2="15"></line></svg>
-        </button>
-        Name
+         <%= if  @name_sort_asc do %>
+         <span class="uk-preserve-width" uk-icon="icon: arrow-down" phx-hook="uk_icon"></span>
+         <% end %>
+         <%= if @name_sort_asc == false do %>
+         <span class="uk-preserve-width" uk-icon="icon: arrow-up" phx-hook="uk_icon"></span>
+         <% end %>
+        <span phx-click="toggle-name-sort">Name</span>
        </th>
        <th>edit | delete</th>
     </tr>
