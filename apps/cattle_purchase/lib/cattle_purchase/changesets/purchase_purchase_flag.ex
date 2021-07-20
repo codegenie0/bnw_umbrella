@@ -1,6 +1,7 @@
-defmodule CattlePurchase.PurchaseTypePurchaseTypeFilter do
+defmodule CattlePurchase.PurchasePurchaseFlag do
   use Ecto.Schema
   import Ecto.Changeset
+  alias CattlePurchase.{Purchase, PurchaseFlag}
 
   prefix = "bnw_dashboard_cattle_purchase"
 
@@ -13,23 +14,23 @@ defmodule CattlePurchase.PurchaseTypePurchaseTypeFilter do
 
   @schema_prefix prefix
 
-  schema "purchase_type_purchase_type_filters" do
-    belongs_to(:purchase_type, CattlePurchase.PurchaseType)
-    belongs_to(:purchase_type_filter, CattlePurchase.PurchaseTypeFilter)
+  schema "purchase_purchase_flags" do
+    belongs_to(:purchase, Purchase)
+    belongs_to(:purchase_flag, PurchaseFlag)
 
     timestamps()
   end
 
-  @required ~w(purchase_type_id purchase_type_filter_id)a
+  @required ~w(purchase_id purchase_flag_id)a
   @allowed @required
 
   def changeset(%__MODULE__{} = model, attrs \\ %{}) do
     model
     |> cast(attrs, @allowed)
     |> validate_required(@required)
-    |> unique_constraint(:purchase_type_filter, name: :purchase_type_filters_unique_index)
-    |> foreign_key_constraint(:purchase_type_id)
-    |> foreign_key_constraint(:purchase_type_filter_id)
+    |> unique_constraint(:purchase, name: :purchase_purchase_flag_unique_index)
+    |> foreign_key_constraint(:purchase_id)
+    |> foreign_key_constraint(:purchase_flag_id)
 
   end
 

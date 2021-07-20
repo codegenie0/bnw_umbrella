@@ -1,6 +1,7 @@
 defmodule CattlePurchase.DestinationGroup do
   use Ecto.Schema
   import Ecto.Changeset
+  alias CattlePurchase.Purchase
 
   prefix = "bnw_dashboard_cattle_purchase"
 
@@ -16,6 +17,8 @@ defmodule CattlePurchase.DestinationGroup do
   schema "destination_groups" do
     field :name, :string
     has_many(:destinations, CattlePurchase.DestinationGroup)
+    has_many(:purchases, Purchase)
+    has_many(:future_purchases, Purchase, foreign_key: :future_destination_group_id)
 
     timestamps()
   end

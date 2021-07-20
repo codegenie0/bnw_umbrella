@@ -20,5 +20,7 @@ defmodule CattlePurchase.UserRole do
   def changeset(user_role, attrs \\ %{}) do
     user_role
     |> cast(attrs, [:user_id, :role])
+    |> foreign_key_constraint(:user_id)
+
   end
 end

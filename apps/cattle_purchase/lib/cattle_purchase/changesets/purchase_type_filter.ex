@@ -35,7 +35,10 @@ defmodule CattlePurchase.PurchaseTypeFilter do
       |> cast(attrs, @allowed)
       |> validate_required(@required)
 
-    if changeset.valid? && attrs["default_group"] == true do
+
+
+    if changeset.valid? && (attrs["default_group"] == "true"
+                                          || (attrs["default_group"] == true)) do
       PurchaseTypeFilters.set_default_group_to_false()
     end
 

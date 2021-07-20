@@ -29,6 +29,8 @@ defmodule CattlePurchase.Destination do
     model
     |> cast(attrs, @allowed)
     |> validate_required(@required)
+    |> foreign_key_constraint(:destination_group_id)
+
   end
 
   def new_changeset(%__MODULE__{} = model, attrs \\ %{}) do

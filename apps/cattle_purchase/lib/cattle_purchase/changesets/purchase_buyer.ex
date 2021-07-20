@@ -1,6 +1,8 @@
 defmodule CattlePurchase.PurchaseBuyer do
   use Ecto.Schema
   import Ecto.Changeset
+  alias CattlePurchase.Purchase
+
 
   prefix = "bnw_dashboard_cattle_purchase"
 
@@ -15,6 +17,8 @@ defmodule CattlePurchase.PurchaseBuyer do
 
   schema "purchase_buyers" do
     field :name, :string
+    has_many(:purchases, Purchase)
+
 
     timestamps()
   end

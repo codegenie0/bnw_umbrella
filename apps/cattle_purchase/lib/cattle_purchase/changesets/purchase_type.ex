@@ -1,6 +1,8 @@
 defmodule CattlePurchase.PurchaseType do
   use Ecto.Schema
   import Ecto.Changeset
+  alias CattlePurchase.Purchase
+
 
   prefix = "bnw_dashboard_cattle_purchase"
 
@@ -17,6 +19,7 @@ defmodule CattlePurchase.PurchaseType do
     field :name, :string
     field :active, :boolean, default: false
     field :exclude, :boolean, default: false
+    has_many(:purchases, Purchase)
     many_to_many(:purchase_type_filters, CattlePurchase.PurchaseTypeFilter , join_through: "purchase_type_purchase_type_filters", on_delete: :delete_all)
 
 

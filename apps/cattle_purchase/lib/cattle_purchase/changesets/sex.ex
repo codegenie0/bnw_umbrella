@@ -1,6 +1,8 @@
 defmodule CattlePurchase.Sex do
   use Ecto.Schema
   import Ecto.Changeset
+  alias CattlePurchase.Purchase
+
 
   prefix = "bnw_dashboard_cattle_purchase"
 
@@ -18,6 +20,8 @@ defmodule CattlePurchase.Sex do
     field :description, :string
     field :order, :integer
     field :active, :boolean, default: false
+    has_many(:purchases, Purchase)
+
 
     timestamps()
   end

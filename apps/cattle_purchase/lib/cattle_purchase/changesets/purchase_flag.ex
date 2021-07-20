@@ -1,6 +1,7 @@
 defmodule CattlePurchase.PurchaseFlag do
   use Ecto.Schema
   import Ecto.Changeset
+  alias CattlePurchase.Purchase
 
   prefix = "bnw_dashboard_cattle_purchase"
 
@@ -15,6 +16,8 @@ defmodule CattlePurchase.PurchaseFlag do
 
   schema "purchase_flags" do
     field :name, :string
+    many_to_many(:purchases, Purchase , join_through: "purchase_purchase_flags", on_delete: :delete_all)
+
 
     timestamps()
   end

@@ -62,8 +62,58 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseTypeFilter.PurchaseTypeFilterLi
   end
 
   @impl true
+  def handle_event("edit", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+    purchase_type_filter =
+      Enum.find(socket.assigns.purchase_type_filters, fn pg -> pg.id == id end)
+    purchase_types = Enum.map(purchase_type_filter.purchase_types, fn item -> item.id end)
+    changeset =
+      purchase_type_filter
+      |> PurchaseTypeFilters.change_purchase_type_filter()
+      active_purchase_types =
+        PurchaseTypes.get_active_purchase_types()
+        |> Enum.map(fn item ->
+          result = Enum.find(purchase_types, nil, fn purchase_type -> item.id == purchase_type end)
+          if(result) do
+            %{id: item.id, name: item.name, checked: true}
+          else
+            %{id: item.id, name: item.name, checked: false}
+          end
+        end)
+      socket =
+        assign(socket,
+          changeset: changeset,
+          modal: :change_purchase_type_filter,
+          active_purchase_types: active_purchase_types
+        )
+      {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("delete", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+    Enum.find(socket.assigns.purchase_type_filters, fn pg -> pg.id == id end)
+    |> PurchaseTypeFilters.delete_purchase_type_filter()
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("cancel", _, socket) do
     socket = assign(socket, modal: nil)
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({[:purchase_type_filters, :created_or_updated], _}, socket) do
+    socket = assign(socket, modal: nil, changeset: nil)
+    {:noreply,
+      assign(socket, purchase_type_filters: PurchaseTypeFilters.list_purchase_type_filters())}
+  end
+
+  @impl true
+  def handle_info({[:purchase_type_filters, :deleted], _}, socket) do
+    socket = assign(socket, modal: nil, changeset: nil)
+    {:noreply,
+      assign(socket, purchase_type_filters: PurchaseTypeFilters.list_purchase_type_filters())}
   end
 end

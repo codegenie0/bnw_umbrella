@@ -1,6 +1,8 @@
 defmodule CattlePurchase.PurchaseGroup do
   use Ecto.Schema
   import Ecto.Changeset
+  alias CattlePurchase.Purchase
+
 
   prefix = "bnw_dashboard_cattle_purchase"
 
@@ -17,6 +19,8 @@ defmodule CattlePurchase.PurchaseGroup do
     field :name, :string
     field :include_in_partnership, :boolean, default: false
     field :include_in_kills, :boolean, default: false
+    has_many(:purchases, Purchase)
+
 
     timestamps()
   end
