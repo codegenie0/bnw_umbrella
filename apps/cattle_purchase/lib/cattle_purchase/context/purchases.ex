@@ -22,6 +22,7 @@ defmodule CattlePurchase.Purchases do
 
   def list_purchases() do
     Repo.all(Purchase)
+    |> Repo.preload([:sex, :purchase_buyer, :destination_group])
   end
 
   @doc """
@@ -60,13 +61,17 @@ defmodule CattlePurchase.Purchases do
 
   end
 
-  def filter_by_purhcase_type(purchase_type_id) do
-    from(p in Purchase,
-          join: pt in PurchaseType,
-          on: p.purchase_type_id == pt.id,
-          where: pt.id == ^purchase_type_id
-        )
-        |> Repo.all()
+  def filter_by_purhcase_types(purchase_type_ids) do
+    query = from( p in Purchase,
+                    join: pt in PurchaseType,
+                    on: p.purchase_type_id == pt.id
+                )
+    Enum.reduce(purchase_type_ids, query, fn purchase_type_id, query ->
+      from( [p, ..., q] in query,
+            or_where: q.id == ^purchase_type_id
+          )
+    end)
+    |> Repo.all()
   end
 
   def sort_by(sort_order, field) do
@@ -97,7 +102,7 @@ defmodule CattlePurchase.Purchases do
           select: %{name: pb.name, id: pb.id}
         )
         |> Repo.all()
-        |> Enum.map(fn record -> %{name: "#{record.name}-#{record.id}"} end)
+        |> Enum.map(fn record -> %{id: record.id, name: "#{record.name}-#{record.id}"} end)
   end
 
   def get_destination(query) do
@@ -107,6 +112,37 @@ defmodule CattlePurchase.Purchases do
           where: like(dg.name, ^"%#{query}%"),
           preload: [destinations: :d],
           select: [:name, destinations: [:name]]
+        )
+        |> Repo.all()
+  end
+
+  def search(column, query) do
+    column = String.to_atom(column)
+    from(p in Purchase,
+          where: like(field(p, ^column), ^"%#{query}%")
+        )
+        |> Repo.all()
+  end
+
+  def price_and_delivery(purchase) do
+    if purchase.freight do
+      purchase.price + purchase.freight
+    else
+      purchase.price
+    end
+  end
+
+  def ship_date_range(start_date, nil) do
+    from(p in Purchase,
+          where: p.estimated_ship_date >= ^start_date
+        )
+        |> Repo.all()
+  end
+
+  def ship_date_range(start_date, end_date) do
+    from(p in Purchase,
+          where: p.estimated_ship_date >= ^start_date
+          and p.estimated_ship_date <= ^end_date
         )
         |> Repo.all()
   end
