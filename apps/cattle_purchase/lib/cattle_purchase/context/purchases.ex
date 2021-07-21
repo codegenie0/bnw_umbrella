@@ -61,8 +61,10 @@ defmodule CattlePurchase.Purchases do
 
   end
 
-  def filter_by_purhcase_types(purchase_type_ids) do
-    query = from( p in Purchase,
+  def filter_by_purhcase_types(query, []), do: query
+
+  def filter_by_purhcase_types(query, purchase_type_ids) do
+    query = from( p in query,
                     join: pt in PurchaseType,
                     on: p.purchase_type_id == pt.id
                 )
@@ -71,17 +73,17 @@ defmodule CattlePurchase.Purchases do
             or_where: q.id == ^purchase_type_id
           )
     end)
-    |> Repo.all()
   end
 
-  def sort_by(sort_order, field) do
+  def sort_by(query, nil, _field), do: query
+
+  def sort_by(query, sort_order, field) do
     sort_order = String.to_atom(sort_order)
     field = String.to_atom(field)
 
-    from(p in Purchase,
+    from(p in query,
           order_by: [{^sort_order, ^field}]
         )
-        |> Repo.all()
   end
 
   def get_purchase_type_filters() do
@@ -89,11 +91,13 @@ defmodule CattlePurchase.Purchases do
     |> Repo.all()
   end
 
-  def get_complete_purchases() do
-    from(p in Purchase,
+  def get_complete_purchases(query, nil), do: query
+
+
+  def get_complete_purchases(query, true) do
+    from(p in query,
           where: p.complete == true
         )
-        |> Repo.all()
   end
 
   def get_buyers(query) do
@@ -132,19 +136,19 @@ defmodule CattlePurchase.Purchases do
     end
   end
 
-  def ship_date_range(start_date, nil) do
-    from(p in Purchase,
+  def ship_date_range(query, nil, _end_date), do: query
+
+  def ship_date_range(query, start_date, nil) do
+    from(p in query,
           where: p.estimated_ship_date >= ^start_date
         )
-        |> Repo.all()
   end
 
-  def ship_date_range(start_date, end_date) do
-    from(p in Purchase,
+  def ship_date_range(query, start_date, end_date) do
+    from(p in query,
           where: p.estimated_ship_date >= ^start_date
           and p.estimated_ship_date <= ^end_date
         )
-        |> Repo.all()
   end
 
   def notify_subscribers({:ok, result}, event) do

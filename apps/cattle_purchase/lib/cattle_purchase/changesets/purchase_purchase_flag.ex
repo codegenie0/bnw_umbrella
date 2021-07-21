@@ -34,7 +34,7 @@ defmodule CattlePurchase.PurchasePurchaseFlag do
 
   end
 
-  def changeset_for_purchase_types(%__MODULE__{} = model, attrs \\ %{}) do
+  def changeset_for_purchase_flags(%__MODULE__{} = model, attrs \\ %{}) do
     model
     |> cast(attrs, @allowed)
   end

@@ -24,7 +24,8 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseBuyer.PurchaseBuyerLive do
         page_title: "BNW Dashboard · Purchase Buyer",
         app: "Cattle Purchase",
         purchase_buyers: PurchaseBuyers.list_purchase_buyers(),
-        modal: nil
+        modal: nil,
+        name_sort_asc: nil
       )
     if connected?(socket) do
       PurchaseBuyers.subscribe()
@@ -52,7 +53,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseBuyer.PurchaseBuyerLive do
     {id, ""} = Integer.parse(params["id"])
     changeset =
           Enum.find(socket.assigns.purchase_buyers, fn pg -> pg.id == id end )
-          |>PurchaseBuyers.change_purchase_buyer()
+          |> PurchaseBuyers.change_purchase_buyer()
     socket = assign(socket, changeset: changeset, modal: :change_purchase_buyer)
     {:noreply, socket}
   end
@@ -61,7 +62,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseBuyer.PurchaseBuyerLive do
   def handle_event("delete", params, socket) do
     {id, ""} = Integer.parse(params["id"])
     Enum.find(socket.assigns.purchase_buyers, fn pg -> pg.id == id end )
-    |>PurchaseBuyers.delete_purchase_buyer()
+    |> PurchaseBuyers.delete_purchase_buyer()
     {:noreply, socket}
   end
 
@@ -84,17 +85,23 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseBuyer.PurchaseBuyerLive do
   end
 
   @impl true
-  def handle_event("sort-up", _params, socket) do
-    {:noreply, assign(socket, purchase_buyers: PurchaseBuyers.sort_by("asc") )}
-  end
-
-  @impl true
-  def handle_event("sort-down", _params, socket) do
-    {:noreply, assign(socket, purchase_buyers: PurchaseBuyers.sort_by("desc") )}
+  def handle_event("toggle-name-sort", _params, socket) do
+    name_sort_asc = socket.assigns.name_sort_asc
+    case name_sort_asc do
+      true ->
+        {:noreply,
+          assign(socket, purchase_buyers: PurchaseBuyers.sort_by("desc"), name_sort_asc: false)}
+      false ->
+        {:noreply,
+          assign(socket, purchase_buyers: PurchaseBuyers.sort_by("asc"), name_sort_asc: true)}
+      _ ->
+        {:noreply,
+          assign(socket, purchase_buyers: PurchaseBuyers.sort_by("desc"), name_sort_asc: false)}
+    end
   end
 
   @impl true
   def handle_event("search", %{"search_buyer" => %{"query" => query}}, socket) do
-    {:noreply, assign(socket, purchase_buyers: PurchaseBuyers.search_query(query) )}
+    {:noreply, assign(socket, purchase_buyers: PurchaseBuyers.search_query(query))}
   end
 end

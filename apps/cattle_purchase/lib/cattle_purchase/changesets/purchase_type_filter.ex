@@ -32,8 +32,8 @@ defmodule CattlePurchase.PurchaseTypeFilter do
                 do: model |> Repo.preload(:purchase_type_purchase_type_filters),
                 else: model)
     changeset =  model
-      |> cast(attrs, @allowed)
-      |> validate_required(@required)
+                  |> cast(attrs, @allowed)
+                  |> validate_required(@required)
 
 
 

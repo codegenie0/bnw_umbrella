@@ -2,7 +2,8 @@ defmodule CattlePurchase.Purchase do
   use Ecto.Schema
   import Ecto.Changeset
   alias CattlePurchase.{Sex, DestinationGroup, PurchaseType,
-                          PurchaseBuyer, PurchaseGroup, PurchaseFlag
+                          PurchaseBuyer, PurchaseGroup, PurchaseFlag,
+                          PurchasePurchaseFlag, Repo
                         }
 
   prefix = "bnw_dashboard_cattle_purchase"
@@ -47,6 +48,7 @@ defmodule CattlePurchase.Purchase do
     belongs_to :purchase_type, PurchaseType
     belongs_to :purchase_buyer, PurchaseBuyer, foreign_key: :buyer_id
     belongs_to :purchase_group, PurchaseGroup
+    has_many(:purchase_purchase_flags, PurchasePurchaseFlag, on_replace: :delete)
     many_to_many(:purchase_flags, PurchaseFlag , join_through: "purchase_purchase_flags", on_delete: :delete_all)
 
 
@@ -66,15 +68,39 @@ defmodule CattlePurchase.Purchase do
   @allowed @required ++ @optional
 
   def changeset(%__MODULE__{} = model, attrs \\ %{}) do
-    model
-    |> cast(attrs, @allowed)
-    |> validate_required(@required)
-    |> foreign_key_constraint(:sex_id)
-    |> foreign_key_constraint(:destination_group_id)
-    |> foreign_key_constraint(:future_destination_group_id)
-    |> foreign_key_constraint(:purchase_type_id)
-    |> foreign_key_constraint(:buyer_id)
-    |> foreign_key_constraint(:purchase_group_id)
+    model = if(model.id != nil,
+                do: model |> Repo.preload(:purchase_purchase_flags),
+                else: model
+              )
+    changeset =  model
+                  |> cast(attrs, @allowed)
+                  |> validate_required(@required)
+                  |> foreign_key_constraint(:sex_id)
+                  |> foreign_key_constraint(:destination_group_id)
+                  |> foreign_key_constraint(:future_destination_group_id)
+                  |> foreign_key_constraint(:purchase_type_id)
+                  |> foreign_key_constraint(:buyer_id)
+                  |> foreign_key_constraint(:purchase_group_id)
+
+    if changeset.valid? && attrs["purchase_flag_ids"] do
+        purchase_purchase_flag_params = Enum.reduce(attrs["purchase_flag_ids"], [],
+                                            fn purchase_flag_id, acc ->
+        acc ++
+          [
+            %{
+                purchase_flag_id: purchase_flag_id
+              }
+          ]
+        end)
+
+        changeset
+        |> Ecto.Changeset.cast(%{purchase_purchase_flags:  purchase_purchase_flag_params}, [])
+        |> Ecto.Changeset.cast_assoc(:purchase_purchase_flags,
+            with: &PurchasePurchaseFlag.changeset_for_purchase_flags/2
+          )
+    else
+      changeset
+    end
   end
 
   def new_changeset(%__MODULE__{} = model, attrs \\ %{}) do
