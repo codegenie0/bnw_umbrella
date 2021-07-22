@@ -22,7 +22,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Destination.DestinationLive do
     socket =
       assign_defaults(session, socket)
       |> assign(
-        page_title: "BNW Dashboard · Active Destination ",
+        page_title: "Active Destination ",
         app: "Cattle Purchase",
         destination_type: "active",
         modal: nil,
@@ -79,7 +79,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Destination.DestinationLive do
     {:noreply,
      assign(socket,
        destination_type: "active",
-       page_title: "BNW Dashboard · Active Destination",
+       page_title: "Active Destination",
        destinations: Destinations.list_active_destinations(socket.assigns.parent_id)
      )}
   end
@@ -89,7 +89,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Destination.DestinationLive do
     {:noreply,
      assign(socket,
        destination_type: "inactive",
-       page_title: "BNW Dashboard · Inactive Destination",
+       page_title: "Inactive Destination",
        destinations: Destinations.list_inactive_destinations(socket.assigns.parent_id)
      )}
   end

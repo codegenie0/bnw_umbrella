@@ -21,7 +21,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseBuyer.PurchaseBuyerLive do
     socket =
       assign_defaults(session, socket)
       |> assign(
-        page_title: "BNW Dashboard · Purchase Buyer",
+        page_title: "Purchase Buyer",
         app: "Cattle Purchase",
         purchase_buyers: PurchaseBuyers.list_purchase_buyers(),
         modal: nil,

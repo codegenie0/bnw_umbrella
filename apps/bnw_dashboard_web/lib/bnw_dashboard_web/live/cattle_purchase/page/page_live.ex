@@ -22,7 +22,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Page.PageLive do
     socket =
       assign_defaults(session, socket)
       |> assign(
-        page_title: "BNW Dashboard · Cattle Purchase Page",
+        page_title: "Cattle Purchase Page",
         app: "Cattle Purchase"
       )
 

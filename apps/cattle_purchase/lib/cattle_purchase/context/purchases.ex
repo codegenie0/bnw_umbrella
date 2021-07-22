@@ -120,13 +120,23 @@ defmodule CattlePurchase.Purchases do
         |> Repo.all()
   end
 
-  def search(column, query) do
+  def search(query, nil, _value), do: query
+
+
+  def search(query, column, text) when column not in ["head_count", "weight", "price", "ship_date", "purchase_date"] do
     column = String.to_atom(column)
-    from(p in Purchase,
-          where: like(field(p, ^column), ^"%#{query}%")
+    from(p in query,
+          where: like(field(p, ^column), ^"%#{text}%")
         )
-        |> Repo.all()
   end
+
+  def search(query, column, numerical_value) when column in ["head_count", "weight", "price", "ship_date", "purchase_date"] do
+    column = String.to_atom(column)
+    from(p in query,
+          where: field(p, ^column) == ^numerical_value
+        )
+  end
+
 
   def price_and_delivery(purchase) do
     if purchase.freight do

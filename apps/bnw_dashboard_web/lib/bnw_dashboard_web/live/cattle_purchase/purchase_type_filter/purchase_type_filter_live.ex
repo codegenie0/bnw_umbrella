@@ -22,7 +22,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseTypeFilter.PurchaseTypeFilterLi
     socket =
       assign_defaults(session, socket)
       |> assign(
-        page_title: "BNW Dashboard · Purchase Type Filter",
+        page_title: "Purchase Type Filter",
         app: "Cattle Purchase",
         purchase_type_filters: PurchaseTypeFilters.list_purchase_type_filters(),
         modal: nil,

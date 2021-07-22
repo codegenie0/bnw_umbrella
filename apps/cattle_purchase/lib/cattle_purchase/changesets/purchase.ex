@@ -24,6 +24,7 @@ defmodule CattlePurchase.Purchase do
     field :pasture, :string
     field :purchase_order, :string
     field :pcc_sort, :string
+    field :destination_group_name, :string
     field :head_count, :integer
     field :projected_out_month, :integer
     field :projected_out_year, :integer
@@ -57,8 +58,9 @@ defmodule CattlePurchase.Purchase do
   end
 
   @required ~w(purchase_date estimated_ship_date head_count price freight
-                projected_break_even projected_out_date weight sex_id destination_group_id
-                future_destination_group_id purchase_type_id buyer_id purchase_group_id
+                projected_break_even projected_out_date destination_group_name
+                weight sex_id destination_group_id future_destination_group_id
+                purchase_type_id buyer_id purchase_group_id
               )a
   @optional ~w(seller origin firm projected_out_month projected_out_year
                   price_delivered verify complete projected_placement_date

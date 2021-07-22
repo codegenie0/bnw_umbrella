@@ -6,8 +6,8 @@
     phx-click="new">New Sexes</button>
     <div class="uk-block uk-margin-top">
       <ul uk-tab class="uk-tab">
-        <li phx-click="set-active-sexes" class=‘<%= if @sex == "active", do: "uk-active", else: "" %>‘><a href="#">Active</a></li>
-        <li phx-click="set-inactive-sexes"  class=‘<%= if @sex != "active", do: "uk-active", else: "" %>’><a href="#">InActive</a></li>
+        <li phx-click="set-active-sexes" class="<%= if @sex == "active", do: "uk-active", else: "" %>"><a href="#">Active</a></li>
+        <li phx-click="set-inactive-sexes"  class="<%= if @sex != "active", do: "uk-active", else: "" %>"><a href="#">InActive</a></li>
       </ul>
     </div>
   </div>

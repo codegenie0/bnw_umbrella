@@ -40,7 +40,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Users.UsersLive do
   def mount(_params, session, socket) do
     socket = assign_defaults(session, socket)
     |> assign(socket,
-              page_title: "BNW Dashboard · Cattle Purchase Users",
+              page_title: "Cattle Purchase Users",
               app: "Cattle Purchase",
               search: "")
 
@@ -57,7 +57,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Users.UsersLive do
     search = ""
     socket =
       socket
-      |> assign(page_title: "BNW Dashboard · Cattle Purchase Users",
+      |> assign(page_title: "Cattle Purchase Users",
                 app: "Cattle Purchase",
                 update_action: "replace",
                 page: 1,

@@ -6,8 +6,8 @@
     phx-click="new">New Purchase Type</button>
     <div class="uk-block uk-margin-top">
       <ul uk-tab class="uk-tab">
-        <li phx-click="set-active-purchase-type" class=‘<%= if @purchase_type == "active", do: "uk-active", else: "" %>‘><a href="#">Active</a></li>
-        <li phx-click="set-inactive-purchase-type"  class=‘<%= if @purchase_type != "active", do: "uk-active", else: "" %>’><a href="#">InActive</a></li>
+        <li phx-click="set-active-purchase-type" class="<%= if @purchase_type == "active", do: "uk-active", else: "" %>"><a href="#">Active</a></li>
+        <li phx-click="set-inactive-purchase-type"  class="<%= if @purchase_type != "active", do: "uk-active", else: "" %>"><a href="#">InActive</a></li>
       </ul>
     </div>
   </div>

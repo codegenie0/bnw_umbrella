@@ -24,7 +24,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseFlag.PurchaseFlagLive do
     socket =
       assign_defaults(session, socket)
       |> assign(
-        page_title: "BNW Dashboard · Purchase Flag",
+        page_title: "Purchase Flag",
         app: "Cattle Purchase",
         purchase_flags: PurchaseFlags.list_purchase_flags(),
         modal: nil

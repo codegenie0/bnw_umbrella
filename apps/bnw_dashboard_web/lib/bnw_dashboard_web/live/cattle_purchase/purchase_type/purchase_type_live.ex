@@ -24,7 +24,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
     socket =
       assign_defaults(session, socket)
       |> assign(
-        page_title: "BNW Dashboard · Active Purchase Type",
+        page_title: "Active Purchase Type",
         app: "Cattle Purchase",
         purchase_type: "active",
         purchase_types: PurchaseTypes.get_active_purchase_types,
@@ -83,7 +83,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
     {:noreply,
      assign(socket,
        purchase_type: "active",
-       page_title: "BNW Dashboard · Active Purchase Type",
+       page_title: "Active Purchase Type",
        purchase_types: PurchaseTypes.get_active_purchase_types()
      )}
   end
@@ -93,7 +93,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseType.PurchaseTypeLive do
     {:noreply,
      assign(socket,
        purchase_type: "inactive",
-       page_title: "BNW Dashboard · Inactive Purchase Type",
+       page_title: "Inactive Purchase Type",
        purchase_types: PurchaseTypes.get_inactive_purchase_types()
      )}
   end

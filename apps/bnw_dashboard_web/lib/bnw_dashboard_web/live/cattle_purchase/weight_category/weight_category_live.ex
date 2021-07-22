@@ -21,7 +21,7 @@ defmodule BnwDashboardWeb.CattlePurchase.WeightCategory.WeightCategoryLive do
     socket =
       assign_defaults(session, socket)
       |> assign(
-        page_title: "BNW Dashboard · Weight Category",
+        page_title: "Weight Category",
         app: "Cattle Purchase",
         weight_categories: WeightCategories.list_weight_categories(),
         modal: nil

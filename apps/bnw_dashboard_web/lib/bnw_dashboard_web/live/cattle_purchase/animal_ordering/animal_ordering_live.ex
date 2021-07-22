@@ -25,7 +25,7 @@ defmodule BnwDashboardWeb.CattlePurchase.AnimalOrdering.AnimalOrderingLive do
     socket =
       assign_defaults(session, socket)
       |> assign(
-        page_title: "BNW Dashboard · Active Sexes",
+        page_title: "Active Sexes",
         app: "Cattle Purchase",
         sex: "active",
         sexes: Sexes.get_active_sexes,
@@ -52,7 +52,7 @@ defmodule BnwDashboardWeb.CattlePurchase.AnimalOrdering.AnimalOrderingLive do
     {:noreply,
      assign(socket,
        sex: "active",
-       page_title: "BNW Dashboard · Active Sex",
+       page_title: "Active Sex",
        sexes: Sexes.get_active_sexes()
      )}
   end
@@ -62,7 +62,7 @@ defmodule BnwDashboardWeb.CattlePurchase.AnimalOrdering.AnimalOrderingLive do
     {:noreply,
      assign(socket,
        sex: "inactive",
-       page_title: "BNW Dashboard · Inactive Sex",
+       page_title: "Inactive Sex",
        sexes: Sexes.get_inactive_sexes()
      )}
   end
