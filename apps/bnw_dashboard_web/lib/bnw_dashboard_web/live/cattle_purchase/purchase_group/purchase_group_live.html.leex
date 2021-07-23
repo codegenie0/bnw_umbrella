@@ -18,8 +18,14 @@
       <%= for purchase_group <- @purchase_groups do %>
       <tr>
       <td><%= purchase_group.name %></td>
-      <td><%= if purchase_group.include_in_partnership, do: "X", else: "" %></td>
-      <td><%= if purchase_group.include_in_kills, do: "X", else: "" %></td>
+      <td><%= if purchase_group.include_in_partnership do %>
+        <span class="uk-preserve-width" uk-icon="icon: check" phx-hook="uk_icon"></span>
+        <% end %>
+      </td>
+      <td><%= if purchase_group.include_in_kills do %>
+        <span class="uk-preserve-width" uk-icon="icon: check" phx-hook="uk_icon"></span>
+        <% end %>
+      </td>
       <td>
           <%= link "", to: "#", class: "uk-padding-remove-vertical uk-margin-small-right",
           uk_icon: "pencil",

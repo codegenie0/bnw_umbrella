@@ -89,6 +89,15 @@ defmodule CattlePurchase.PurchaseTypeFilters do
         |> Repo.update_all([])
   end
 
+  def is_default_set?() do
+    result =
+      from(ptf in PurchaseTypeFilter,
+        where: ptf.default_group == true
+      )
+      |> Repo.all()
+    if result == [], do: false, else: true
+  end
+
   def notify_subscribers({:ok, result}, event) do
     Phoenix.PubSub.broadcast(CattlePurchase.PubSub, @topic, {event, result})
     Phoenix.PubSub.broadcast(CattlePurchase.PubSub, "#{@topic}:#{result.id}", {event, result})

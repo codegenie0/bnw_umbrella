@@ -45,4 +45,22 @@
       </div>
     </div>
   </div>
+  <%= if @set_default_modal do %>
+    <div style="display: block;" class="uk-modal uk-open">
+      <div class="uk-modal-dialog uk-modal-body">
+        <h2 class="uk-modal-title">Default already set</h2>
+        <h6>Do you want to change</h6>
+        <p class="uk-text-right">
+          <button class="uk-button uk-button-default"
+            type="button"
+            phx-target="<%= @myself %>"
+            phx-click="cancel_default_dialog">Cancel</button>
+          <button class="uk-button uk-button-primary"
+            type="button"
+            phx-target="<%= @myself %>"
+            phx-click="confirm_default_dialog">Confirm</button>
+        </p>
+      </div>
+    </div>
+  <% end %>
 </form>

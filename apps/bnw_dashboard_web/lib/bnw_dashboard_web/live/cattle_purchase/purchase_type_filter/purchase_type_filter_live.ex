@@ -26,7 +26,8 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseTypeFilter.PurchaseTypeFilterLi
         app: "Cattle Purchase",
         purchase_type_filters: PurchaseTypeFilters.list_purchase_type_filters(),
         modal: nil,
-        purchase_type_error: nil
+        purchase_type_error: nil,
+        set_default_modal: false
       )
     if connected?(socket) do
       PurchaseTypeFilters.subscribe()
@@ -49,7 +50,9 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseTypeFilter.PurchaseTypeFilterLi
       PurchaseTypes.get_active_purchase_types()
       |> Enum.map(fn item -> %{id: item.id, name: item.name, checked: false} end)
     if active_purchase_types == [] do
-      {:noreply, put_flash(socket, :error, "There should be at least one active purchase type to create a purchase type filter")}
+      {:noreply, put_flash(socket,
+        :error,
+        "There should be at least one active purchase type to create a purchase type filter")}
     else
       socket =
         assign(socket,
@@ -101,6 +104,11 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseTypeFilter.PurchaseTypeFilterLi
   def handle_event("cancel", _, socket) do
     socket = assign(socket, modal: nil)
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("cancel_default_dialog", _params, socket) do
+    {:noreply, assign(socket, set_default_modal: false)}
   end
 
   @impl true
