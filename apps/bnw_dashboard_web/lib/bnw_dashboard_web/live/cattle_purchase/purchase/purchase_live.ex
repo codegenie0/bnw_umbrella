@@ -31,17 +31,18 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
                       buyer: :buyer, destination: :destination, ship_date: :estimated_ship_date,
                       kill_date: :projected_out_date
                       ]
+    purchases = Purchases.list_purchases()
 
     socket =
       assign_defaults(session, socket)
       |> assign(
         page_title: "Purchase",
         app: "Cattle Purchase",
+        purchases: purchases,
         active_purchase_types: active_purchase_types,
         purchase_type_filters: purchase_type_filters,
         toggle_complete: toggle_complete,
         search_columns: search_columns
-
 
       )
     if connected?(socket) do
@@ -108,41 +109,28 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         %{"purchase_search" => purchase_search},
         socket
       ) do
-        IO.inspect(purchase_search, label: "PURCHASE SEARCH PARAMSSSSSSS")
-        # {:noreply, assign(socket, purchase_search: purchase_search)}
 
-      IO.inspect(String.strip(purchase_search["start_date"]) == "", label: "PURCHASE START DATE")
-      if (String.strip(purchase_search["start_date"]) == "") do
-        IO.inspect("--------------------------------------------------", label: "INSIDE PURCHASE START DATE")
-
-           {:noreply, assign(socket, start_date: purchase_search["start_date"])}
+      if !(Map.has_key?(socket.assigns, :start_date)) && !(String.strip(purchase_search["start_date"]) == "") do
+        {:noreply, assign(socket, start_date: purchase_search["start_date"])}
+      else
+        if !(Map.has_key?(socket.assigns, :end_date)) && !(String.strip(purchase_search["end_date"]) == "") do
+          {:noreply, assign(socket, end_date: purchase_search["end_date"])}
         else
-        if (String.strip(purchase_search["end_date"]) == "") do
-          IO.inspect("=====================================", label: "INSIDE PURCHASE END DATE")
-           {:noreply, assign(socket, end_date: purchase_search["end_date"])}
-        else
-          if (String.strip(purchase_search["search_value"]) == "") do
-           {:noreply, assign(socket, search_value: purchase_search["search_value"])}
-
+          if !(Map.has_key?(socket.assigns, :search_value)) && !(String.strip(purchase_search["search_value"]) == "") do
+            {:noreply, assign(socket, search_value: purchase_search["search_value"])}
           else
-          if (String.strip(purchase_search["column_name"]) == "") do
-           {:noreply, assign(socket, column_name: purchase_search["column_name"])}
-          else
-          {:noreply, socket}
-
+            if !(Map.has_key?(socket.assigns, :column_name)) && (String.strip(purchase_search["column_name"]) == "") do
+              {:noreply, assign(socket, column_name: purchase_search["column_name"])}
+            else
+              {:noreply, socket}
+            end
           end
         end
-        end
       end
-
   end
 
 
   def handle_event("search", _params, socket) do
-    # IO.inspect(purchase_search, label: "PURCHASE SEARCH")
-    IO.inspect(socket.assigns.start_date, label: "START DATE INSIDE SEARCH")
-    IO.inspect(socket.assigns.end_date, label: "END DATE INSIDE SEARCH")
-
     {:noreply, socket}
   end
 end

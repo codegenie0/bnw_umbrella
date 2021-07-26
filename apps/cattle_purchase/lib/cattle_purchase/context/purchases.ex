@@ -6,6 +6,7 @@ defmodule CattlePurchase.Purchases do
     PurchaseBuyer,
     Destination,
     DestinationGroup,
+    Sex,
     Repo
   }
   import Ecto.Query, only: [from: 2]
@@ -123,7 +124,7 @@ defmodule CattlePurchase.Purchases do
   def search(query, nil, _value), do: query
 
 
-  def search(query, column, text) when column not in ["head_count", "weight", "price", "ship_date", "purchase_date"] do
+  def search(query, column, text) when column not in ["head_count", "weight", "price", "ship_date", "purchase_date", "sex", "buyer"] do
     column = String.to_atom(column)
     from(p in query,
           where: like(field(p, ^column), ^"%#{text}%")
@@ -135,6 +136,23 @@ defmodule CattlePurchase.Purchases do
     from(p in query,
           where: field(p, ^column) == ^numerical_value
         )
+  end
+
+  def search(query, column, text) when column in ["sex", "buyer"] do
+    case column do
+      "sex" ->
+        from(p in query,
+        join: sex in Sex,
+        on: p.sex_id == sex.id,
+        where: like(sex.name, ^"%#{text}%"))
+      "buyer" ->
+        from(p in query,
+        join: pb in PurchaseBuyer,
+        on: p.buyer_id == pb.id,
+        where: like(pb.name, ^"%#{text}%"))
+      _ ->
+        query
+    end
   end
 
 
@@ -159,6 +177,10 @@ defmodule CattlePurchase.Purchases do
           where: p.estimated_ship_date >= ^start_date
           and p.estimated_ship_date <= ^end_date
         )
+  end
+
+  def pcc_sort_category do
+    for n <- ?A..?Z, do: << n :: utf8 >>
   end
 
   def notify_subscribers({:ok, result}, event) do
