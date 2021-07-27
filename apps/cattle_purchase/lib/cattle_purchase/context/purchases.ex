@@ -112,7 +112,7 @@ defmodule CattlePurchase.Purchases do
     )
   end
 
-  def get_complete_purchases(query, nil), do: query
+  def get_complete_purchases(query, false), do: query
 
   def get_complete_purchases(query, true) do
     from(p in query,

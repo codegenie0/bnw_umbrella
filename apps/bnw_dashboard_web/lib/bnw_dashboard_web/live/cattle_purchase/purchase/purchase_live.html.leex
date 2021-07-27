@@ -16,22 +16,36 @@
     <div class="uk-margin uk-grid uk-child-width-auto uk-grid uk-padding uk-padding-remove-vertical uk-flex uk-flex-center">
       <%= for purchase_type_filter <- @purchase_type_filters do %>
         <label>
-          <%= checkbox(:purchase, :type, class: "uk-checkbox", phx_click: "handle_toggle_purchase_type_filter", phx_value_id: purchase_type_filter.id, value: purchase_type_filter.checked) %> <%= purchase_type_filter.name %>
+          <%= checkbox(:purchase_filter, :filter_type, class: "uk-checkbox", phx_click: "handle_toggle_purchase_type_filter", phx_value_id: purchase_type_filter.id, value: purchase_type_filter.checked) %> <%= purchase_type_filter.name %>
         </label>
       <% end %>
     </div>
     <div class="uk-margin uk-grid uk-child-width-auto uk-grid uk-padding uk-padding-remove-vertical uk-flex uk-flex-center uk-flex-around">
-      <%= date_input f, :start_date, class: "uk-input"%>
-      <%= date_input f, :end_date, class: "uk-input" %>
+      <div class="uk-margin-small">
+        <%= label f, :start_date, class: "uk-form-label" do %>
+          Start Date
+        <% end %>
+        <div class="uk-form-controls">
+          <%= date_input f, :start_date, class: "uk-input", value: @purchase_search.start_date %>
+        </div>
+      </div>
+      <div class="uk-margin-small">
+        <%= label f, :end_date, class: "uk-form-label" do %>
+          End Date
+        <% end %>
+        <div class="uk-form-controls">
+          <%= date_input f, :end_date, class: "uk-input", value: @purchase_search.end_date%>
+        </div>
+      </div>
     </div>
     <div class="uk-margin uk-grid uk-child-width-auto uk-grid uk-padding uk-padding-remove-vertical uk-flex uk-flex-center">
         <label>
-          <%= checkbox(:purchase, :type, class: "uk-checkbox", phx_click: "handle_toggle_completed", value: @toggle_complete.checked) %> <%= @toggle_complete.name %>
+          <%= checkbox(:purchase_toggle, :type_toggle, class: "uk-checkbox", phx_click: "handle_toggle_completed", value: @toggle_complete.checked) %> <%= @toggle_complete.name %>
         </label>
     </div>
     <div class="uk-margin uk-grid uk-child-width-auto uk-grid uk-padding uk-padding-remove-vertical uk-flex-center uk-flex-around">
-      <%= select f, :column_name, @search_columns, [prompt: "Select column for search",  class: "uk-input"] %>
-      <%= text_input f, :search_value, class: "uk-input", placeholder: "Enter value to search" %>
+      <%= select f, :column_name, @search_columns, [ prompt: "Select column for search",  selected: @purchase_search.column_name, value: @purchase_search.column_name, class: "uk-input"] %>
+      <%= text_input f, :search_value, class: "uk-input", placeholder: "Enter value to search", value: @purchase_search.search_value %>
     </div>
       <div class="uk-modal-footer uk-text-right  uk-flex uk-flex-center">
         <%= submit "Search", [phx_disable_with: "Saving...",  class: "uk-button uk-button-primary"] %>
