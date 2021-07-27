@@ -4,8 +4,10 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   alias CattlePurchase.{
     Authorize,
     Purchases,
+    Purchase,
     PurchaseTypes,
-    PurchaseTypeFilters
+    PurchaseTypeFilters,
+    Repo
   }
 
   #  alias BnwDashboardWeb.CattlePurchase.Purchases.PurchaseSearchComponent
@@ -49,6 +51,26 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       kill_date: :projected_out_date
     ]
 
+    sort_columns = [
+      %{name: "purchase_date", title: "Purchase Date", sort_by: nil, is_sort: true},
+      %{name: "seller", title: "Seller", sort_by: nil, is_sort: true},
+      %{name: "purchase_location", title: "Purchase Location", sort_by: nil, is_sort: true},
+      %{name: "purchase_order", title: "Purchase Order", sort_by: nil, is_sort: true},
+      %{name: "head_count", title: "Head Count", sort_by: nil, is_sort: true},
+      %{name: "sex", title: "Sex", sort_by: nil, is_sort: false},
+      %{name: "weight", title: "Weight", sort_by: nil, is_sort: true},
+      %{name: "price", title: "Price", sort_by: nil, is_sort: true},
+      %{name: "price_and_delivery", title: "Price and Delivery", sort_by: nil, is_sort: true},
+      %{name: "delivered", title: "Delivered", sort_by: nil, is_sort: true},
+      %{name: "buyer", title: "Buyer", sort_by: nil, is_sort: false},
+      %{name: "destination", title: "Destination", sort_by: nil, is_sort: false},
+      %{name: "ship_date", title: "Ship Date", sort_by: nil, is_sort: true},
+      %{name: "firm", title: "Firm", sort_by: nil, is_sort: true},
+      %{name: "kill_date", title: "Kill Date", sort_by: nil, is_sort: true},
+      %{name: "projected_break_even", title: "Projected Break Even", sort_by: nil, is_sort: true},
+      %{name: "complete", title: "Complete", sort_by: nil, is_sort: true}
+    ]
+
     purchases = Purchases.list_purchases()
 
     socket =
@@ -61,6 +83,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         purchase_type_filters: purchase_type_filters,
         toggle_complete: toggle_complete,
         search_columns: search_columns,
+        sort_columns: sort_columns,
         purchase_search: %{
           column_name: "Select column for search",
           search_value: "",
@@ -187,5 +210,30 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       Map.put(socket.assigns.toggle_complete, :checked, !socket.assigns.toggle_complete.checked)
 
     {:noreply, assign(socket, toggle_complete: toggle_complete)}
+  end
+
+  def handle_event(
+        "toggle-purchase-sort",
+        %{"column" => column},
+        socket
+      ) do
+    sort_columns = socket.assigns.sort_columns
+
+    sort_columns =
+      Enum.map(sort_columns, fn sort_column ->
+        if(sort_column.name == column) do
+          sort_by = if sort_column.sort_by == nil, do: true, else: !sort_column.sort_by
+          Map.put(sort_column, :sort_by, sort_by)
+        else
+          sort_column
+        end
+      end)
+
+    selected_column = Enum.find(sort_columns, fn sort_column -> sort_column.name == column end)
+    sortOrder = if selected_column.sort_by, do: "asc", else: "desc"
+
+    purchases = Purchases.sort_by(Purchase, sortOrder, selected_column.name) |> Repo.all()
+
+    {:noreply, assign(socket, purchases: purchases, sort_columns: sort_columns)}
   end
 end
