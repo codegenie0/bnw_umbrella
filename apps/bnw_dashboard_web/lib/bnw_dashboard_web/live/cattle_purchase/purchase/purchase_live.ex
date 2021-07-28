@@ -6,11 +6,14 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     Purchases,
     Purchase,
     PurchaseTypes,
+    PurchaseGroups,
     PurchaseTypeFilters,
+    DestinationGroups,
+    Sexes,
     Repo
   }
 
-  #  alias BnwDashboardWeb.CattlePurchase.Purchases.PurchaseSearchComponent
+  alias BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent
 
   defp authenticate(socket) do
     current_user = Map.get(socket.assigns, :current_user)
@@ -68,7 +71,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
           search_value: "",
           start_date: "",
           end_date: ""
-        }
+        },
+        modal: nil
       )
 
     if connected?(socket) do
@@ -83,6 +87,33 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
   @impl true
   def handle_params(_, _, socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("new", _, socket) do
+    changeset = Purchases.new_purchase()
+    purchase_groups = PurchaseGroups.list_purchase_groups()
+    purchase_types = PurchaseTypes.get_active_purchase_types()
+    destination_groups = DestinationGroups.list_destination_groups()
+    sexes = Sexes.get_active_sexes()
+
+    if purchase_groups == [] || purchase_types == [] || destination_groups == [] do
+      {:noreply,
+       put_flash(
+         socket,
+         :error,
+         "You must create Purchase Groups, Purchase Types, and Destination Groups before adding purchases."
+       )}
+    else
+      socket = assign(socket, changeset: changeset, modal: :change_purchase)
+      {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_event("cancel", _, socket) do
+    socket = assign(socket, modal: nil)
     {:noreply, socket}
   end
 
@@ -221,7 +252,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       |> Purchases.search(purchase_filters.column_name, purchase_filters.search_value)
       |> Repo.all()
       |> Repo.preload([:sex, :purchase_buyer, :destination_group])
-
 
     {:noreply, assign(socket, purchases: purchases)}
   end

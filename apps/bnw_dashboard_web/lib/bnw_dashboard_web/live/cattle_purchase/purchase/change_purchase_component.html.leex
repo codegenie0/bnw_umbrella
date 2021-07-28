@@ -1,0 +1,142 @@
+<%= f = form_for @changeset, "#",
+    [ phx_change: :validate, phx_submit: :save, phx_target: @myself, class: "uk-form-stacked"] %>
+  <div style="display: block;" class="uk-modal uk-open">
+    <div class="uk-modal-dialog uk-overflow-auto" phx-hook="close_modal">
+      <button class="uk-modal-close-default"
+              type="button"
+              phx-click="cancel"
+              uk-close phx-hook="uk_close"></button>
+      <div class="uk-modal-header">
+        <h2 class="uk-modal-title">
+          <%= if Ecto.get_meta(@changeset.data, :state) == :built, do: "New ", else: "Edit " %>Purchase
+        </h2>
+      </div>
+      <div class="uk-modal-body uk-background-secondary uk-light">
+        <div class="uk-margin-small">
+          <%= label f, :purchase_location, class: "uk-form-label" do %>
+            Purchase Location
+            <%= error_tag f, :purchase_location %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= text_input f, :purchase_location, class: "uk-input", placeholder: "Purchase Location" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :freight, class: "uk-form-label" do %>
+            Freight
+            <%= error_tag f, :freight %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= number_input f, :freight, class: "uk-input", placeholder: "Freight" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :projected_break_even, class: "uk-form-label" do %>
+            Projected Break Even
+            <%= error_tag f, :projected_break_even %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= number_input f, :projected_break_even, class: "uk-input", placeholder: "Projected Break Even" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :head_count, class: "uk-form-label" do %>
+            Head Count
+            <%= error_tag f, :head_count %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= number_input f, :head_count, class: "uk-input", placeholder: "Head Count" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :estimated_ship_date, class: "uk-form-label" do %>
+            Estimated Ship Date
+            <%= error_tag f, :estimated_ship_date %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= date_input f, :estimated_ship_date, class: "uk-input", placeholder: "Estimated Ship Date" %>
+          </div>
+        </div>
+         <div class="uk-margin-small">
+          <label class="uk-padding-small uk-padding-remove-left">
+            <%= checkbox(f, :firm, class: "uk-checkbox") %> Firm
+          </label>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :weight, class: "uk-form-label" do %>
+            Weight
+            <%= error_tag f, :weight %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= number_input f, :weight, class: "uk-input", placeholder: "Weight" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :projected_out_date, class: "uk-form-label" do %>
+            Projected out
+            <%= error_tag f, :projected_out_date %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= date_input f, :projected_out_date, class: "uk-input", placeholder: "Projected out" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :seller, class: "uk-form-label" do %>
+            Seller
+            <%= error_tag f, :seller %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= text_input f, :seller, class: "uk-input", placeholder: "Seller" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :price, class: "uk-form-label" do %>
+            Price
+            <%= error_tag f, :price %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= number_input f, :price, class: "uk-input", placeholder: "Price" %>
+          </div>
+        </div>
+          <div class="uk-margin-small">
+          <label class="uk-padding-small uk-padding-remove-left">
+            <%= checkbox(f, :price_delivered, class: "uk-checkbox") %> Delivered
+          </label>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :purchase_order, class: "uk-form-label" do %>
+            Purchase Order
+            <%= error_tag f, :purchase_order %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= text_input f, :purchase_order, class: "uk-input", placeholder: "Purchase Order" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :purchase_basis, class: "uk-form-label" do %>
+            Purchase Basis
+            <%= error_tag f, :purchase_basis %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= text_input f, :purchase_basis, class: "uk-input", placeholder: "Purchase Basis" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :comment, class: "uk-form-label" do %>
+            Comment
+            <%= error_tag f, :comment %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= text_input f, :comment, class: "uk-input", placeholder: "Comment" %>
+          </div>
+        </div>
+      <div class="uk-modal-footer uk-text-right">
+        <button class="uk-button uk-button-default"
+                type="button"
+                phx-click="cancel">Cancel</button>
+        <%= submit "Save", [phx_disable_with: "Saving...",
+                          class: "uk-button uk-button-primary"] %>
+      </div>
+    </div>
+  </div>
+</form>
