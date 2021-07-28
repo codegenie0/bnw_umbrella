@@ -56,53 +56,47 @@
   <table class="uk-table uk-table-striped uk-table-middle uk-table-hover">
     <thead>
       <tr>
-        <th>Purchase Date</th>
-        <th>Seller</th>
-        <th>Purchase Location</th>
-        <th>Purchase Order</th>
-        <th>Head Count</th>
-        <th>Sex</th>
-        <th>Weight</th>
-        <th>Price</th>
-        <th>Price and Delivery</th>
-        <th>Delivered</th>
-        <th>Buyer</th>
-        <th>Destination</th>
-        <th>Ship Date</th>
-        <th>Firm</th>
-        <th>Kill Date</th>
-        <th>Projected Break Even</th>
-        <th>Complete</th>
+        <%= for sort_column <- @sort_columns do %>
+        <th class="uk-width-1-4 uk-table-expand uk-text-nowrap">
+          <span phx-click="toggle-purchase-sort" phx-value-column="<%= sort_column.name %>" class="cursor-pointer"><%= sort_column.title %></span>
+          <%= if  sort_column.sort_by do %>
+            <span class="uk-preserve-width" uk-icon="icon: chevron-up" phx-hook="uk_icon"></span>
+          <% end %>
+          <%= if sort_column.sort_by == :false do %>
+            <span class="uk-preserve-width" uk-icon="icon: chevron-down" phx-hook="uk_icon"></span>
+          <% end %>
+        </th>
+        <% end %>
         <th>edit | delete</th>
       </tr>
     </thead>
     </tbody>
       <%= for purchase <- @purchases do %>
         <tr>
-          <td><%= purchase.purchase_date %></td>
-          <td><%= purchase.seller %></td>
-          <td><%= purchase.origin %></td>
-          <td><%= purchase.purchase_order %></td>
-          <td><%= purchase.head_count %></td>
-          <td><%= purchase.sex.name %></td>
-          <td><%= purchase.weight %></td>
-          <td><%= "$#{purchase.price}" %></td>
-          <td><%= "$#{CattlePurchase.Purchases.price_and_delivery(purchase)}" %></td>
-          <td><%= if purchase.price_delivered do %>
+          <td class="uk-text-nowrap"><%= purchase.purchase_date %></td>
+          <td class="uk-text-nowrap"><%= purchase.seller %></td>
+          <td class="uk-text-nowrap"><%= purchase.origin %></td>
+          <td class="uk-text-nowrap"><%= purchase.purchase_order %></td>
+          <td class="uk-text-nowrap"><%= purchase.head_count %></td>
+          <td class="uk-text-nowrap"><%= purchase.sex.name %></td>
+          <td class="uk-text-nowrap"><%= purchase.weight %></td>
+          <td class="uk-text-nowrap"><%= "$#{purchase.price}" %></td>
+          <td class="uk-text-nowrap"><%= "$#{CattlePurchase.Purchases.price_and_delivery(purchase)}" %></td>
+          <td class="uk-text-nowrap"><%= if purchase.price_delivered do %>
+          <span class="uk-preserve-width" uk-icon="icon: check" phx-hook="uk_icon"></span>
+          <% end %></td>
+          <td class="uk-text-nowrap"><%= purchase.purchase_buyer.name%></td>
+          <td class="uk-text-nowrap"><%= purchase.destination_group.name%></td>
+          <td class="uk-text-nowrap"><%= purchase.estimated_ship_date%></td>
+          <td class="uk-text-nowrap"><%= if purchase.firm do %>
             <span class="uk-preserve-width" uk-icon="icon: check" phx-hook="uk_icon"></span>
           <% end %></td>
-          <td><%= purchase.purchase_buyer.name%></td>
-          <td><%= purchase.destination_group.name%></td>
-          <td><%= purchase.estimated_ship_date%></td>
-          <td><%= if purchase.firm do %>
+          <td class="uk-text-nowrap"><%= purchase.projected_out_date%></td>
+          <td class="uk-text-nowrap"><%= purchase.projected_break_even%></td>
+          <td class="uk-text-nowrap"><%= if purchase.complete do %>
             <span class="uk-preserve-width" uk-icon="icon: check" phx-hook="uk_icon"></span>
           <% end %></td>
-          <td><%= purchase.projected_out_date%></td>
-          <td><%= purchase.projected_break_even%></td>
-          <td><%= if purchase.complete do %>
-            <span class="uk-preserve-width" uk-icon="icon: check" phx-hook="uk_icon"></span>
-          <% end %></td>
-          <td>
+          <td class="uk-text-nowrap">
             <%= link "", to: "#", class: "uk-padding-remove-vertical uk-margin-small-right",
             uk_icon: "pencil",
             phx_hook: "uk_icon",

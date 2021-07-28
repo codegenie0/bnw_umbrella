@@ -113,7 +113,7 @@ th {
 @import "~uikit/src/scss/uikit-theme.scss";
 
 .uk-button-success {
-  background-color: #32D296;
+  background-color: #32d296;
   color: #fff;
 }
 /* Hover + Focus */
@@ -125,7 +125,7 @@ th {
 /* OnClick + Active */
 .uk-button-success:active,
 .uk-button-success.uk-active {
-  background-color: #12543C;
+  background-color: #12543c;
   color: #fff;
 }
 
@@ -139,4 +139,8 @@ th {
     top: 0;
     z-index: 2;
     position: sticky;
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
