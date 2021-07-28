@@ -13,6 +13,60 @@
       </div>
       <div class="uk-modal-body uk-background-secondary uk-light">
         <div class="uk-margin-small">
+          <%= label f, :purchase_group, class: "uk-form-label" do %>
+            Purchase Group
+            <%= error_tag f, :purchase_group %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= select :purchase, :purchase_group_id, Enum.map(@purchase_groups, &{&1.name, &1.id}), class: "uk-select" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :buyer_id, class: "uk-form-label" do %>
+            Purchase Buyer
+            <%= error_tag f, :buyer_id %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= select :purchase, :buyer_id, Enum.map(@purchase_buyers, &{&1.name, &1.id}), class: "uk-select" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :destination_group_id, class: "uk-form-label" do %>
+            Destination Group
+            <%= error_tag f, :destination_group_id %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= select :purchase, :destination_group_id, Enum.map(@destinations, &{&1.name, "#{&1.id}|#{&1.name}"}), class: "uk-select" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :purchase_type, class: "uk-form-label" do %>
+            Purchase Type
+            <%= error_tag f, :purchase_type %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= select :purchase, :purchase_type_id, Enum.map(@purchase_types, &{&1.name, &1.id}), class: "uk-select" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :sex, class: "uk-form-label" do %>
+            Sex
+            <%= error_tag f, :sex %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= select :purchase, :sex_id, Enum.map(@sexes, &{&1.name, &1.id}), class: "uk-select" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :pcc_sort_category, class: "uk-form-label" do %>
+            Pcc Sort Category
+            <%= error_tag f, :pcc_sort_category %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= select :purchase, :pcc_sort, @pcc_sort_category, class: "uk-select" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
           <%= label f, :purchase_location, class: "uk-form-label" do %>
             Purchase Location
             <%= error_tag f, :purchase_location %>
@@ -129,6 +183,14 @@
           <div class="uk-form-controls">
             <%= text_input f, :comment, class: "uk-input", placeholder: "Comment" %>
           </div>
+        </div>
+        <div class="uk-margin-small">
+          <h3>Flags</h3>
+          <%= for purchase_flag <- @purchase_flags do %>
+          <label class="uk-padding-small uk-padding-remove-left">
+            <%= checkbox(:purchase, :purchase_flag_ids, class: "uk-checkbox", phx_click: "handle_toggle_purchase_flag", phx_target: @myself, phx_value_id: purchase_flag.id, value: purchase_flag.checked) %><%= purchase_flag.name %>
+          </label>
+          <% end %>
         </div>
       <div class="uk-modal-footer uk-text-right">
         <button class="uk-button uk-button-default"

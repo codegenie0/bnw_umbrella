@@ -8,7 +8,9 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     PurchaseTypes,
     PurchaseGroups,
     PurchaseTypeFilters,
+    PurchaseFlags,
     DestinationGroups,
+    PurchaseBuyers,
     Sexes,
     Repo
   }
@@ -118,6 +120,25 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     purchase_types = PurchaseTypes.get_active_purchase_types()
     destination_groups = DestinationGroups.list_destination_groups()
     sexes = Sexes.get_active_sexes()
+    pcc_sort_category = Purchases.pcc_sort_category()
+    purchase_flags = PurchaseFlags.list_purchase_flags()
+    purchase_buyers = Purchases.get_buyers("")
+    destinations = Purchases.get_destination("")
+
+    destinations =
+      Enum.reduce(destinations, [], fn destination, acc ->
+        first = %{id: destination.id, name: destination.name}
+        IO.inspect("---------------------")
+
+        others =
+          Enum.map(destination.destinations, fn item ->
+            %{id: destination.id, name: destination.name <> item.name}
+          end)
+
+        if Enum.empty?(others), do: [first] ++ acc, else: [first] ++ [others] ++ acc
+      end)
+
+    IO.inspect(destinations)
 
     if purchase_groups == [] || purchase_types == [] || destination_groups == [] do
       {:noreply,
@@ -127,7 +148,19 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
          "You must create Purchase Groups, Purchase Types, and Destination Groups before adding purchases."
        )}
     else
-      socket = assign(socket, changeset: changeset, modal: :change_purchase)
+      socket =
+        assign(socket,
+          changeset: changeset,
+          modal: :change_purchase,
+          purchase_groups: Enum.map(purchase_groups, &%{id: &1.id, name: &1.name}),
+          purchase_types: Enum.map(purchase_types, &%{id: &1.id, name: &1.name}),
+          sexes: Enum.map(sexes, &%{id: &1.id, name: &1.name}),
+          pcc_sort_category: pcc_sort_category,
+          purchase_flags: Enum.map(purchase_flags, &%{id: &1.id, name: &1.name, checked: false}),
+          purchase_buyers: Enum.map(purchase_buyers, &%{id: &1.id, name: &1.name}),
+          destinations: destinations
+        )
+
       {:noreply, socket}
     end
   end

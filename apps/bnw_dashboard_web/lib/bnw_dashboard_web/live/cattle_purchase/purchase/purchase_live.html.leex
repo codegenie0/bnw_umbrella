@@ -114,5 +114,17 @@
   </table>
 </div>
 <%= if @modal == :change_purchase do
-  live_component(@socket, ChangePurchaseComponent, id: "#{@current_user.id}",changeset: @changeset)
+  live_component(
+    @socket, 
+    ChangePurchaseComponent, 
+    id: "#{@current_user.id}",
+    changeset: @changeset, 
+    purchase_groups: @purchase_groups, 
+    purchase_types: @purchase_types, 
+    pcc_sort_category: @pcc_sort_category, 
+    sexes: @sexes, 
+    purchase_flags: @purchase_flags,
+    purchase_buyers: @purchase_buyers,
+    destinations: @destinations
+    )
 end %>
