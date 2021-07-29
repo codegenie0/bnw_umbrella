@@ -7,6 +7,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     Purchase,
     PurchaseTypes,
     PurchaseGroups,
+    PurchaseFlags,
     PurchaseTypeFilters,
     DestinationGroups,
     Sexes,
@@ -57,7 +58,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     sort_columns = [
       %{name: "purchase_date", title: "Purchase Date", sort_by: nil, is_sort: true},
       %{name: "seller", title: "Seller", sort_by: nil, is_sort: true},
-      %{name: "purchase_location", title: "Purchase Location", sort_by: nil, is_sort: true},
+      %{name: "origin", title: "Purchase Location", sort_by: nil, is_sort: true},
       %{name: "purchase_order", title: "Purchase Order", sort_by: nil, is_sort: true},
       %{name: "head_count", title: "Head Count", sort_by: nil, is_sort: true},
       %{name: "sex", title: "Sex", sort_by: nil, is_sort: false},
@@ -67,9 +68,9 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       %{name: "delivered", title: "Delivered", sort_by: nil, is_sort: true},
       %{name: "buyer", title: "Buyer", sort_by: nil, is_sort: false},
       %{name: "destination", title: "Destination", sort_by: nil, is_sort: false},
-      %{name: "ship_date", title: "Ship Date", sort_by: nil, is_sort: true},
+      %{name: "estimated_ship_date", title: "Ship Date", sort_by: nil, is_sort: true},
       %{name: "firm", title: "Firm", sort_by: nil, is_sort: true},
-      %{name: "kill_date", title: "Kill Date", sort_by: nil, is_sort: true},
+      %{name: "projected_out_date", title: "Kill Date", sort_by: nil, is_sort: true},
       %{name: "projected_break_even", title: "Projected Break Even", sort_by: nil, is_sort: true},
       %{name: "complete", title: "Complete", sort_by: nil, is_sort: true}
     ]
@@ -118,6 +119,9 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     purchase_types = PurchaseTypes.get_active_purchase_types()
     destination_groups = DestinationGroups.list_destination_groups()
     sexes = Sexes.get_active_sexes()
+    pcc_sort_category = Purchases.pcc_sort_category()
+    purchase_flags = PurchaseFlags.list_purchase_flags()
+    purchase_buyers = Purchases.get_buyers("")
 
     if purchase_groups == [] || purchase_types == [] || destination_groups == [] do
       {:noreply,
@@ -127,7 +131,19 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
          "You must create Purchase Groups, Purchase Types, and Destination Groups before adding purchases."
        )}
     else
-      socket = assign(socket, changeset: changeset, modal: :change_purchase)
+      socket =
+        assign(socket,
+          changeset: changeset,
+          modal: :change_purchase,
+          purchase_groups: Enum.map(purchase_groups, &%{id: &1.id, name: &1.name}),
+          purchase_types: Enum.map(purchase_types, &%{id: &1.id, name: &1.name}),
+          sexes: Enum.map(sexes, &%{id: &1.id, name: &1.name}),
+          pcc_sort_category: pcc_sort_category,
+          purchase_flags: Enum.map(purchase_flags, &%{id: &1.id, name: &1.name, checked: false}),
+          purchase_buyers: Enum.map(purchase_buyers, &%{id: &1.id, name: &1.name}),
+          destinations: Enum.map(destination_groups, &%{id: &1.id, name: &1.name})
+        )
+
       {:noreply, socket}
     end
   end
@@ -303,5 +319,11 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       |> Repo.preload([:sex, :purchase_buyer, :destination_group])
 
     {:noreply, assign(socket, purchases: purchases)}
+  end
+
+  @impl true
+  def handle_info({[:purchases, :created_or_updated], _}, socket) do
+    socket = assign(socket, modal: nil, changeset: nil)
+    {:noreply, assign(socket, purchases: Purchases.list_purchases())}
   end
 end

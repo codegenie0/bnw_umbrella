@@ -72,14 +72,16 @@ defmodule CattlePurchase.Purchase do
   end
 
   @required ~w(purchase_date estimated_ship_date head_count price freight
-                projected_break_even projected_out_date destination_group_name
-                weight sex_id destination_group_id future_destination_group_id
-                purchase_type_id buyer_id purchase_group_id
+                projected_break_even projected_out_date
+                weight destination_group_id
+                purchase_type_id purchase_group_id
               )a
   @optional ~w(seller origin firm projected_out_month projected_out_year
                   price_delivered verify complete projected_placement_date
                   comment pasture purchase_order pricing_order_date
                   customer_fill_date wcc_fill_date pcc_sort purchase_basis
+                  future_destination_group_id  destination_group_name sex_id
+                  buyer_id
               )a
   @allowed @required ++ @optional
 
@@ -101,7 +103,7 @@ defmodule CattlePurchase.Purchase do
       |> foreign_key_constraint(:buyer_id)
       |> foreign_key_constraint(:purchase_group_id)
 
-    if changeset.valid? && attrs["purchase_flag_ids"] do
+    if changeset.valid? && attrs["purchase_flag_ids"] != [] do
       purchase_purchase_flag_params =
         Enum.reduce(attrs["purchase_flag_ids"], [], fn purchase_flag_id, acc ->
           acc ++

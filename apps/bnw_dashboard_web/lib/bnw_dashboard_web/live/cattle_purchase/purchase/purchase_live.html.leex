@@ -78,14 +78,20 @@
           <td class="uk-text-nowrap"><%= purchase.origin %></td>
           <td class="uk-text-nowrap"><%= purchase.purchase_order %></td>
           <td class="uk-text-nowrap"><%= purchase.head_count %></td>
-          <td class="uk-text-nowrap"><%= purchase.sex.name %></td>
+          <td class="uk-text-nowrap"><%= if purchase.sex do %>
+            <%= purchase.sex.name %>
+            <% end %>
+          </td>
           <td class="uk-text-nowrap"><%= purchase.weight %></td>
           <td class="uk-text-nowrap"><%= "$#{purchase.price}" %></td>
           <td class="uk-text-nowrap"><%= "$#{CattlePurchase.Purchases.price_and_delivery(purchase)}" %></td>
           <td class="uk-text-nowrap"><%= if purchase.price_delivered do %>
           <span class="uk-preserve-width" uk-icon="icon: check" phx-hook="uk_icon"></span>
           <% end %></td>
-          <td class="uk-text-nowrap"><%= purchase.purchase_buyer.name%></td>
+          <td class="uk-text-nowrap"><%= if purchase.purchase_buyer do %>
+            <%= purchase.purchase_buyer.name %>
+            <% end %>
+          </td>
           <td class="uk-text-nowrap"><%= purchase.destination_group.name%></td>
           <td class="uk-text-nowrap"><%= purchase.estimated_ship_date%></td>
           <td class="uk-text-nowrap"><%= if purchase.firm do %>
@@ -114,5 +120,17 @@
   </table>
 </div>
 <%= if @modal == :change_purchase do
-  live_component(@socket, ChangePurchaseComponent, id: "#{@current_user.id}",changeset: @changeset)
+  live_component(
+    @socket,
+    ChangePurchaseComponent,
+    id: "#{@current_user.id}",
+    changeset: @changeset,
+    purchase_groups: @purchase_groups,
+    purchase_types: @purchase_types,
+    pcc_sort_category: @pcc_sort_category,
+    sexes: @sexes,
+    purchase_flags: @purchase_flags,
+    purchase_buyers: @purchase_buyers,
+    destinations: @destinations
+    )
 end %>
