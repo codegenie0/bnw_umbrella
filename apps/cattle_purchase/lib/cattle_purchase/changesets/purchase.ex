@@ -103,7 +103,7 @@ defmodule CattlePurchase.Purchase do
       |> foreign_key_constraint(:buyer_id)
       |> foreign_key_constraint(:purchase_group_id)
 
-    if changeset.valid? && attrs["purchase_flag_ids"] != [] do
+    if changeset.valid? && attrs["purchase_flag_ids"] && attrs["purchase_flag_ids"] != [] do
       purchase_purchase_flag_params =
         Enum.reduce(attrs["purchase_flag_ids"], [], fn purchase_flag_id, acc ->
           acc ++

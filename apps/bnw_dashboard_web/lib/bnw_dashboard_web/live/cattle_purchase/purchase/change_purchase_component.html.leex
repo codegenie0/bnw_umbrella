@@ -15,10 +15,10 @@
       <div class="uk-margin-small">
           <%= label f, :purchase_group, class: "uk-form-label" do %>
             Purchase Group
-            <%= error_tag f, :purchase_group %>
+            <%= error_tag f, :purchase_group_id %>
           <% end %>
           <div class="uk-form-controls">
-            <%= select :purchase, :purchase_group_id, Enum.map(@purchase_groups, &{&1.name, &1.id}), class: "uk-select" %>
+            <%= select f, :purchase_group_id, Enum.map(@purchase_groups, &{&1.name, &1.id}), [ prompt: "Select Purchase Group",  selected: "", value: @changeset.data.purchase_group_id, class: "uk-select"]%>
           </div>
         </div>
         <div class="uk-margin-small">
@@ -27,7 +27,7 @@
             <%= error_tag f, :buyer_id %>
           <% end %>
           <div class="uk-form-controls">
-            <%= select :purchase, :buyer_id, Enum.map(@purchase_buyers, &{&1.name, &1.id}), class: "uk-select" %>
+            <%= select f, :buyer_id, Enum.map(@purchase_buyers, &{&1.name, &1.id}), [ prompt: "Select column Purchase Buyer",  selected: "", value: @changeset.data.buyer_id, class: "uk-select"] %>
           </div>
         </div>
         <div class="uk-margin-small">
@@ -36,16 +36,16 @@
             <%= error_tag f, :destination_group_id %>
           <% end %>
           <div class="uk-form-controls">
-            <%= select :purchase, :destination_group_id, Enum.map(@destinations, &{&1.name, &1.id}), class: "uk-select" %>
+            <%= select f, :destination_group_id, Enum.map(@destinations, &{&1.name, &1.id}), [ prompt: "Select Destination Group",  selected: "", value: @changeset.data.destination_group_id, class: "uk-select"]%>
           </div>
         </div>
         <div class="uk-margin-small">
           <%= label f, :purchase_type, class: "uk-form-label" do %>
             Purchase Type
-            <%= error_tag f, :purchase_type %>
+            <%= error_tag f, :purchase_type_id %>
           <% end %>
           <div class="uk-form-controls">
-            <%= select :purchase, :purchase_type_id, Enum.map(@purchase_types, &{&1.name, &1.id}), class: "uk-select" %>
+            <%= select f, :purchase_type_id, Enum.map(@purchase_types, &{&1.name, &1.id}), [ prompt: "Select Purchase Type",  selected: "", value: @changeset.data.purchase_type_id, class: "uk-select"] %>
           </div>
         </div>
         <div class="uk-margin-small">
@@ -54,7 +54,7 @@
             <%= error_tag f, :sex %>
           <% end %>
           <div class="uk-form-controls">
-            <%= select :purchase, :sex_id, Enum.map(@sexes, &{&1.name, &1.id}), class: "uk-select" %>
+            <%= select f, :sex_id, Enum.map(@sexes, &{&1.name, &1.id}), [ prompt: "Select Sex",  selected: "", value: @changeset.data.sex_id, class: "uk-select"] %>
           </div>
         </div>
         <div class="uk-margin-small">
@@ -63,7 +63,7 @@
             <%= error_tag f, :pcc_sort_category %>
           <% end %>
           <div class="uk-form-controls">
-            <%= select :purchase, :pcc_sort, @pcc_sort_category, class: "uk-select" %>
+            <%= select f, :pcc_sort, @pcc_sort_category,  [ prompt: "Select Pcc Sort Category",  selected: "", value: @changeset.data.pcc_sort, class: "uk-select"] %>
           </div>
         </div>
         <div class="uk-margin-small">
@@ -197,7 +197,7 @@
           <h3>Flags</h3>
           <%= for purchase_flag <- @purchase_flags do %>
           <label class="uk-padding-small uk-padding-remove-left">
-            <%= checkbox(:purchase, :purchase_flag_ids, class: "uk-checkbox", phx_click: "handle_toggle_purchase_flag", phx_target: @myself, phx_value_id: purchase_flag.id, value: purchase_flag.checked) %><%= purchase_flag.name %>
+            <%= checkbox(:purchase, :purchase_flag_list, class: "uk-checkbox", phx_click: "handle_toggle_purchase_flag", phx_target: @myself, phx_value_id: purchase_flag.id, value: purchase_flag.checked) %><%= purchase_flag.name %>
           </label>
           <% end %>
         </div>
