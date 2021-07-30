@@ -41,7 +41,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
       |> Purchases.change_purchase(params)
       |> Map.put(:action, :update)
 
-    {:noreply, socket}
+    {:noreply, assign(socket, changeset: changeset)}
   end
 
   def handle_event(

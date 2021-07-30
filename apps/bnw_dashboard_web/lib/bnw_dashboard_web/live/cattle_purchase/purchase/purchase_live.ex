@@ -149,9 +149,71 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   end
 
   @impl true
+  def handle_event("edit", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+    purchases = Enum.find(socket.assigns.purchases, fn pg -> pg.id == id end)
+    purchase = purchases |> Repo.preload(:purchase_flags)
+    purchase_flags = Enum.map(purchase.purchase_flags, fn item -> item.id end)
+
+    changeset =
+      purchases
+      |> Purchases.change_purchase()
+
+    purchase_groups = PurchaseGroups.list_purchase_groups()
+    purchase_types = PurchaseTypes.get_active_purchase_types()
+    destination_groups = DestinationGroups.list_destination_groups()
+    sexes = Sexes.get_active_sexes()
+    pcc_sort_category = Purchases.pcc_sort_category()
+    purchase_buyers = Purchases.get_buyers("")
+
+    purchase_flags =
+      PurchaseFlags.list_purchase_flags()
+      |> Enum.map(fn item ->
+        result = Enum.find(purchase_flags, nil, fn purchase_flag -> item.id == purchase_flag end)
+
+        if(result) do
+          %{id: item.id, name: item.name, checked: true}
+        else
+          %{id: item.id, name: item.name, checked: false}
+        end
+      end)
+
+    socket =
+      assign(socket,
+        changeset: changeset,
+        modal: :change_purchase,
+        purchase_groups: Enum.map(purchase_groups, &%{id: &1.id, name: &1.name}),
+        purchase_types: Enum.map(purchase_types, &%{id: &1.id, name: &1.name}),
+        sexes: Enum.map(sexes, &%{id: &1.id, name: &1.name}),
+        pcc_sort_category: pcc_sort_category,
+        purchase_flags: purchase_flags,
+        purchase_buyers: Enum.map(purchase_buyers, &%{id: &1.id, name: &1.name}),
+        destinations: Enum.map(destination_groups, &%{id: &1.id, name: &1.name})
+      )
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("delete", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+
+    Enum.find(socket.assigns.purchases, fn pg -> pg.id == id end)
+    |> Purchases.delete_purchase()
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("cancel", _, socket) do
     socket = assign(socket, modal: nil)
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({[:purchases, :deleted], _}, socket) do
+    socket = assign(socket, modal: nil, changeset: nil)
+    {:noreply, assign(socket, purchases: Purchases.list_purchases())}
   end
 
   def handle_event(
