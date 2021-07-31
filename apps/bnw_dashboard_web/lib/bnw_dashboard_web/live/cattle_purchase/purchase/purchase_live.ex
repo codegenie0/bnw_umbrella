@@ -64,14 +64,14 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       %{name: "sex", title: "Sex", sort_by: nil, is_sort: false},
       %{name: "weight", title: "Weight", sort_by: nil, is_sort: true},
       %{name: "price", title: "Price", sort_by: nil, is_sort: true},
-      %{name: "price_and_delivery", title: "Price and Delivery", sort_by: nil, is_sort: true},
+      %{name: "price_and_delivery", title: "Delivered Price", sort_by: nil, is_sort: true},
       %{name: "delivered", title: "Delivered", sort_by: nil, is_sort: true},
       %{name: "buyer", title: "Buyer", sort_by: nil, is_sort: false},
       %{name: "destination", title: "Destination", sort_by: nil, is_sort: false},
       %{name: "estimated_ship_date", title: "Ship Date", sort_by: nil, is_sort: true},
       %{name: "firm", title: "Firm", sort_by: nil, is_sort: true},
       %{name: "projected_out_date", title: "Kill Date", sort_by: nil, is_sort: true},
-      %{name: "projected_break_even", title: "Projected Break Even", sort_by: nil, is_sort: true},
+      %{name: "projected_break_even", title: "Proj BE", sort_by: nil, is_sort: true},
       %{name: "complete", title: "Complete", sort_by: nil, is_sort: true}
     ]
 

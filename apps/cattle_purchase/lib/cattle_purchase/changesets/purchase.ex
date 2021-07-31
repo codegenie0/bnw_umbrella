@@ -36,10 +36,10 @@ defmodule CattlePurchase.Purchase do
     field :head_count, :integer
     field :projected_out_month, :integer
     field :projected_out_year, :integer
-    field :price, :float
-    field :weight, :float
-    field :freight, :float
-    field :projected_break_even, :float
+    field :price, :decimal
+    field :weight, :integer
+    field :freight, :decimal
+    field :projected_break_even, :decimal
     field :projected_out_date, :date
     field :purchase_date, :date
     field :estimated_ship_date, :date

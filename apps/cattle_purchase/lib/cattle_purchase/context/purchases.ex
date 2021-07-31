@@ -5,6 +5,7 @@ defmodule CattlePurchase.Purchases do
     PurchaseTypeFilter,
     PurchaseTypePurchaseTypeFilter,
     PurchaseBuyer,
+    PurchaseGroup,
     Destination,
     DestinationGroup,
     Sex,
@@ -198,16 +199,37 @@ defmodule CattlePurchase.Purchases do
     from(dg in DestinationGroup,
       left_join: d in Destination,
       on: dg.id == d.destination_group_id,
-      where: like(dg.name, ^"%#{query}%"),
+      where: (like(dg.name, ^"%#{query}%") or like(d.name, ^"%#{query}%")) and d.active == true,
       preload: [destinations: :d],
       select: [:name, destinations: [:name]]
     )
     |> Repo.all()
   end
 
+  def get_sex(query) do
+    from(sex in Sex,
+      where: like(sex.name, ^"%#{query}%")
+    )
+    |> Repo.all()
+  end
+
+  def get_purchase_group(query) do
+    from(pg in PurchaseGroup,
+      where: like(pg.name, ^"%#{query}%")
+    )
+    |> Repo.all()
+  end
+
+  def get_purchase_type(query) do
+    from(pt in PurchaseType,
+      where: like(pt.name, ^"%#{query}%") and pt.active == true
+    )
+    |> Repo.all()
+  end
+
   def price_and_delivery(purchase) do
     if purchase.freight do
-      purchase.price + purchase.freight
+      Decimal.add(purchase.price, purchase.freight)
     else
       purchase.price
     end
@@ -215,6 +237,12 @@ defmodule CattlePurchase.Purchases do
 
   def pcc_sort_category do
     for n <- ?A..?Z, do: <<n::utf8>>
+  end
+
+  def parse_date(date) do
+    day = if date.day < 10, do: "0#{date.day}", else: date.day
+    month = if date.month < 10, do: "0#{date.month}", else: date.month
+    "#{month}-#{day}-#{date.year}"
   end
 
   def notify_subscribers({:ok, result}, event) do
