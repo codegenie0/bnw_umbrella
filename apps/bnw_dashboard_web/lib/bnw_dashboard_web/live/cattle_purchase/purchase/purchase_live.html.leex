@@ -70,9 +70,9 @@
         <th>edit | delete</th>
       </tr>
     </thead>
-    </tbody>
+    <tbody id="purchases" phx-update="append">
       <%= for purchase <- @purchases do %>
-        <tr>
+        <tr id="<%= purchase.id %>">
           <td class="uk-text-nowrap"><%= purchase.purchase_date %></td>
           <td class="uk-text-nowrap"><%= purchase.seller %></td>
           <td class="uk-text-nowrap"><%= purchase.origin %></td>
@@ -118,7 +118,11 @@
       <% end %>
     </tbody>
   </table>
+  <%= if length(@purchases) > @per_page do %>
+  <button phx-click="load_more_purchases" class="uk-button uk-button-primary uk-border-pill uk-margin-remove  uk-margin-remove-bottom uk-align-center">Load more</button>
+  <% end %>
 </div>
+
 <%= if @modal == :change_purchase do
   live_component(
     @socket,

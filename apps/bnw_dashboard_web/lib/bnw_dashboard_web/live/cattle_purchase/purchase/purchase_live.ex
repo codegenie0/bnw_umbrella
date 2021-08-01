@@ -28,6 +28,12 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     end
   end
 
+  defp fetch_purchase(socket) do
+    %{page: page, per_page: per_page} = socket.assigns
+    purchases = Purchases.list_purchases_by_page(page, per_page)
+    assign(socket, purchases: purchases)
+  end
+
   @impl true
   def mount(_, session, socket) do
     active_purchase_types =
@@ -75,14 +81,13 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       %{name: "complete", title: "Complete", sort_by: nil, is_sort: true}
     ]
 
-    purchases = Purchases.list_purchases()
+    total_pages = Purchases.total_pages(1)
 
     socket =
       assign_defaults(session, socket)
       |> assign(
         page_title: "Purchase",
         app: "Cattle Purchase",
-        purchases: purchases,
         active_purchase_types: active_purchase_types,
         purchase_type_filters: purchase_type_filters,
         toggle_complete: toggle_complete,
@@ -94,9 +99,13 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
           start_date: "",
           end_date: ""
         },
-        modal: nil
+        modal: nil,
+        page: 1,
+        per_page: 10,
+        total_pages: total_pages
       )
 
+    socket = fetch_purchase(socket)
     if connected?(socket) do
       Purchases.subscribe()
     end
@@ -387,5 +396,23 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   def handle_info({[:purchases, :created_or_updated], _}, socket) do
     socket = assign(socket, modal: nil, changeset: nil)
     {:noreply, assign(socket, purchases: Purchases.list_purchases())}
+  end
+
+  @impl true
+  def handle_event("load_more_purchases", _, socket) do
+    %{page: page, per_page: per_page, total_pages: total_pages} = socket.assigns
+
+    socket =
+      cond do
+        page < total_pages ->
+          page = page + 1
+          purchases = Purchases.list_purchases_by_page(page, per_page)
+          assign(socket, update_action: "append", page: page, purchases: purchases)
+
+        true ->
+          socket
+      end
+
+    {:noreply, socket}
   end
 end
