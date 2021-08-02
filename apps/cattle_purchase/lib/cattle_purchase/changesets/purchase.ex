@@ -10,6 +10,7 @@ defmodule CattlePurchase.Purchase do
     PurchaseGroup,
     PurchaseFlag,
     PurchasePurchaseFlag,
+    Shipment,
     Repo
   }
 
@@ -62,6 +63,7 @@ defmodule CattlePurchase.Purchase do
     belongs_to :purchase_buyer, PurchaseBuyer, foreign_key: :buyer_id
     belongs_to :purchase_group, PurchaseGroup
     has_many(:purchase_purchase_flags, PurchasePurchaseFlag, on_replace: :delete)
+    has_many(:shipments, Shipment, on_replace: :delete)
 
     many_to_many(:purchase_flags, PurchaseFlag,
       join_through: "purchase_purchase_flags",
