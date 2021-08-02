@@ -33,10 +33,10 @@ defmodule CattlePurchase.Shipments do
     Shipment.changeset(shipment, attrs)
   end
 
-  def validate(%Shipment{} =shipment, attrs \\ %{}) do
+  def validate(%Shipment{} = shipment, attrs \\ %{}) do
     shipment
-     |> change_shipment(attrs)
-     |> Map.put(:action, :insert)
+    |> change_shipment(attrs)
+    |> Map.put(:action, :insert)
   end
 
   @doc """
@@ -65,5 +65,4 @@ defmodule CattlePurchase.Shipments do
   end
 
   def notify_subscribers({:error, reason}, _event), do: {:error, reason}
-
 end

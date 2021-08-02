@@ -93,14 +93,21 @@
             <% end %>
           </td>
           <td class="uk-text-nowrap"><%= purchase.destination_group.name%></td>
-          <td class="uk-text-nowrap"><%= purchase.estimated_ship_date%></td>
+          <td class="uk-text-nowrap"><%= "#{CattlePurchase.Purchases.parse_date(purchase.estimated_ship_date)}"%></td>
           <td class="uk-text-nowrap"><%= if purchase.firm do %>
             <span class="uk-preserve-width check-color" uk-icon="icon: check; ratio: 2.5" phx-hook="uk_icon"></span>
           <% end %></td>
-          <td class="uk-text-nowrap"><%= purchase.projected_out_date%></td>
+          <td class="uk-text-nowrap"><%= "#{CattlePurchase.Purchases.parse_date(purchase.projected_out_date)}"%></td>
           <td class="uk-text-nowrap"><%= purchase.projected_break_even%></td>
-          <td class="uk-text-nowrap"><%= if purchase.complete do %>
-            <span class="uk-preserve-width" uk-icon="icon: check" phx-hook="uk_icon"></span>
+          <td class="uk-text-nowrap"><%= link to: "#", class: "uk-button uk-button-text",
+                        phx_click: "change_complete",
+                        phx_value_id: purchase.id
+                        do %>
+              <label>
+                  <input class="uk-checkbox"
+                  type="checkbox"
+                  <%= if purchase.complete, do: "checked", else: "" %>
+              </label>
           <% end %></td>
           <td class="uk-text-nowrap">
             <%= link "", to: "#", class: "uk-padding-remove-vertical uk-margin-small-right",

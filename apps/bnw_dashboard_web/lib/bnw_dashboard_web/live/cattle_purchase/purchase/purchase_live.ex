@@ -388,4 +388,10 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     socket = assign(socket, modal: nil, changeset: nil)
     {:noreply, assign(socket, purchases: Purchases.list_purchases())}
   end
+
+  @impl true
+  def handle_event("change_complete", %{"id" => id}, socket) do
+    Purchases.change_complete(id)
+    {:noreply, socket}
+  end
 end

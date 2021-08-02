@@ -1,12 +1,12 @@
 defmodule CattlePurchase.Shipment do
   use Ecto.Schema
   import Ecto.Changeset
+
   alias CattlePurchase.{
     Sex,
     DestinationGroup,
     Purchase
   }
-
 
   prefix = "bnw_dashboard_cattle_purchase"
 
@@ -29,8 +29,6 @@ defmodule CattlePurchase.Shipment do
     belongs_to :sex, Sex
     belongs_to :destination_group, DestinationGroup
     belongs_to :purchase, Purchase
-
-
 
     timestamps()
   end

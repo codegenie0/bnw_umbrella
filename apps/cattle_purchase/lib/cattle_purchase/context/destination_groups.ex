@@ -42,7 +42,6 @@ defmodule CattlePurchase.DestinationGroups do
     |> DestinationGroup.changeset(attrs)
     |> Repo.insert_or_update()
     |> notify_subscribers([:destination_groups, :created_or_updated])
-
   end
 
   @doc """
@@ -51,7 +50,6 @@ defmodule CattlePurchase.DestinationGroups do
   def delete_destination_group(%DestinationGroup{} = destination_group) do
     Repo.delete(destination_group)
     |> notify_subscribers([:destination_groups, :deleted])
-
   end
 
   def notify_subscribers({:ok, result}, event) do

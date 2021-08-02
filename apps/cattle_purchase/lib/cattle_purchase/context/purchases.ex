@@ -240,9 +240,19 @@ defmodule CattlePurchase.Purchases do
   end
 
   def parse_date(date) do
-    day = if date.day < 10, do: "0#{date.day}", else: date.day
-    month = if date.month < 10, do: "0#{date.month}", else: date.month
-    "#{month}-#{day}-#{date.year}"
+    Timex.format!(date, "{0M}-{0D}-{YYYY}")
+  end
+
+  def change_complete(id) do
+    purchase = Repo.get(Purchase, id)
+
+    cs =
+      Ecto.Changeset.change(purchase, %{
+        complete: !purchase.complete
+      })
+
+    Repo.update(cs)
+    |> notify_subscribers([:purchases, :created_or_updated])
   end
 
   def notify_subscribers({:ok, result}, event) do
