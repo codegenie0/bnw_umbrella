@@ -117,7 +117,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     changeset = Purchases.new_purchase()
     purchase_groups = PurchaseGroups.list_purchase_groups()
     purchase_types = PurchaseTypes.get_active_purchase_types()
-    destination_groups = DestinationGroups.list_destination_groups()
+    destination_groups = Purchases.get_destination("") |> format_destination_group()
     sexes = Sexes.get_active_sexes()
     pcc_sort_category = Purchases.pcc_sort_category()
     purchase_flags = PurchaseFlags.list_purchase_flags()
@@ -141,7 +141,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
           pcc_sort_category: pcc_sort_category,
           purchase_flags: Enum.map(purchase_flags, &%{id: &1.id, name: &1.name, checked: false}),
           purchase_buyers: Enum.map(purchase_buyers, &%{id: &1.id, name: &1.name}),
-          destinations: Enum.map(destination_groups, &%{id: &1.id, name: &1.name})
+          destinations: destination_groups
         )
 
       {:noreply, socket}
@@ -285,6 +285,25 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   end
 
   def handle_event(
+        "handle_purchase_complete_change",
+        params,
+        socket
+      ) do
+    case params do
+      %{"id" => id, "value" => value} ->
+        change_purchase_complete(socket, params, true)
+        {:noreply, socket}
+
+      %{"id" => id} ->
+        change_purchase_complete(socket, params, false)
+        {:noreply, socket}
+
+      _ ->
+        {:noreply, socket}
+    end
+  end
+
+  def handle_event(
         "handle_toggle_completed",
         params,
         socket
@@ -387,5 +406,27 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   def handle_info({[:purchases, :created_or_updated], _}, socket) do
     socket = assign(socket, modal: nil, changeset: nil)
     {:noreply, assign(socket, purchases: Purchases.list_purchases())}
+  end
+
+  defp change_purchase_complete(socket, params, value) do
+    {id, ""} = Integer.parse(params["id"])
+    purchase = Enum.find(socket.assigns.purchases, fn pg -> pg.id == id end)
+
+    changeset =
+      purchase
+      |> Purchases.create_or_update_purchase(%{complete: value})
+  end
+
+  defp format_destination_group(destination_groups) do
+    Enum.reduce(destination_groups, [], fn destination_group, acc ->
+      acc = acc ++ [%{id: destination_group.id, name: destination_group.name, child: false}]
+
+      small =
+        Enum.map(destination_group.destinations, fn item ->
+          %{name: item.name, id: destination_group.id, child: true}
+        end)
+
+      acc = acc ++ small
+    end)
   end
 end
