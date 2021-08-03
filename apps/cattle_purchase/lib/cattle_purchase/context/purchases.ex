@@ -196,12 +196,14 @@ defmodule CattlePurchase.Purchases do
   end
 
   def get_destination(query) do
+    destination_query = from(des in Destination, where: des.active == true)
+
     from(dg in DestinationGroup,
       left_join: d in Destination,
       on: dg.id == d.destination_group_id,
-      where: (like(dg.name, ^"%#{query}%") or like(d.name, ^"%#{query}%")) and d.active == true,
-      preload: [destinations: :d],
-      select: [:name, destinations: [:name]]
+      group_by: dg.id,
+      where: like(dg.name, ^"%#{query}%") or (d.active == true and like(d.name, ^"%#{query}%")),
+      preload: [destinations: ^destination_query]
     )
     |> Repo.all()
   end

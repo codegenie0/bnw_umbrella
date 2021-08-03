@@ -2,14 +2,17 @@ defmodule CattlePurchase.User do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias CattlePurchase.UserRole
+  alias CattlePurchase.{UserRole, CattleReceiving}
 
   prefix = "bnw_dashboard_accounts"
-  prefix = case Application.get_env(:accounts, :env) do
-    :dev -> prefix <> "_dev"
-    :test -> prefix <> "_test"
-    _ -> prefix
-  end
+
+  prefix =
+    case Application.get_env(:accounts, :env) do
+      :dev -> prefix <> "_dev"
+      :test -> prefix <> "_test"
+      _ -> prefix
+    end
+
   @schema_prefix prefix
 
   schema "users" do
@@ -18,6 +21,7 @@ defmodule CattlePurchase.User do
     field :name, :string
     field :active, :boolean, default: true
 
+    has_many(:cattle_receivings, CattleReceiving)
     has_many :users_roles, UserRole, on_replace: :delete
   end
 

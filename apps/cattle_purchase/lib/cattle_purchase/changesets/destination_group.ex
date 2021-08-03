@@ -16,7 +16,7 @@ defmodule CattlePurchase.DestinationGroup do
 
   schema "destination_groups" do
     field :name, :string
-    has_many(:destinations, CattlePurchase.DestinationGroup)
+    has_many(:destinations, CattlePurchase.Destination)
     has_many(:purchases, Purchase)
     has_many(:shipments, Shipment)
     has_many(:future_purchases, Purchase, foreign_key: :future_destination_group_id)

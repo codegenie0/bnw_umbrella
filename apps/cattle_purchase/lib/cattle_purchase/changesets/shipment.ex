@@ -5,7 +5,8 @@ defmodule CattlePurchase.Shipment do
   alias CattlePurchase.{
     Sex,
     DestinationGroup,
-    Purchase
+    Purchase,
+    CattleReceiving
   }
 
   prefix = "bnw_dashboard_cattle_purchase"
@@ -29,6 +30,7 @@ defmodule CattlePurchase.Shipment do
     belongs_to :sex, Sex
     belongs_to :destination_group, DestinationGroup
     belongs_to :purchase, Purchase
+    has_many(:cattle_receivings, CattleReceiving)
 
     timestamps()
   end
