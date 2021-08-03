@@ -35,8 +35,8 @@
             Destination Group
             <%= error_tag f, :destination_group_id %>
           <% end %>
-          <div class="uk-form-controls">
-            <%= select f, :destination_group_id, Enum.map(@destinations, &{&1.name, &1.id}), [ prompt: "Select Destination Group", selected: "", value: @changeset.data.destination_group_id, class: "uk-select"] %>
+          <div id="destination_group_id" class="uk-form-controls" phx-update="ignore">
+            <%= select f, :destination_group_id, Enum.map(@destinations, &{"#{if &1.child, do: "- ", else: '' }#{&1.name}", "#{if &1.child, do: "#{&1.id}|#{&1.name}", else: &1.id }"}), [ prompt: "Select Destination Group", selected: "", value: @changeset.data.destination_group_id, class: "uk-select"] %>
           </div>
         </div>
         <div class="uk-margin-small">

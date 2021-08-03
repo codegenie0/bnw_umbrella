@@ -14,7 +14,23 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
     purchase =
       Map.put(purchase, "purchase_flag_ids", get_purchase_flags(socket.assigns.purchase_flags))
 
+    %{id: id, name: name} = extract_data_from_destination(purchase["destination_group_id"])
     %{changeset: changeset} = socket.assigns
+
+    parent_destination =
+      Enum.find(socket.assigns.destinations, %{id: "", name: ""}, fn item ->
+        item.id == id && !item.child
+      end)
+
+    purchase = Map.put(purchase, "destination_group_id", id)
+
+    purchase =
+      Map.put(
+        purchase,
+        "destination_group_name",
+        "#{parent_destination.name}#{if name == "", do: "", else: "> #{name}"}"
+      )
+
     changeset = Purchases.validate(changeset.data, purchase)
 
     if changeset.valid? do
@@ -23,24 +39,40 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
           {:noreply, push_patch(socket, to: Routes.live_path(socket, PurchaseLive))}
 
         {:error, %Ecto.Changeset{} = changest} ->
-          {:noreply, assign(socket, changeset: changest)}
+          result = if name == "", do: id, else: "#{id}|#{name}"
+          changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
+          {:noreply, assign(socket, changeset: changeset)}
       end
     else
+      result = if name == "", do: id, else: "#{id}|#{name}"
+      changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
       {:noreply, assign(socket, changeset: changeset)}
     end
   end
 
-  def handle_event("validate", %{"purchase" => params}, socket) do
-    params =
-      Map.put(params, "purchase_flag_ids", get_purchase_flags(socket.assigns.purchase_flags))
+  def handle_event("validate", %{"purchase" => purchase}, socket) do
+    purchase =
+      Map.put(purchase, "purchase_flag_ids", get_purchase_flags(socket.assigns.purchase_flags))
+
+    %{id: id, name: name} = extract_data_from_destination(purchase["destination_group_id"])
+    %{changeset: changeset} = socket.assigns
+
+    parent_destination =
+      Enum.find(socket.assigns.destinations, %{id: "", name: ""}, fn item ->
+        item.id == id && !item.child
+      end)
+
+    purchase = Map.put(purchase, "destination_group_id", id)
 
     %{changeset: changeset} = socket.assigns
 
     changeset =
       changeset.data
-      |> Purchases.change_purchase(params)
+      |> Purchases.change_purchase(purchase)
       |> Map.put(:action, :update)
 
+    result = if name == "", do: id, else: "#{id}|#{name}"
+    changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
     {:noreply, assign(socket, changeset: changeset)}
   end
 
@@ -72,5 +104,14 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
         list
       end
     end)
+  end
+
+  defp extract_data_from_destination(data) do
+    if String.contains?(data, "|") do
+      [id, name] = String.split(data, "|")
+      %{id: id, name: name}
+    else
+      %{id: data, name: ""}
+    end
   end
 end
