@@ -45,7 +45,11 @@
     </div>
     <div class="uk-margin uk-grid uk-child-width-auto uk-grid uk-padding uk-padding-remove-vertical uk-flex-center uk-flex-around">
       <%= select f, :column_name, @search_columns, [ prompt: "Select column for search",  selected: @purchase_search.column_name, value: @purchase_search.column_name, class: "uk-input"] %>
-      <%= text_input f, :search_value, class: "uk-input", placeholder: "Enter value to search", value: @purchase_search.search_value %>
+      <%= if @purchase_search.column_name in ["purchase_date", "estimated_ship_date", "projected_out_date"] do %>
+        <%= date_input f, :search_value, class: "uk-input", placeholder: "Enter value to search", value: @purchase_search.search_value %>
+      <% else %>
+        <%= text_input f, :search_value, class: "uk-input", placeholder: "Enter value to search", value: @purchase_search.search_value %>
+      <% end %>
     </div>
       <div class="uk-modal-footer uk-text-right  uk-flex uk-flex-center">
         <%= submit "Search", [phx_disable_with: "Saving...",  class: "uk-button uk-button-primary"] %>
