@@ -75,14 +75,13 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       %{name: "complete", title: "Complete", sort_by: nil, is_sort: true}
     ]
 
-    purchases = Purchases.list_purchases()
+    total_pages = Purchases.total_pages(1)
 
     socket =
       assign_defaults(session, socket)
       |> assign(
         page_title: "Purchase",
         app: "Cattle Purchase",
-        purchases: purchases,
         active_purchase_types: active_purchase_types,
         purchase_type_filters: purchase_type_filters,
         toggle_complete: toggle_complete,
@@ -94,9 +93,12 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
           start_date: "",
           end_date: ""
         },
-        modal: nil
+        modal: nil,
+        page: 1,
+        per_page: 10,
+        total_pages: total_pages
       )
-
+      socket = fetch_purchase(socket)
     if connected?(socket) do
       Purchases.subscribe()
     end
@@ -105,6 +107,12 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       true -> {:ok, socket}
       false -> {:ok, redirect(socket, to: "/")}
     end
+  end
+
+  defp fetch_purchase(socket) do
+    %{page: page, per_page: per_page} = socket.assigns
+    purchases = Purchases.list_purchases_by_page(page, per_page)
+    assign(socket, purchases: purchases)
   end
 
   @impl true
@@ -135,13 +143,13 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         assign(socket,
           changeset: changeset,
           modal: :change_purchase,
-          purchase_groups: Enum.map(purchase_groups, &%{id: &1.id, name: &1.name}),
-          purchase_types: Enum.map(purchase_types, &%{id: &1.id, name: &1.name}),
-          sexes: Enum.map(sexes, &%{id: &1.id, name: &1.name}),
+          purchase_groups: Enum.map(purchase_groups, & %{id: &1.id, name: &1.name}),
+          purchase_types: Enum.map(purchase_types, & %{id: &1.id, name: &1.name}),
+          sexes: Enum.map(sexes, & %{id: &1.id, name: &1.name}),
           pcc_sort_category: pcc_sort_category,
-          purchase_flags: Enum.map(purchase_flags, &%{id: &1.id, name: &1.name, checked: false}),
-          purchase_buyers: Enum.map(purchase_buyers, &%{id: &1.id, name: &1.name}),
-          destinations: Enum.map(destination_groups, &%{id: &1.id, name: &1.name})
+          purchase_flags: Enum.map(purchase_flags, & %{id: &1.id, name: &1.name, checked: false}),
+          purchase_buyers: Enum.map(purchase_buyers, & %{id: &1.id, name: &1.name}),
+          destinations: Enum.map(destination_groups, & %{id: &1.id, name: &1.name})
         )
 
       {:noreply, socket}
@@ -392,6 +400,24 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   @impl true
   def handle_event("change_complete", %{"id" => id}, socket) do
     Purchases.change_complete(id)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("load_more_purchases", _, socket) do
+    %{page: page, per_page: per_page, total_pages: total_pages} = socket.assigns
+
+    socket =
+      cond do
+        page < total_pages ->
+          page = page + 1
+          purchases = Purchases.list_purchases_by_page(page, per_page)
+          assign(socket, update_action: "append", page: page, purchases: purchases)
+
+        true ->
+          socket
+      end
+
     {:noreply, socket}
   end
 end

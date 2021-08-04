@@ -12,7 +12,7 @@ defmodule CattlePurchase.Purchases do
     Repo
   }
 
-  import Ecto.Query, only: [from: 2]
+  import Ecto.Query
 
   @topic "cattle_purchase:purchases"
   def subscribe(), do: Phoenix.PubSub.subscribe(CattlePurchase.PubSub, @topic)
@@ -255,6 +255,27 @@ defmodule CattlePurchase.Purchases do
 
     Repo.update(cs)
     |> notify_subscribers([:purchases, :created_or_updated])
+  end
+
+  def list_purchases_by_page(current_page \\ 1, per_page \\ 10) do
+    offset = per_page * (current_page - 1)
+
+    Purchase
+    |> offset(^offset)
+    |> limit(^per_page)
+    |> Repo.all()
+    |> Repo.preload([:sex, :purchase_buyer, :destination_group])
+  end
+
+  def total_pages(per_page \\ 10) do
+    purchase_count =
+      Purchase
+      |> Repo.aggregate(:count, :id)
+
+    (purchase_count / per_page)
+    |> Decimal.from_float()
+    |> Decimal.round(0, :up)
+    |> Decimal.to_integer()
   end
 
   def notify_subscribers({:ok, result}, event) do
