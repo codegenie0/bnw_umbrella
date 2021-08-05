@@ -96,7 +96,7 @@
             <%= purchase.purchase_buyer.name %>
             <% end %>
           </td>
-          <td class="uk-text-nowrap"><%= purchase.destination_group.name%></td>
+          <td class="uk-text-nowrap"><%= purchase.destination_group_name%></td>
           <td class="uk-text-nowrap"><%= "#{CattlePurchase.Purchases.parse_date(purchase.estimated_ship_date)}"%></td>
           <td class="uk-text-nowrap"><%= if purchase.firm do %>
             <span class="uk-preserve-width check-color" uk-icon="icon: check; ratio: 2.5" phx-hook="uk_icon"></span>

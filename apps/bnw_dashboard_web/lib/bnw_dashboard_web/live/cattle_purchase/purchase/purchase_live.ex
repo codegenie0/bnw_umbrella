@@ -95,7 +95,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         },
         modal: nil,
         page: 1,
-        per_page: 10,
+        per_page: 20,
         total_pages: total_pages
       )
       socket = fetch_purchase(socket)
@@ -125,7 +125,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     changeset = Purchases.new_purchase()
     purchase_groups = PurchaseGroups.list_purchase_groups()
     purchase_types = PurchaseTypes.get_active_purchase_types()
-    destination_groups = DestinationGroups.list_destination_groups()
+    destination_groups = Purchases.get_destination("") |> format_destination_group()
     sexes = Sexes.get_active_sexes()
     pcc_sort_category = Purchases.pcc_sort_category()
     purchase_flags = PurchaseFlags.list_purchase_flags()
@@ -149,7 +149,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
           pcc_sort_category: pcc_sort_category,
           purchase_flags: Enum.map(purchase_flags, & %{id: &1.id, name: &1.name, checked: false}),
           purchase_buyers: Enum.map(purchase_buyers, & %{id: &1.id, name: &1.name}),
-          destinations: Enum.map(destination_groups, & %{id: &1.id, name: &1.name})
+          destinations: destination_groups
         )
 
       {:noreply, socket}
@@ -419,5 +419,18 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       end
 
     {:noreply, socket}
+  end
+
+  defp format_destination_group(destination_groups) do
+    Enum.reduce(destination_groups, [], fn destination_group, acc ->
+      acc = acc ++ [%{id: destination_group.id, name: destination_group.name, child: false}]
+
+      small =
+        Enum.map(destination_group.destinations, fn item ->
+          %{name: item.name, id: destination_group.id, child: true}
+        end)
+
+      acc = acc ++ small
+    end)
   end
 end
