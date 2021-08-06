@@ -245,18 +245,6 @@ defmodule CattlePurchase.Purchases do
     Timex.format!(date, "{0M}-{0D}-{YYYY}")
   end
 
-  def change_complete(id) do
-    purchase = Repo.get(Purchase, id)
-
-    cs =
-      Ecto.Changeset.change(purchase, %{
-        complete: !purchase.complete
-      })
-
-    Repo.update(cs)
-    |> notify_subscribers([:purchases, :created_or_updated])
-  end
-
   def list_purchases_by_page(current_page \\ 1, per_page \\ 10) do
     offset = per_page * (current_page - 1)
 

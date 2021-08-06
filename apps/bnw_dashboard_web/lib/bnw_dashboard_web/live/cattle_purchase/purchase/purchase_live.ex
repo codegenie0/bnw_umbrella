@@ -121,6 +121,18 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   end
 
   @impl true
+  def handle_info({[:purchases, :deleted], _}, socket) do
+    socket = assign(socket, modal: nil, changeset: nil)
+    {:noreply, assign(socket, purchases: Purchases.list_purchases())}
+  end
+
+  @impl true
+  def handle_info({[:purchases, :created_or_updated], _}, socket) do
+    socket = assign(socket, modal: nil, changeset: nil)
+    {:noreply, assign(socket, purchases: Purchases.list_purchases())}
+  end
+
+  @impl true
   def handle_event("new", _, socket) do
     changeset = Purchases.new_purchase()
     purchase_groups = PurchaseGroups.list_purchase_groups()
@@ -216,12 +228,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   def handle_event("cancel", _, socket) do
     socket = assign(socket, modal: nil)
     {:noreply, socket}
-  end
-
-  @impl true
-  def handle_info({[:purchases, :deleted], _}, socket) do
-    socket = assign(socket, modal: nil, changeset: nil)
-    {:noreply, assign(socket, purchases: Purchases.list_purchases())}
   end
 
   def handle_event(
@@ -391,17 +397,24 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     {:noreply, assign(socket, purchases: purchases)}
   end
 
-  @impl true
-  def handle_info({[:purchases, :created_or_updated], _}, socket) do
-    socket = assign(socket, modal: nil, changeset: nil)
-    {:noreply, assign(socket, purchases: Purchases.list_purchases())}
-  end
-
-  @impl true
-  def handle_event("change_complete", %{"id" => id}, socket) do
-    Purchases.change_complete(id)
+  def handle_event(
+    "handle_purchase_complete_change",
+    params,
+    socket
+  ) do
+case params do
+  %{"id" => id, "value" => value} ->
+    change_purchase_complete(socket, params, true)
     {:noreply, socket}
-  end
+
+  %{"id" => id} ->
+    change_purchase_complete(socket, params, false)
+    {:noreply, socket}
+
+  _ ->
+    {:noreply, socket}
+end
+end
 
   @impl true
   def handle_event("load_more_purchases", _, socket) do
@@ -419,6 +432,28 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       end
 
     {:noreply, socket}
+  end
+
+  defp format_destination_group(destination_groups) do
+    Enum.reduce(destination_groups, [], fn destination_group, acc ->
+      acc = acc ++ [%{id: destination_group.id, name: destination_group.name, child: false}]
+
+      small =
+        Enum.map(destination_group.destinations, fn item ->
+          %{name: item.name, id: destination_group.id, child: true}
+        end)
+
+      acc = acc ++ small
+    end)
+  end
+
+  defp change_purchase_complete(socket, params, value) do
+    {id, ""} = Integer.parse(params["id"])
+    purchase = Enum.find(socket.assigns.purchases, fn pg -> pg.id == id end)
+
+    changeset =
+      purchase
+      |> Purchases.create_or_update_purchase(%{complete: value})
   end
 
   defp format_destination_group(destination_groups) do

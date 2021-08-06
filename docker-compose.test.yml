@@ -1,0 +1,11 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/production/app/Dockerfile
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./.prod.env
+    image: 433323019751.dkr.ecr.us-west-2.amazonaws.com/bnw-dashboard-umbrella/cp-test:0.0.14
