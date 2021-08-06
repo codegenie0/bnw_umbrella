@@ -14,17 +14,19 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
     purchase =
       Map.put(purchase, "purchase_flag_ids", get_purchase_flags(socket.assigns.purchase_flags))
 
-      %{id: id, name: name} = extract_data_from_destination(purchase["destination_group_id"])
+    %{id: id, name: name} = extract_data_from_destination(purchase["destination_group_id"])
 
     %{changeset: changeset} = socket.assigns
+
     parent_destination =
       Enum.find(socket.assigns.destinations, %{id: "", name: ""}, fn item ->
         if(String.trim(id) == "") do
           item.id == id && !item.child
-          else
+        else
           item.id == String.to_integer(id) && !item.child
-          end
+        end
       end)
+
     purchase = Map.put(purchase, "destination_group_id", id)
 
     purchase =
@@ -33,6 +35,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
         "destination_group_name",
         "#{parent_destination.name}#{if name == "", do: "", else: " > #{name}"}"
       )
+
     changeset = Purchases.validate(changeset.data, purchase)
 
     if changeset.valid? do
@@ -62,12 +65,11 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
     parent_destination =
       Enum.find(socket.assigns.destinations, %{id: "", name: ""}, fn item ->
         if(String.trim(id) == "") do
-        item.id == id && !item.child
+          item.id == id && !item.child
         else
-        item.id == String.to_integer(id) && !item.child
+          item.id == String.to_integer(id) && !item.child
         end
       end)
-
 
     purchase = Map.put(purchase, "destination_group_id", id)
 
@@ -78,8 +80,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
       |> Purchases.change_purchase(purchase)
       |> Map.put(:action, :update)
 
-      result = if name == "", do: id, else: "#{id}|#{name}"
-      changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
+    result = if name == "", do: id, else: "#{id}|#{name}"
+    changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
     {:noreply, assign(socket, changeset: changeset)}
   end
 

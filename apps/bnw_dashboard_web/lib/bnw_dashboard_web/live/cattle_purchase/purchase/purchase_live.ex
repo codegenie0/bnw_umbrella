@@ -98,7 +98,9 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         per_page: 20,
         total_pages: total_pages
       )
-      socket = fetch_purchase(socket)
+
+    socket = fetch_purchase(socket)
+
     if connected?(socket) do
       Purchases.subscribe()
     end
@@ -155,12 +157,12 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         assign(socket,
           changeset: changeset,
           modal: :change_purchase,
-          purchase_groups: Enum.map(purchase_groups, & %{id: &1.id, name: &1.name}),
-          purchase_types: Enum.map(purchase_types, & %{id: &1.id, name: &1.name}),
-          sexes: Enum.map(sexes, & %{id: &1.id, name: &1.name}),
+          purchase_groups: Enum.map(purchase_groups, &%{id: &1.id, name: &1.name}),
+          purchase_types: Enum.map(purchase_types, &%{id: &1.id, name: &1.name}),
+          sexes: Enum.map(sexes, &%{id: &1.id, name: &1.name}),
           pcc_sort_category: pcc_sort_category,
-          purchase_flags: Enum.map(purchase_flags, & %{id: &1.id, name: &1.name, checked: false}),
-          purchase_buyers: Enum.map(purchase_buyers, & %{id: &1.id, name: &1.name}),
+          purchase_flags: Enum.map(purchase_flags, &%{id: &1.id, name: &1.name, checked: false}),
+          purchase_buyers: Enum.map(purchase_buyers, &%{id: &1.id, name: &1.name}),
           destinations: destination_groups
         )
 
@@ -181,7 +183,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
     purchase_groups = PurchaseGroups.list_purchase_groups()
     purchase_types = PurchaseTypes.get_active_purchase_types()
-    destination_groups = DestinationGroups.list_destination_groups()
+    destination_groups = Purchases.get_destination("") |> format_destination_group()
     sexes = Sexes.get_active_sexes()
     pcc_sort_category = Purchases.pcc_sort_category()
     purchase_buyers = Purchases.get_buyers("")
@@ -198,6 +200,12 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         end
       end)
 
+    result = modify_destination_group_for_select(purchases)
+
+    changeset =
+      Ecto.Changeset.put_change(changeset, :destination_group_id, result)
+      |> Map.put(:action, :update)
+
     socket =
       assign(socket,
         changeset: changeset,
@@ -208,7 +216,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         pcc_sort_category: pcc_sort_category,
         purchase_flags: purchase_flags,
         purchase_buyers: Enum.map(purchase_buyers, &%{id: &1.id, name: &1.name}),
-        destinations: Enum.map(destination_groups, &%{id: &1.id, name: &1.name})
+        destinations: destination_groups
       )
 
     {:noreply, socket}
@@ -398,23 +406,23 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   end
 
   def handle_event(
-    "handle_purchase_complete_change",
-    params,
-    socket
-  ) do
-case params do
-  %{"id" => id, "value" => value} ->
-    change_purchase_complete(socket, params, true)
-    {:noreply, socket}
+        "handle_purchase_complete_change",
+        params,
+        socket
+      ) do
+    case params do
+      %{"id" => id, "value" => value} ->
+        change_purchase_complete(socket, params, true)
+        {:noreply, socket}
 
-  %{"id" => id} ->
-    change_purchase_complete(socket, params, false)
-    {:noreply, socket}
+      %{"id" => id} ->
+        change_purchase_complete(socket, params, false)
+        {:noreply, socket}
 
-  _ ->
-    {:noreply, socket}
-end
-end
+      _ ->
+        {:noreply, socket}
+    end
+  end
 
   @impl true
   def handle_event("load_more_purchases", _, socket) do
@@ -467,5 +475,26 @@ end
 
       acc = acc ++ small
     end)
+  end
+
+  defp modify_destination_group_for_select(purchase) do
+    cond do
+      !purchase.destination_group_name ->
+        ""
+
+      String.contains?(purchase.destination_group_name, ">") ->
+        [parent_name, child_name] =
+          String.split(purchase.destination_group_name, ">")
+          |> Enum.map(fn item -> String.trim(item) end)
+
+        Integer.to_string(purchase.destination_group_id) <>
+          "|" <> child_name
+
+      purchase.destination_group_name == "" ->
+        Integer.to_string(purchase.destination_group_id)
+
+      true ->
+        Integer.to_string(purchase.destination_group_id)
+    end
   end
 end

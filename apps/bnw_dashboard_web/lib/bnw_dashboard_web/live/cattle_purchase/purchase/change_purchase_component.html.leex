@@ -18,7 +18,7 @@
             <%= error_tag f, :origin %>
           <% end %>
           <div class="uk-form-controls">
-            <%= text_input f, :origin, class: "uk-input", placeholder: "Purchase Location", autofocus: true %>
+            <%= text_input f, :origin, phx_hook: "AutoFocus", class: "uk-input", placeholder: "Purchase Location", autofocus: true %>
           </div>
         </div>
         <div class="uk-margin-small">
@@ -62,8 +62,8 @@
             Destination Group
             <%= error_tag f, :destination_group_id %>
           <% end %>
-          <div id="destination_group_id" class="uk-form-controls" phx-update="ignore">
-            <%= select f, :destination_group_id, Enum.map(@destinations, &{"#{if &1.child, do: "- ", else: '' }#{&1.name}", "#{if &1.child, do: "#{&1.id}|#{&1.name}", else: &1.id }"}), [ prompt: "Select Destination Group", selected: "", value: @changeset.data.destination_group_id, class: "uk-select"] %>
+          <div id="destination_group_id" class="uk-form-controls" phx-hook="select2" phx-update="ignore">
+            <%= select f, :destination_group_id, Enum.map(@destinations, &{"#{if &1.child, do: "- ", else: '' }#{&1.name}", "#{if &1.child, do: "#{&1.id}|#{&1.name}", else: &1.id }"}), [ prompt: "Select Destination Group", selected: "" , value:  Map.has_key?(@changeset.changes, :destination_group_id) && @changeset.changes.destination_group_id, class: "uk-select select2"] %>
           </div>
         </div>
         <div class="uk-margin-small">
