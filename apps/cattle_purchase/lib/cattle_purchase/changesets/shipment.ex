@@ -21,6 +21,7 @@ defmodule CattlePurchase.Shipment do
   @schema_prefix prefix
 
   schema "shipments" do
+    field :destination_group_name, :string
     field :estimated_ship_date, :date
     field :head_count, :integer
     field :firm, :boolean, default: false
@@ -38,7 +39,7 @@ defmodule CattlePurchase.Shipment do
   @required ~w(estimated_ship_date head_count projected_out_date destination_group_id
                 sex_id purchase_id
               )a
-  @optional ~w(expected_lots firm complete)a
+  @optional ~w(expected_lots firm complete destination_group_name)a
   @allowed @required ++ @optional
 
   def changeset(%__MODULE__{} = model, attrs \\ %{}) do
