@@ -122,6 +122,7 @@ defmodule BnwDashboardWeb.Router do
       live "/users", CattlePurchase.Users.UsersLive
       live "/weight_categories", CattlePurchase.WeightCategory.WeightCategoryLive
       live "/purchase_shipments", CattlePurchase.PurchaseShipment.PurchaseShipmentLive
+      live "/purchase_recevices", CattlePurchase.CattleReceive.CattleReceiveLive
 
     end
   end
