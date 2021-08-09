@@ -15,6 +15,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   }
 
   alias BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent
+  alias BnwDashboardWeb.CattlePurchase.Purchase.CompletePurchaseComponent
+  alias BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive
 
   defp authenticate(socket) do
     current_user = Map.get(socket.assigns, :current_user)
@@ -168,6 +170,33 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
       {:noreply, socket}
     end
+  end
+
+  @impl true
+  def handle_event("clear_filters", _, socket) do
+    active_purchase_types =
+      PurchaseTypes.get_active_purchase_types()
+      |> Enum.map(fn item -> %{id: item.id, name: item.name, checked: false} end)
+
+    purchase_type_filters =
+      PurchaseTypeFilters.list_purchase_type_filters()
+      |> Enum.map(fn item -> %{id: item.id, name: item.name, checked: false} end)
+
+    toggle_complete = %{name: "toggle completed", checked: false}
+
+    {:noreply,
+     assign(socket,
+       active_purchase_types: active_purchase_types,
+       purchase_type_filters: purchase_type_filters,
+       purchases: Purchases.list_purchases(),
+       toggle_complete: toggle_complete,
+       purchase_search: %{
+         column_name: "Select column for search",
+         search_value: "",
+         start_date: "",
+         end_date: ""
+       }
+     )}
   end
 
   @impl true

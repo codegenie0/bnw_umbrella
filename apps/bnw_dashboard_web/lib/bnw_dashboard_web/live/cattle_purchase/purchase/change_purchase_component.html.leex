@@ -13,57 +13,12 @@
       </div>
       <div class="uk-modal-body uk-background-secondary uk-light uk-overflow-auto uk-height-max-large">
         <div class="uk-margin-small">
-          <%= label f, :origin, class: "uk-form-label" do %>
-            Purchase Location
-            <%= error_tag f, :origin %>
-          <% end %>
-          <div class="uk-form-controls">
-            <%= text_input f, :origin, phx_hook: "AutoFocus", class: "uk-input", placeholder: "Purchase Location", autofocus: true %>
-          </div>
-        </div>
-        <div class="uk-margin-small">
-          <%= label f, :purchase_date, class: "uk-form-label" do %>
-            Purchase Date
-            <%= error_tag f, :purchase_date %>
-          <% end %>
-          <div class="uk-form-controls">
-            <%= date_input f, :purchase_date, class: "uk-input", placeholder: "Purchase Date" %>
-          </div>
-        </div>
-        <div class="uk-margin-small">
-          <%= label f, :freight, class: "uk-form-label" do %>
-            Freight
-            <%= error_tag f, :freight %>
-          <% end %>
-          <div class="uk-form-controls">
-            <%= number_input f, :freight, class: "uk-input", placeholder: "Freight" %>
-          </div>
-        </div>
-      <div class="uk-margin-small">
           <%= label f, :purchase_group, class: "uk-form-label" do %>
             Purchase Group
             <%= error_tag f, :purchase_group_id %>
           <% end %>
           <div class="uk-form-controls" id="purchase_group_id" phx-hook="select2" phx-update="ignore">
             <%= select f, :purchase_group_id, Enum.map(@purchase_groups, &{&1.name, &1.id}), [ prompt: "Select Purchase Group", selected: "", value: @changeset.data.purchase_group_id, class: "uk-select select2"]%>
-          </div>
-        </div>
-        <div class="uk-margin-small">
-          <%= label f, :buyer_id, class: "uk-form-label" do %>
-            Purchase Buyer
-            <%= error_tag f, :buyer_id %>
-          <% end %>
-          <div class="uk-form-controls" id="buyer_id" phx-hook="select2" phx-update="ignore">
-            <%= select f, :buyer_id, Enum.map(@purchase_buyers, &{&1.name, &1.id}), [ prompt: "Select Purchase Buyer", selected: "", value: @changeset.data.buyer_id, class: "uk-select select2"] %>
-          </div>
-        </div>
-        <div class="uk-margin-small">
-          <%= label f, :destination_group_id, class: "uk-form-label" do %>
-            Destination Group
-            <%= error_tag f, :destination_group_id %>
-          <% end %>
-          <div id="destination_group_id" class="uk-form-controls" phx-hook="select2" phx-update="ignore">
-            <%= select f, :destination_group_id, Enum.map(@destinations, &{"#{if &1.child, do: "- ", else: '' }#{&1.name}", "#{if &1.child, do: "#{&1.id}|#{&1.name}", else: &1.id }"}), [ prompt: "Select Destination Group", selected: "" , value:  Map.has_key?(@changeset.changes, :destination_group_id) && @changeset.changes.destination_group_id, class: "uk-select select2"] %>
           </div>
         </div>
         <div class="uk-margin-small">
@@ -76,12 +31,44 @@
           </div>
         </div>
         <div class="uk-margin-small">
-          <%= label f, :sex, class: "uk-form-label" do %>
-            Sex
-            <%= error_tag f, :sex_id %>
+          <%= label f, :purchase_date, class: "uk-form-label" do %>
+            Purchase Date
+            <%= error_tag f, :purchase_date %>
           <% end %>
-          <div class="uk-form-controls" id="sex_id" phx-hook="select2" phx-update="ignore">
-            <%= select f, :sex_id, Enum.map(@sexes, &{&1.name, &1.id}), [ prompt: "Select Sex", selected: "", value: @changeset.data.sex_id, class: "uk-select select2"] %>
+          <div class="uk-form-controls">
+            <%= date_input f, :purchase_date, class: "uk-input", placeholder: "Purchase Date" %>
+          </div>
+        </div>
+          <div class="uk-margin-small">
+          <%= label f, :estimated_ship_date, class: "uk-form-label" do %>
+            Estimated Ship Date
+            <%= error_tag f, :estimated_ship_date %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= date_input f, :estimated_ship_date, class: "uk-input", placeholder: "Estimated Ship Date" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <label class="uk-padding-small uk-padding-remove-left">
+            <%= checkbox(f, :firm, class: "uk-checkbox") %> Firm
+          </label>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :seller, class: "uk-form-label" do %>
+            Seller
+            <%= error_tag f, :seller %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= text_input f, :seller, class: "uk-input", placeholder: "Seller" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :origin, class: "uk-form-label" do %>
+            Purchase Location
+            <%= error_tag f, :origin %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= text_input f, :origin, class: "uk-input", placeholder: "Purchase Location", autofocus: true %>
           </div>
         </div>
         <div class="uk-margin-small">
@@ -94,12 +81,21 @@
           </div>
         </div>
         <div class="uk-margin-small">
-          <%= label f, :projected_break_even, class: "uk-form-label" do %>
-            Projected Break Even
-            <%= error_tag f, :projected_break_even %>
+          <%= label f, :buyer_id, class: "uk-form-label" do %>
+            Purchase Buyer
+            <%= error_tag f, :buyer_id %>
           <% end %>
-          <div class="uk-form-controls">
-            <%= number_input f, :projected_break_even, class: "uk-input", placeholder: "Projected Break Even" %>
+          <div class="uk-form-controls" id="buyer_id" phx-hook="select2" phx-update="ignore">
+            <%= select f, :buyer_id, Enum.map(@purchase_buyers, &{&1.name, &1.id}), [ prompt: "Select Purchase Buyer", selected: "", value: @changeset.data.buyer_id, class: "uk-select select2"] %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :sex, class: "uk-form-label" do %>
+            Sex
+            <%= error_tag f, :sex_id %>
+          <% end %>
+          <div class="uk-form-controls" id="sex_id" phx-hook="select2" phx-update="ignore">
+            <%= select f, :sex_id, Enum.map(@sexes, &{&1.name, &1.id}), [ prompt: "Select Sex", selected: "", value: @changeset.data.sex_id, class: "uk-select select2"] %>
           </div>
         </div>
         <div class="uk-margin-small">
@@ -112,44 +108,12 @@
           </div>
         </div>
         <div class="uk-margin-small">
-          <%= label f, :estimated_ship_date, class: "uk-form-label" do %>
-            Estimated Ship Date
-            <%= error_tag f, :estimated_ship_date %>
-          <% end %>
-          <div class="uk-form-controls">
-            <%= date_input f, :estimated_ship_date, class: "uk-input", placeholder: "Estimated Ship Date" %>
-          </div>
-        </div>
-         <div class="uk-margin-small">
-          <label class="uk-padding-small uk-padding-remove-left">
-            <%= checkbox(f, :firm, class: "uk-checkbox") %> Firm
-          </label>
-        </div>
-        <div class="uk-margin-small">
           <%= label f, :weight, class: "uk-form-label" do %>
             Weight
             <%= error_tag f, :weight %>
           <% end %>
           <div class="uk-form-controls">
             <%= number_input f, :weight, class: "uk-input", placeholder: "Weight" %>
-          </div>
-        </div>
-        <div class="uk-margin-small">
-          <%= label f, :projected_out_date, class: "uk-form-label" do %>
-            Projected out
-            <%= error_tag f, :projected_out_date %>
-          <% end %>
-          <div class="uk-form-controls">
-            <%= date_input f, :projected_out_date, class: "uk-input", placeholder: "Projected out" %>
-          </div>
-        </div>
-        <div class="uk-margin-small">
-          <%= label f, :seller, class: "uk-form-label" do %>
-            Seller
-            <%= error_tag f, :seller %>
-          <% end %>
-          <div class="uk-form-controls">
-            <%= text_input f, :seller, class: "uk-input", placeholder: "Seller" %>
           </div>
         </div>
         <div class="uk-margin-small">
@@ -161,10 +125,46 @@
             <%= number_input f, :price, step: "0.01" , class: "uk-input", placeholder: "Price" %>
           </div>
         </div>
-          <div class="uk-margin-small">
+        <div class="uk-margin-small">
           <label class="uk-padding-small uk-padding-remove-left">
             <%= checkbox(f, :price_delivered, class: "uk-checkbox") %> Delivered
           </label>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :freight, class: "uk-form-label" do %>
+            Freight
+            <%= error_tag f, :freight %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= number_input f, :freight, class: "uk-input", placeholder: "Freight" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :destination_group_id, class: "uk-form-label" do %>
+            Destination Group
+            <%= error_tag f, :destination_group_id %>
+          <% end %>
+          <div id="destination_group_id" class="uk-form-controls" phx-hook="select2" phx-update="ignore">
+            <%= select f, :destination_group_id, Enum.map(@destinations, &{"#{if &1.child, do: "- ", else: '' }#{&1.name}", "#{if &1.child, do: "#{&1.id}|#{&1.name}", else: &1.id }"}), [ prompt: "Select Destination Group", selected: "" , value:  Map.has_key?(@changeset.changes, :destination_group_id) && @changeset.changes.destination_group_id, class: "uk-select select2"] %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :projected_break_even, class: "uk-form-label" do %>
+            Projected Break Even
+            <%= error_tag f, :projected_break_even %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= number_input f, :projected_break_even, class: "uk-input", placeholder: "Projected Break Even" %>
+          </div>
+        </div>
+        <div class="uk-margin-small">
+          <%= label f, :projected_out_date, class: "uk-form-label" do %>
+            Projected out
+            <%= error_tag f, :projected_out_date %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= date_input f, :projected_out_date, class: "uk-input", placeholder: "Projected out" %>
+          </div>
         </div>
         <div class="uk-margin-small">
           <%= label f, :purchase_order, class: "uk-form-label" do %>

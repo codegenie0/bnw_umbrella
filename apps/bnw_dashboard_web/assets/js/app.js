@@ -49,19 +49,6 @@ Hooks.select2 = {
   },
 };
 
-Hooks.AutoFocus = {
-  mounted() {
-    if (
-      this.el.tagName == "INPUT" &&
-      (this.el.type == "text")
-    ) {
-      let val = this.el.value;
-      this.el.value = " ";
-      this.el.value = val;
-    }
-    this.el.focus();
-  }
-};
 Hooks.uk_icon = {
   mounted() {UIkit.icon(this.el, {})},
   updated() {UIkit.icon(this.el, {})}

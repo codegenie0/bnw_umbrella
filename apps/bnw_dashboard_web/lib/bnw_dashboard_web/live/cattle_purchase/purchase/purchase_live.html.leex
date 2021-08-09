@@ -41,7 +41,7 @@
       <div class="uk-form-controls">
         <%= date_input f, :end_date,
           class: "uk-input uk-form-small",
-          value: @purchase_search.start_date %>
+          value: @purchase_search.end_date %>
       </div>
       <div class="uk-margin-large-left">
         <%= select f, :column_name, Enum.map(@search_columns, fn {k, v} -> {humanize(k), v} end), [
@@ -59,6 +59,9 @@
       </div>
       <div>
         <%= submit "Search", [phx_disable_with: "Saving...",  class: "uk-button uk-button-primary uk-button-small"] %>
+        <%= link "Clear all selections", to: "#",
+          class: "uk-button uk-button-primary uk-button-small",
+          phx_click: "clear_filters" %>
       </div>
     </div>
   </form>
@@ -78,10 +81,10 @@
           <% end %>
         </th>
         <% end %>
-        <th>edit | delete</th>
+        <th class="uk-width-1-4 uk-table-expand uk-text-nowrap uk-background-default">edit | delete</th>
       </tr>
     </thead>
-    </tbody>
+    <tbody>
       <%= for purchase <- @purchases do %>
         <tr>
           <td class="uk-text-nowrap"><%= "#{CattlePurchase.Purchases.parse_date(purchase.purchase_date)}" %></td>
@@ -109,22 +112,18 @@
             <span class="uk-preserve-width check-color" uk-icon="icon: check; ratio: 2.5" phx-hook="uk_icon"></span>
           <% end %></td>
           <td class="uk-text-nowrap"><%= "#{CattlePurchase.Purchases.parse_date(purchase.projected_out_date)}"%></td>
-          <td class="uk-text-nowrap"><%= purchase.projected_break_even%></td>
+          <td class="uk-text-nowrap"><%= "$#{purchase.projected_break_even}"%></td>
           <td class="uk-text-nowrap">
-            <input class="uk-checkbox"
-            type="checkbox"
-            phx-click="handle_purchase_complete_change"
-            phx-value-id="<%= purchase.id %>"
-            <%= if purchase.complete, do: "checked", else: "" %>
+            <%= live_component(@socket, CompletePurchaseComponent, purchase: purchase)%>
           </td>
-          <td class="uk-text-nowrap">
-            <%= link "", to: "#", class: "uk-padding-remove-vertical uk-margin-small-right",
-            uk_icon: "pencil",
+          <td class="uk-text-nowrap" >
+            <%= link "", to: "#", class: "uk-padding-remove-vertical uk-preserve-width uk-margin-small-right",
+            uk_icon: "icon: pencil",
             phx_hook: "uk_icon",
             phx_click: "edit",
             phx_value_id: purchase.id %>
-            <%= link "", to: "#", class: "uk-padding-remove-vertical",
-            uk_icon: "trash",
+            <%= link "", to: "#", class: "uk-padding-remove-vertical uk-preserve-width",
+            uk_icon: "icon: trash",
             phx_hook: "uk_icon",
             phx_click: "delete",
             phx_value_id: purchase.id %>
