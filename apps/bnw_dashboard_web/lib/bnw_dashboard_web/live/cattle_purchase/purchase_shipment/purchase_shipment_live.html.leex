@@ -1,0 +1,14 @@
+<div>
+  <h3><%= @page_title %></h3>
+  <div class="uk-overflow-auto uk-height-max-large">
+    <h3>Purchase</h3>
+    <table class="uk-table uk-table-striped uk-table-middle uk-table-hover">
+      <thead>
+        <tr>
+          <%= for sort_column <- @sort_columns do %>
+          <th class="uk-width-1-4 uk-table-expand uk-text-nowrap uk-background-default">
+            <span><%= sort_column %></span>
+          </th>
+          <% end %>
+        </tr>
+      </thead>
