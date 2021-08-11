@@ -1,6 +1,6 @@
 defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipmentComponent do
   @moduledoc """
-  ### Live view component for the add/update purchase modal.
+  ### Live view component for the add/update purchase shipment modal.
   """
   use BnwDashboardWeb, :live_component
   alias CattlePurchase.{
