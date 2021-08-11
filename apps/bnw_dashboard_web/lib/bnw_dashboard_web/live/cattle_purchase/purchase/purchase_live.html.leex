@@ -71,7 +71,7 @@
     <thead>
       <tr>
         <%= for sort_column <- @sort_columns do %>
-        <th class="uk-width-1-4 uk-table-expand uk-text-nowrap uk-background-default">
+        <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default">
           <span phx-click="toggle-purchase-sort" phx-value-column="<%= sort_column.name %>" class="cursor-pointer"><%= sort_column.title %></span>
           <%= if  sort_column.sort_by do %>
             <span class="uk-preserve-width" uk-icon="icon: chevron-up" phx-hook="uk_icon"></span>
@@ -81,7 +81,7 @@
           <% end %>
         </th>
         <% end %>
-        <th class="uk-width-1-4 uk-table-expand uk-text-nowrap uk-background-default">edit | delete</th>
+        <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default">edit | delete</th>
       </tr>
     </thead>
     <tbody>
