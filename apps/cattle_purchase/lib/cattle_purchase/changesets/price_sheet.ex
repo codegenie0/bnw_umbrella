@@ -1,7 +1,7 @@
 defmodule CattlePurchase.PriceSheet do
   use Ecto.Schema
   import Ecto.Changeset
-  alias CattlePurchase.PriceSheetDetail
+  alias CattlePurchase.{PriceSheetDetail, Repo}
 
 
   prefix = "bnw_dashboard_cattle_purchase"
@@ -19,7 +19,7 @@ defmodule CattlePurchase.PriceSheet do
     field :price_date, :date
     field :comment, :string
 
-    has_many(:price_sheet_details, PriceSheetDetail)
+    has_many(:price_sheet_details, PriceSheetDetail, on_replace: :delete)
 
 
     timestamps()
@@ -29,9 +29,14 @@ defmodule CattlePurchase.PriceSheet do
   @required ~w(price_date)a
 
   def changeset(%__MODULE__{} = model, attrs \\ %{}) do
+    model = if(model.id != nil,
+    do: model |> Repo.preload(:price_sheet_details),
+    else: model)
+
     model
     |> cast(attrs, @allowed)
     |> validate_required(@required)
+    |> cast_assoc(:price_sheet_details, with: &PriceSheetDetail.new_changeset/2)
   end
 
   def new_changeset(%__MODULE__{} = model, attrs \\ %{}) do
