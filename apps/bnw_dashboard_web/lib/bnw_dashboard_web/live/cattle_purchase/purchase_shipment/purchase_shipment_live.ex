@@ -11,6 +11,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
   }
 
   alias BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipmentComponent
+  alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive
 
   defp authenticate(socket) do
     current_user = Map.get(socket.assigns, :current_user)
@@ -122,7 +123,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
       assign(socket,
         changeset: changeset,
         modal: :change_purchase_shipment,
-        sexes: Enum.map(sexes, & %{id: &1.id, name: &1.name}),
+        sexes: Enum.map(sexes, &%{id: &1.id, name: &1.name}),
         destinations: destination_groups
       )
 
@@ -178,5 +179,4 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
     socket = assign(socket, modal: nil)
     {:noreply, socket}
   end
-
 end

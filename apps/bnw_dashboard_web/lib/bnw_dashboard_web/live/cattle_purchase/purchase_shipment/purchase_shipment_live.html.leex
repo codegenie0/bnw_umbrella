@@ -1,6 +1,7 @@
 <div>
   <h3><%= @page_title %></h3>
   <div class="uk-overflow-auto uk-height-max-large">
+    <%= live_patch "Go Back To Purchases", to: Routes.live_path(@socket, PurchaseLive), class: "uk-button uk-button-primary uk-width-1-5"  %>
     <h3>Purchase</h3>
     <table class="uk-table uk-table-striped uk-table-middle uk-table-hover">
       <thead>
