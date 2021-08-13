@@ -3,7 +3,6 @@ defmodule CattlePurchase.PriceSheetDetail do
   import Ecto.Changeset
   alias CattlePurchase.{PriceSheet, Sex, WeightCategory}
 
-
   prefix = "bnw_dashboard_cattle_purchase"
 
   prefix =
@@ -35,7 +34,6 @@ defmodule CattlePurchase.PriceSheetDetail do
     |> foreign_key_constraint(:sex_id)
     |> foreign_key_constraint(:weight_category_id)
     |> foreign_key_constraint(:price_sheet_id)
-
   end
 
   def new_changeset(%__MODULE__{} = model, attrs \\ %{}) do

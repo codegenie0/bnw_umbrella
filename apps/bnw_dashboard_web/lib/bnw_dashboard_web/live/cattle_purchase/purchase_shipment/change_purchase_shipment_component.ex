@@ -3,62 +3,80 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
   ### Live view component for the add/update purchase shipment modal.
   """
   use BnwDashboardWeb, :live_component
+  import Ecto.Changeset
+
   alias CattlePurchase.{
     Purchases,
+    Purchase,
     Shipments,
     Sexes,
     Repo
   }
+
   alias BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive
+
   def mount(socket) do
     {:ok, socket}
   end
 
   def handle_event("save", %{"shipment" => shipment}, socket) do
+    purchase_id = shipment["purchase_id"] |> String.to_integer()
+    purchase = Repo.get(Purchase, purchase_id)
 
-    %{id: id, name: name} = extract_data_from_destination(shipment["destination_group_id"])
+    if purchase.head_count != shipment["head_count"] |> String.to_integer() do
+      %{changeset: changeset} = socket.assigns
 
-    %{changeset: changeset} = socket.assigns
+      changeset =
+        add_error(changeset, :head_count, "Must be equal to the head_count of purchases")
 
-    parent_destination =
-      Enum.find(socket.assigns.destinations, %{id: "", name: ""}, fn item ->
-        if(String.trim(id) == "") do
-          item.id == id && !item.child
-        else
-          item.id == String.to_integer(id) && !item.child
-        end
-      end)
+      {:noreply, assign(socket, changeset: changeset)}
+    else
+      %{id: id, name: name} = extract_data_from_destination(shipment["destination_group_id"])
+
+      %{changeset: changeset} = socket.assigns
+
+      parent_destination =
+        Enum.find(socket.assigns.destinations, %{id: "", name: ""}, fn item ->
+          if(String.trim(id) == "") do
+            item.id == id && !item.child
+          else
+            item.id == String.to_integer(id) && !item.child
+          end
+        end)
 
       shipment = Map.put(shipment, "destination_group_id", id)
 
       shipment =
-      Map.put(
-        shipment,
-        "destination_group_name",
-        "#{parent_destination.name}#{if name == "", do: "", else: " > #{name}"}"
-      )
+        Map.put(
+          shipment,
+          "destination_group_name",
+          "#{parent_destination.name}#{if name == "", do: "", else: " > #{name}"}"
+        )
 
-    changeset = Shipments.validate(changeset.data, shipment)
+      changeset = Shipments.validate(changeset.data, shipment)
 
-    if changeset.valid? do
-      case Shipments.create_or_update_shipment(changeset.data, shipment) do
-        {:ok, _purchase} ->
-          {:noreply, push_patch(socket, to: Routes.live_path(socket, PurchaseShipmentLive, id: socket.assigns.purchase.id))}
+      if changeset.valid? do
+        case Shipments.create_or_update_shipment(changeset.data, shipment) do
+          {:ok, _purchase} ->
+            {:noreply,
+             push_patch(socket,
+               to: Routes.live_path(socket, PurchaseShipmentLive, id: socket.assigns.purchase.id)
+             )}
 
-        {:error, %Ecto.Changeset{} = changest} ->
-          result = if name == "", do: id, else: "#{id}|#{name}"
-          changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
-          {:noreply, assign(socket, changeset: changeset)}
+          {:error, %Ecto.Changeset{} = changest} ->
+            result = if name == "", do: id, else: "#{id}|#{name}"
+            changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
+            {:noreply, assign(socket, changeset: changeset)}
+        end
+      else
+        result = if name == "", do: id, else: "#{id}|#{name}"
+        changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
+        {:noreply, assign(socket, changeset: changeset)}
       end
-    else
-      result = if name == "", do: id, else: "#{id}|#{name}"
-      changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
-      {:noreply, assign(socket, changeset: changeset)}
     end
   end
 
   def handle_event("validate", %{"shipment" => shipment}, socket) do
-
     %{id: id, name: name} = extract_data_from_destination(shipment["destination_group_id"])
     %{changeset: changeset} = socket.assigns
 
@@ -71,7 +89,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
         end
       end)
 
-      shipment = Map.put(shipment, "destination_group_id", id)
+    shipment = Map.put(shipment, "destination_group_id", id)
 
     %{changeset: changeset} = socket.assigns
 
@@ -84,7 +102,6 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
     changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
     {:noreply, assign(socket, changeset: changeset)}
   end
-
 
   defp extract_data_from_destination(data) do
     if String.contains?(data, "|") do

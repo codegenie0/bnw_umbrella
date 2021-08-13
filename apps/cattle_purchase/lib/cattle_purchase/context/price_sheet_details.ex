@@ -4,6 +4,7 @@ defmodule CattlePurchase.PurchaseSheetDetails do
     PriceSheet,
     Repo
   }
+
   import Ecto.Query, only: [from: 2]
 
   @topic "cattle_purchase:price_sheet_details"
@@ -18,7 +19,7 @@ defmodule CattlePurchase.PurchaseSheetDetails do
 
   def list_price_sheet_details(price_sheet_id) do
     from(psd in PriceSheetDetail,
-          where: psd.price_sheet_id == ^price_sheet_id
+      where: psd.price_sheet_id == ^price_sheet_id
     )
     |> Repo.all()
   end
@@ -56,7 +57,6 @@ defmodule CattlePurchase.PurchaseSheetDetails do
   def delete_price_sheet_detail(%PriceSheetDetail{} = price_sheet_detail) do
     Repo.delete(price_sheet_detail)
     |> notify_subscribers([:price_sheet_details, :deleted])
-
   end
 
   def notify_subscribers({:ok, result}, event) do
@@ -64,5 +64,6 @@ defmodule CattlePurchase.PurchaseSheetDetails do
     Phoenix.PubSub.broadcast(CattlePurchase.PubSub, "#{@topic}:#{result.id}", {event, result})
     {:ok, result}
   end
+
   def notify_subscribers({:error, reason}, _event), do: {:error, reason}
 end

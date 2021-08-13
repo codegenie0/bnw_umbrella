@@ -87,7 +87,7 @@
     <tbody>
       <%= for purchase <- @purchases do %>
         <%= if purchase.complete do %>
-          <tr class="uk-alert-success">
+          <tr class="uk-alert-success complete-check-color">
           <% else %>
           <tr>
           <% end %>

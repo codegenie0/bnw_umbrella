@@ -3,6 +3,7 @@ defmodule CattlePurchase.PurchaseSheets do
     PriceSheet,
     Repo
   }
+
   import Ecto.Query, only: [from: 2]
 
   @topic "cattle_purchase:price_sheets"
@@ -54,7 +55,6 @@ defmodule CattlePurchase.PurchaseSheets do
   def delete_price_sheet(%PriceSheet{} = price_sheet) do
     Repo.delete(price_sheet)
     |> notify_subscribers([:price_sheets, :deleted])
-
   end
 
   def notify_subscribers({:ok, result}, event) do
@@ -62,5 +62,6 @@ defmodule CattlePurchase.PurchaseSheets do
     Phoenix.PubSub.broadcast(CattlePurchase.PubSub, "#{@topic}:#{result.id}", {event, result})
     {:ok, result}
   end
+
   def notify_subscribers({:error, reason}, _event), do: {:error, reason}
 end
