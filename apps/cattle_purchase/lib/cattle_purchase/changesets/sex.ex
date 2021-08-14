@@ -18,6 +18,7 @@ defmodule CattlePurchase.Sex do
     field :name, :string
     field :description, :string
     field :order, :integer
+    field :offset, :integer
     field :active, :boolean, default: false
     has_many(:purchases, Purchase)
     has_many(:shipments, Shipment)
@@ -27,7 +28,7 @@ defmodule CattlePurchase.Sex do
   end
 
   @required ~w(name order)a
-  @optional ~w(description active)a
+  @optional ~w(description active offset)a
   @allowed @required ++ @optional
 
   def changeset(%__MODULE__{} = model, attrs \\ %{}) do

@@ -64,6 +64,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       %{name: "purchase_order", title: "Purchase Order", sort_by: nil, is_sort: true},
       %{name: "head_count", title: "Head Count", sort_by: nil, is_sort: true},
       %{name: "sex", title: "Sex", sort_by: nil, is_sort: false},
+      %{name: "received", title: "Received", sort_by: nil, is_sort: false},
       %{name: "weight", title: "Weight", sort_by: nil, is_sort: true},
       %{name: "price", title: "Price", sort_by: nil, is_sort: true},
       %{name: "price_and_delivery", title: "Delivered Price", sort_by: nil, is_sort: true},

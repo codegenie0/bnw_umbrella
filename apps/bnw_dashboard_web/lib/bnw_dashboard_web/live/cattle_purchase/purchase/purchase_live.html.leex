@@ -100,6 +100,7 @@
               <%= purchase.sex.name %>
               <% end %>
             </td>
+            <td class="uk-text-nowrap"></td>
             <td class="uk-text-nowrap"><%= purchase.weight %></td>
             <td class="uk-text-nowrap"><%= "$#{purchase.price}" %></td>
             <td class="uk-text-nowrap"><%= "$#{CattlePurchase.Purchases.price_and_delivery(purchase)}" %></td>

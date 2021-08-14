@@ -38,6 +38,14 @@
           <div class="uk-form-controls">
             <%= number_input f, :order, class: "uk-input", placeholder: "Order" %>
           </div>
+        <div class="uk-margin-small">
+          <%= label f, :offset, class: "uk-form-label" do %>
+            Offset
+            <%= error_tag f, :offset %>
+          <% end %>
+          <div class="uk-form-controls">
+            <%= number_input f, :offset, class: "uk-input", placeholder: "Offset" %>
+          </div>
         </div>
         <div class="uk-margin-small">
           <label class="uk-padding-small uk-padding-remove-left">

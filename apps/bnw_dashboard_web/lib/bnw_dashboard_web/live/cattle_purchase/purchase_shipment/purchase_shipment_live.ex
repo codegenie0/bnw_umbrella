@@ -179,4 +179,9 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
     socket = assign(socket, modal: nil)
     {:noreply, socket}
   end
+
+  @impl true
+  def handle_event("add_more", _params, socket) do
+    {:noreply, socket}
+  end
 end
