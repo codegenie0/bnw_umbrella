@@ -55,8 +55,19 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
         app: "Cattle Purchase",
         purchase: purchase,
         shipments: Shipments.get_shipments(id),
+        shipment_form_data: %{
+          "destination_group_id" => "",
+          "estimated_ship_date" => "",
+          "firm" => "false",
+          "head_count" => "",
+          "projected_out_date" => "",
+          "purchase_id" => purchase.id,
+          "sex_id" => ""
+        },
         sort_columns: sort_columns,
-        modal: nil
+        modal: nil,
+        add_feedback: false,
+        changesets: []
       )
 
     if connected?(socket) do
@@ -76,23 +87,24 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
 
   @impl true
   def handle_info({[:shipments, :deleted], _}, socket) do
-    socket = assign(socket, modal: nil, changeset: nil)
+    socket = assign(socket, modal: nil, changesets: [])
     {:noreply, assign(socket, shipments: Shipments.get_shipments(socket.assigns.purchase.id))}
   end
 
   @impl true
   def handle_info({[:shipments, :created_or_updated], _}, socket) do
-    socket = assign(socket, modal: nil, changeset: nil)
+    socket = assign(socket, modal: nil, changesets: [])
     {:noreply, assign(socket, shipments: Shipments.get_shipments(socket.assigns.purchase.id))}
   end
 
   @impl true
   def handle_event("new", _, socket) do
-    changeset = Shipments.new_shipment()
+    changeset = Shipments.new_shipment() |> Map.put(:action, :insert)
+    changesets = socket.assigns.changesets
 
     socket =
       assign(socket,
-        changeset: changeset,
+        changesets: changesets ++ [changeset],
         modal: :change_purchase_shipment,
         destinations: Purchases.get_destination("") |> format_destination_group(),
         sexes: Sexes.get_active_sexes()
@@ -115,13 +127,12 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
 
     result = modify_destination_group_for_select(shipment)
 
-    changeset =
-      Ecto.Changeset.put_change(changeset, :destination_group_id, result)
-      |> Map.put(:action, :update)
+    changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
+    changesets = [changeset]
 
     socket =
       assign(socket,
-        changeset: changeset,
+        changesets: changesets,
         modal: :change_purchase_shipment,
         sexes: Enum.map(sexes, &%{id: &1.id, name: &1.name}),
         destinations: destination_groups

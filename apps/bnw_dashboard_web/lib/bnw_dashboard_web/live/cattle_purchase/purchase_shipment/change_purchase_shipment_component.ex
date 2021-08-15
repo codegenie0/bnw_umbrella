@@ -19,66 +19,25 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
     {:ok, socket}
   end
 
-  def handle_event("save", %{"shipment" => shipment}, socket) do
+  def handle_event("save", %{"shipment" => shipment} = params, socket) do
     purchase_id = shipment["purchase_id"] |> String.to_integer()
     purchase = Repo.get(Purchase, purchase_id)
+    socket = assign(socket, :shipment_form_data, shipment)
+    %{changesets: changesets} = socket.assigns
+    changeset = List.last(changesets)
 
-    if purchase.head_count != shipment["head_count"] |> String.to_integer() do
-      %{changeset: changeset} = socket.assigns
-
-      changeset =
-        add_error(changeset, :head_count, "Must be equal to the head_count of purchases")
-
-      {:noreply, assign(socket, changeset: changeset)}
-    else
-      %{id: id, name: name} = extract_data_from_destination(shipment["destination_group_id"])
-
-      %{changeset: changeset} = socket.assigns
-
-      parent_destination =
-        Enum.find(socket.assigns.destinations, %{id: "", name: ""}, fn item ->
-          if(String.trim(id) == "") do
-            item.id == id && !item.child
-          else
-            item.id == String.to_integer(id) && !item.child
-          end
-        end)
-
-      shipment = Map.put(shipment, "destination_group_id", id)
-
-      shipment =
-        Map.put(
-          shipment,
-          "destination_group_name",
-          "#{parent_destination.name}#{if name == "", do: "", else: " > #{name}"}"
-        )
-
-      changeset = Shipments.validate(changeset.data, shipment)
-
-      if changeset.valid? do
-        case Shipments.create_or_update_shipment(changeset.data, shipment) do
-          {:ok, _purchase} ->
-            {:noreply,
-             push_patch(socket,
-               to: Routes.live_path(socket, PurchaseShipmentLive, id: socket.assigns.purchase.id)
-             )}
-
-          {:error, %Ecto.Changeset{} = changest} ->
-            result = if name == "", do: id, else: "#{id}|#{name}"
-            changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
-            {:noreply, assign(socket, changeset: changeset)}
+    changeset =
+      if shipment["head_count"] != "" do
+        if purchase.head_count != shipment["head_count"] |> String.to_integer() do
+          add_error(changeset, :head_count, "Must be equal to the head_count of purchases")
+        else
+          changeset
         end
       else
-        result = if name == "", do: id, else: "#{id}|#{name}"
-        changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
-        {:noreply, assign(socket, changeset: changeset)}
+        add_error(changeset, :head_count, "head count is blank")
       end
-    end
-  end
 
-  def handle_event("validate", %{"shipment" => shipment}, socket) do
     %{id: id, name: name} = extract_data_from_destination(shipment["destination_group_id"])
-    %{changeset: changeset} = socket.assigns
 
     parent_destination =
       Enum.find(socket.assigns.destinations, %{id: "", name: ""}, fn item ->
@@ -91,7 +50,55 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
 
     shipment = Map.put(shipment, "destination_group_id", id)
 
-    %{changeset: changeset} = socket.assigns
+    shipment =
+      Map.put(
+        shipment,
+        "destination_group_name",
+        "#{parent_destination.name}#{if name == "", do: "", else: " > #{name}"}"
+      )
+
+    changeset = Shipments.validate(changeset.data, shipment)
+
+    if changeset.valid? do
+      case Shipments.create_or_update_shipment(changeset.data, shipment) do
+        {:ok, _purchase} ->
+          {:noreply,
+           push_patch(socket,
+             to: Routes.live_path(socket, PurchaseShipmentLive, id: socket.assigns.purchase.id)
+           )}
+
+        {:error, %Ecto.Changeset{} = changest} ->
+          result = if name == "", do: id, else: "#{id}|#{name}"
+          changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
+          changesets = List.replace_at(changesets, length(changesets) - 1, changeset)
+          {:noreply, assign(socket, changesets: changesets)}
+      end
+    else
+      result = if name == "", do: id, else: "#{id}|#{name}"
+      changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
+      changesets = List.replace_at(changesets, length(changesets) - 1, changeset)
+      {:noreply, assign(socket, changesets: changesets)}
+    end
+  end
+
+  def handle_event("validate", %{"shipment" => shipment}, socket) do
+    %{id: id, name: name} = extract_data_from_destination(shipment["destination_group_id"])
+    %{changesets: changesets} = socket.assigns
+    socket = assign(socket, :shipment_form_data, shipment)
+
+    parent_destination =
+      Enum.find(socket.assigns.destinations, %{id: "", name: ""}, fn item ->
+        if(String.trim(id) == "") do
+          item.id == id && !item.child
+        else
+          item.id == String.to_integer(id) && !item.child
+        end
+      end)
+
+    shipment = Map.put(shipment, "destination_group_id", id)
+
+    %{changesets: changesets} = socket.assigns
+    changeset = List.last(changesets)
 
     changeset =
       changeset.data
@@ -100,7 +107,63 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
 
     result = if name == "", do: id, else: "#{id}|#{name}"
     changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
-    {:noreply, assign(socket, changeset: changeset)}
+
+    changesets = List.replace_at(changesets, length(changesets) - 1, changeset)
+    {:noreply, assign(socket, changesets: changesets)}
+  end
+
+  def handle_event("add-more-shipment", _params, socket) do
+    shipment = socket.assigns.shipment_form_data
+    %{changesets: changesets} = socket.assigns
+    changeset = List.last(changesets)
+    purchase = socket.assigns.purchase
+
+    changeset =
+      if shipment["head_count"] != "" do
+        if purchase.head_count != shipment["head_count"] |> String.to_integer() do
+          add_error(changeset, :head_count, "Must be equal to the head_count of purchases")
+        else
+          changeset
+        end
+      else
+        add_error(changeset, :head_count, "head count is blank")
+      end
+
+    %{id: id, name: name} = extract_data_from_destination(shipment["destination_group_id"])
+
+    parent_destination =
+      Enum.find(socket.assigns.destinations, %{id: "", name: ""}, fn item ->
+        if(String.trim(id) == "") do
+          item.id == id && !item.child
+        else
+          item.id == String.to_integer(id) && !item.child
+        end
+      end)
+
+    shipment = Map.put(shipment, "destination_group_id", id)
+
+    shipment =
+      Map.put(
+        shipment,
+        "destination_group_name",
+        "#{parent_destination.name}#{if name == "", do: "", else: " > #{name}"}"
+      )
+
+    # changeset = Shipments.validate(changeset.data, shipment)
+    changeset =
+      changeset.data
+      |> Shipments.change_shipment(shipment)
+      |> Map.put(:action, :update)
+
+    # changeset = Map.put(changeset, :action, :update)
+    changesets = List.replace_at(changesets, length(changesets) - 1, changeset)
+
+    if changeset.valid? do
+      changesets = changesets ++ [Shipments.new_shipment() |> Map.put(:action, :update)]
+      {:noreply, assign(socket, changesets: changesets, add_feedback: false)}
+    else
+      {:noreply, assign(socket, changesets: changesets, add_feedback: true)}
+    end
   end
 
   defp extract_data_from_destination(data) do

@@ -97,6 +97,6 @@
   </div>
   <%= if @modal == :change_purchase_shipment do
     live_component(@socket, ChangePurchaseShipmentComponent, id: "#{@current_user.id}",
-    changeset: @changeset, purchase: @purchase, destinations: @destinations, sexes: @sexes)
+    changesets: @changesets, purchase: @purchase, destinations: @destinations, sexes: @sexes, shipment_form_data: @shipment_form_data, add_feedback: @add_feedback)
   end %>
 </div>
