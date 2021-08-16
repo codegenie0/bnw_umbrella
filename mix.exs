@@ -17,8 +17,6 @@ defmodule BnwDashboard.Umbrella.MixProject do
             component_applications: :permanent,
             borrowing_base: :permanent,
             customer_access: :permanent,
-            ocb_report_plugs: :permanent,
-            cih_report_plugs: :permanent,
             tentative_ship: :permanent
           ]
         ]

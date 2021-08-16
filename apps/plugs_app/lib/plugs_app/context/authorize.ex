@@ -14,22 +14,8 @@ defmodule PlugsApp.Authorize do
         new_pages = []
 
         new_pages = new_pages ++
-        if authorize(user, "proj_breakeven") != "" do
-          [ Enum.find(app.pages, &(&1.name == "Projected Breakeven")) ]
-        else
-          []
-        end
-
-        new_pages = new_pages ++
-        if authorize(user, "mpc_comparisons") != "" do
-          [ Enum.find(app.pages, &(&1.name == "MPC Comparisons")) ]
-        else
-          []
-        end
-
-        new_pages = new_pages ++
-        if authorize(user, "tyson_packer") != "" do
-          [ Enum.find(app.pages, &(&1.name == "Tyson Packer Pricing")) ]
+        if authorize(user, "fourteen_day_usage") != "" do
+          [ Enum.find(app.pages, &(&1.name == "14 Day Usage")) ]
         else
           []
         end
@@ -42,8 +28,22 @@ defmodule PlugsApp.Authorize do
         end
 
         new_pages = new_pages ++
-        if authorize(user, "nbx_trucking") != "" do
-          [ Enum.find(app.pages, &(&1.name == "NBX Trucking")) ]
+        if authorize(user, "cih") != "" do
+          [ Enum.find(app.pages, &(&1.name == "CIH")) ]
+        else
+          []
+        end
+
+        new_pages = new_pages ++
+        if authorize(user, "vehicle_miles") != "" do
+          [ Enum.find(app.pages, &(&1.name == "Company Vehicle Miles")) ]
+        else
+          []
+        end
+
+        new_pages = new_pages ++
+        if authorize(user, "dry_matter_sample") != "" do
+          [ Enum.find(app.pages, &(&1.name == "Dry Matter Sample")) ]
         else
           []
         end
@@ -56,6 +56,41 @@ defmodule PlugsApp.Authorize do
         end
 
         new_pages = new_pages ++
+        if authorize(user, "mpc_comparisons") != "" do
+          [ Enum.find(app.pages, &(&1.name == "MPC Comparisons")) ]
+        else
+          []
+        end
+
+        new_pages = new_pages ++
+        if authorize(user, "nbx_trucking") != "" do
+          [ Enum.find(app.pages, &(&1.name == "NBX Trucking")) ]
+        else
+          []
+        end
+
+        new_pages = new_pages ++
+        if authorize(user, "ocb") != "" do
+          [ Enum.find(app.pages, &(&1.name == "OCB")) ]
+        else
+          []
+        end
+
+        new_pages = new_pages ++
+        if authorize(user, "outside_billing") != "" do
+          [ Enum.find(app.pages, &(&1.name == "Outside Billing")) ]
+        else
+          []
+        end
+
+        new_pages = new_pages ++
+        if authorize(user, "proj_breakeven") != "" do
+          [ Enum.find(app.pages, &(&1.name == "Projected Breakeven")) ]
+        else
+          []
+        end
+
+        new_pages = new_pages ++
         if authorize(user, "profit_center") != "" do
           [ Enum.find(app.pages, &(&1.name == "Turnkey Profit Center Key")) ]
         else
@@ -63,8 +98,15 @@ defmodule PlugsApp.Authorize do
         end
 
         new_pages = new_pages ++
-        if authorize(user, "vehicle_miles") != "" do
-          [ Enum.find(app.pages, &(&1.name == "Company Vehicle Miles")) ]
+        if authorize(user, "tyson_packer") != "" do
+          [ Enum.find(app.pages, &(&1.name == "Tyson Packer Pricing")) ]
+        else
+          []
+        end
+
+        new_pages = new_pages ++
+        if length(Users.list_secondary_roles(user.id)) > 0 do
+          [ Enum.find(app.pages, &(&1.name == "Users"))]
         else
           []
         end
@@ -83,6 +125,7 @@ defmodule PlugsApp.Authorize do
     cond do
       admin || user.it_admin -> "admin"
       access -> level
+      length(Users.list_secondary_roles(user.id)) > 0 && page == "users" -> "view"
       true -> ""
     end
   end

@@ -1,0 +1,27 @@
+<div style="display: block;" class="uk-modal uk-open">
+  <div class="uk-modal-dialog uk-width-2-3" phx-hook="close_modal">
+    <button class="uk-modal-close-default"
+            type="button"
+            phx-click="cancel"
+            uk-close phx-hook="uk_close"></button>
+    <div class="uk-modal-header">
+      <h2 class="uk-modal-title">
+        Lot Status Codes
+      </h2>
+    </div>
+    <div class="uk-modal-body uk-background-secondary uk-overflow-auto uk-height-max-large">
+      <%= for {lot_status_code, i} <- Enum.with_index(@lot_status_codes) do %>
+        <%= live_render(@socket, LotStatusCodeLive,
+            id: "lot_status_code_live_#{Map.get(lot_status_code, :id) || "new_#{i}"}",
+            session: %{"id" => Map.get(lot_status_code, :id) || "new_#{i}",
+            "lot_status_code" => lot_status_code,
+            "yard_id" => @yard_id}) %>
+      <% end %>
+    </div>
+    <div class="uk-modal-footer uk-text-right">
+      <button class="uk-button uk-button-default"
+              type="button"
+              phx-click="cancel">Done</button>
+    </div>
+  </div>
+</div>

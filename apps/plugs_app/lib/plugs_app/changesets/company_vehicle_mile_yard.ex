@@ -13,6 +13,8 @@ defmodule PlugsApp.CompanyVehicleMileYard do
 
   schema "company_vehicle_miles_yard" do
     field :yard, :string
+
+    timestamps()
   end
 
   def changeset(plug, attrs \\ %{}) do
@@ -20,5 +22,7 @@ defmodule PlugsApp.CompanyVehicleMileYard do
     |> cast(attrs, [
           :yard,
         ])
+    |> validate_required(:yard)
+    |> unique_constraint(:yard, name: :company_vehicle_miles_yard_unique_constraint)
   end
 end

@@ -2,7 +2,7 @@ defmodule BnwDashboardWeb.Router do
   import Phoenix.LiveDashboard.Router
   use BnwDashboardWeb, :router
 
-  if Mix.env() == :dev do
+  if Mix.env == :dev do
     forward "/sent_emails", Bamboo.SentEmailViewerPlug
   end
 
@@ -61,6 +61,15 @@ defmodule BnwDashboardWeb.Router do
       live "/users", Accounts.Users.UsersLive
     end
 
+    scope "/tentative_ship" do
+      live "/home", TentativeShip.Home.HomeLive
+      live "/customers", TentativeShip.Customers.CustomersLive
+      live "/default_roles", TentativeShip.DefaultRoles.DefaultRolesLive
+      live "/permissions", TentativeShip.Permissions.PermissionsLive
+      live "/users", TentativeShip.Users.UsersLive
+      live "/yards", TentativeShip.Yards.YardsLive
+    end
+
     scope "/borrowing_base" do
       get "/csv_export", BorrowingBaseController, :csv_export
 
@@ -75,55 +84,32 @@ defmodule BnwDashboardWeb.Router do
       live "/users", CustomerAccess.Users.UsersLive
     end
 
-    scope "/ocb" do
-      live "/plugs", OcbReportPlugs.Plugs.PlugsLive
-      live "/users", OcbReportPlugs.Users.UsersLive
-    end
-
-    scope "/cih" do
-      live "/plugs", CihReportPlugs.Plugs.PlugsLive
-      live "/users", CihReportPlugs.Users.UsersLive
-    end
-
     scope "/reimbursement" do
       live "/entries", Reimbursement.Update.UpdateLive
-      live "/review", Reimbursement.Review.ReviewLive
-      live "/rates", Reimbursement.Rates.RatesLive
-      live "/users", Reimbursement.Users.UsersLive
+      live "/review",  Reimbursement.Review.ReviewLive
+      live "/rates",   Reimbursement.Rates.RatesLive
+      live "/users",   Reimbursement.Users.UsersLive
       live "/reports", Reimbursement.Report.ReportsLive
-      live "/help", Reimbursement.Help.HelpLive
+      live "/help",    Reimbursement.Help.HelpLive
     end
 
     scope "/plugs" do
-      live "/projected_breakeven", PlugsApp.ProjectedBreakeven.ProjectedBreakevenLive
-      live "/mpc_comparisons", PlugsApp.MpcComparison.MpcComparisonLive
+      live "/projected_breakeven",  PlugsApp.ProjectedBreakeven.ProjectedBreakevenLive
+      live "/mpc_comparisons",      PlugsApp.MpcComparison.MpcComparisonLive
       live "/packer_tyson_pricing", PlugsApp.PackerTysonPricing.PackerTysonPricingLive
-      live "/packer_ab_pricing", PlugsApp.PackerAbPricing.PackerAbPricingLive
-      live "/nbx_trucking", PlugsApp.NbxTrucking.NbxTruckingLive
-      live "/fuel_usage", PlugsApp.FuelUsage.FuelUsageLive
-      live "/profit_center_key", PlugsApp.ProfitCenterKey.ProfitCenterKeyLive
-      live "/company_vehicles", PlugsApp.CompanyVehicleMile.CompanyVehicleMileLive
-      live "/users", PlugsApp.Users.UsersLive
-      live "/help", PlugsApp.Help.HelpLive
-      live "/template", PlugsApp.Template.TemplateLive
-    end
-
-    scope "/cattle_purchase" do
-      live "/animal_ordering", CattlePurchase.AnimalOrdering.AnimalOrderingLive
-      live "/destination_groups", CattlePurchase.DestinationGroup.DestinationGroupLive
-      live "/destination_groups/:id/destinations", CattlePurchase.Destination.DestinationLive
-      live "/page", CattlePurchase.Page.PageLive
-      live "/purchases", CattlePurchase.Purchase.PurchaseLive
-      live "/purchase_buyers", CattlePurchase.PurchaseBuyer.PurchaseBuyerLive
-      live "/purchase_types", CattlePurchase.PurchaseType.PurchaseTypeLive
-      live "/purchase_groups", CattlePurchase.PurchaseGroup.PurchaseGroupLive
-      live "/purchase_flags", CattlePurchase.PurchaseFlag.PurchaseFlagLive
-      live "/purchase_type_filters", CattlePurchase.PurchaseTypeFilter.PurchaseTypeFilterLive
-      live "/purchase_recevices", CattlePurchase.CattleReceive.CattleReceiveLive
-      live "/purchase_shipments", CattlePurchase.PurchaseShipment.PurchaseShipmentLive
-      live "/users", CattlePurchase.Users.UsersLive
-      live "/weight_categories", CattlePurchase.WeightCategory.WeightCategoryLive
-
+      live "/packer_ab_pricing",    PlugsApp.PackerAbPricing.PackerAbPricingLive
+      live "/nbx_trucking",         PlugsApp.NbxTrucking.NbxTruckingLive
+      live "/fuel_usage",           PlugsApp.FuelUsage.FuelUsageLive
+      live "/profit_center_key",    PlugsApp.ProfitCenterKey.ProfitCenterKeyLive
+      live "/company_vehicles",     PlugsApp.CompanyVehicleMile.CompanyVehicleMileLive
+      live "/cih",                  PlugsApp.Cih.CihLive
+      live "/ocb",                  PlugsApp.Ocb.OcbLive
+      live "/dry_matter_sample",    PlugsApp.DryMatterSample.DryMatterSampleLive
+      live "/fourteen_day_usage",   PlugsApp.FourteenDayUsage.FourteenDayUsageLive
+      live "/outside_billing",      PlugsApp.OutsideBilling.OutsideBillingLive
+      live "/users",                PlugsApp.Users.UsersLive
+      live "/help",                 PlugsApp.Help.HelpLive
+      live "/template",             PlugsApp.Template.TemplateLive
     end
   end
 

@@ -1,0 +1,51 @@
+<%= if Enum.count(@yards) > 0 do %>
+  <div class="uk-padding-small uk-padding-remove-bottom">
+    <ul class="uk-tab">
+      <%= for yard <- @yards do %>
+        <li class="<%= if yard.active, do: "uk-active", else: "" %>">
+          <%= link yard.name, to: "#",
+              class: (if yard.active, do: "active-tab", else: ""),
+              phx_click: "change_yard",
+              phx_value_id: yard.id %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+  <div class="uk-padding-small uk-padding-remove-vertical">
+    <ul class="uk-tab">
+      <%= for yard_view <- @yard_views do %>
+        <li class="<%= if yard_view.active, do: "uk-active", else: "" %>">
+          <%= link yard_view.name, to: "#",
+              class: (if yard_view.active, do: "active-tab", else: ""),
+              phx_click: "change_yard_view",
+              phx_value_name: yard_view.name %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+  <%= if Enum.count(@schedules) > 0 && Enum.find(@yard_views, &(&1.active && &1.name != "Summary")) do %>
+    <div class="uk-padding-small uk-padding-remove-vertical">
+      <ul class="uk-tab">
+        <%= for schedule <- @schedules do %>
+          <li class="<%= if schedule.active, do: "uk-active", else: "" %>">
+            <%= link schedule.name, to: "#",
+                class: (if schedule.active, do: "active-tab", else: ""),
+                phx_click: "change_schedule",
+                phx_value_id: schedule.id %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <%= case Enum.find(@yard_views, &(&1.active)) do
+    %{name: "Shipments"} ->
+      live_component(@socket, ShipmentsComponent,
+        id: "shipments_#{@current_user.id}",
+        yard: Enum.find(@yards, &(&1.active)),
+        schedule: Enum.find(@schedules, &(&1.active)))
+    %{name: "Weekly Summary"} ->
+      live_component(@socket, WeeklySummaryComponent, id: "weekly_summary_#{@current_user.id}")
+    _ ->
+      live_component(@socket, SummaryComponent, id: "summary_#{@current_user.id}")
+  end %>
+<% end %>

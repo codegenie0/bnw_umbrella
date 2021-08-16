@@ -1,0 +1,138 @@
+* create a new plug
+** back end
+*** database
+**** dc run app mix cmd --app plugs_app mix ecto.gen.migration create_$table
+**** dc run app mix cmd --app plugs_app mix ecto.migrate
+**** sudo chown $user:$user $app_path/
+**** set fields
+**** if there is a drop down field
+***** create a new table for each field
+*** changeset
+**** cd $app_path/apps/plugs_app/lib/plugs_app/changesets
+**** cp template.ex $new_plug.ex
+**** vim $new_plug.ex
+**** :%s/template/$new_plug/g
+**** set fields
+**** if there is a drop down field
+***** cp template_yard.ex $new_plug_$field.ex
+***** vim $new_plug_$field.ex
+***** :%s/template/$new_plug/g
+***** :%s/yard/$field/g
+*** context
+**** cd $app_path/apps/plugs_app/lib/plugs_app/context
+**** cp templates.ex $new_plugs.ex
+**** vim $new_plugs.ex
+**** :%s/template/$new_plug
+**** if there is a drop down field
+***** cp template_yards.ex $new_plug_$fields.ex
+***** vim $new_plug_$fields.ex
+***** :%s/template/$new_plug/g
+***** :%s/yard/$field/g
+*** authorize
+**** add plug to Authorize.list_pages()
+***** keep alphabetized 
+**** add plug to Pages.list_pages()
+**** add plug to Roles.list_secondary_roles()
+** front end
+*** cd $app_path/apps/bnw_dashboard_web/lib/bnw_dashboard_web/live/plugs_app
+*** cp -r template $new_plug
+*** cd $new_plug
+*** mv template.ex $new_plug.ex
+*** mv template.html.leex $new_plug.html.leex
+*** if there are more then one drop down field
+**** cp change_yard_component.ex change_$field_component.ex
+**** cp change_yard_component.html.leex change_$field_component.ex
+**** vim change_$field_component.ex
+**** :%s/template/$new_plug/g
+**** :%s/yard/$field/g
+**** vim change_$field_component.html.leex
+**** :%s/template/$new_plug/g
+**** :%s/yard/$field/g
+*** if there is a drop down field
+**** mv change_yard_component.ex change_$field_component.ex
+**** mv change_yard_component.html.leex change_$field_component.ex
+**** vim change_$field_component.ex
+**** :%s/template/$new_plug/g
+**** :%s/yard/$field/g
+**** vim change_$field_component.html.leex
+**** :%s/template/$new_plug/g
+**** :%s/yard/$field/g
+*** vim $new_plug.ex
+**** :%s/Template/$NewPlug/g
+**** :%s/template/$new_plug/g
+**** if there is a drop down field
+***** :%s/yard/$field/g
+**** if there is multiple drop down fields
+***** allias context
+***** add to fetch_items/1
+***** add to fetch_extra/1
+***** add to fetch_plug_extra/1
+***** initialize selected_$field to nil in mount
+***** initialize $fields to nil in mount
+***** subscribe to contexts pub sub
+***** create a new handle_info for created_or_update and deleted for $new_plug_$field
+***** create a new handle_event for "edit_$fields"
+**** if there are no drop down fields
+***** remove alias context
+***** remove fetch_items/1
+***** remove call to fetch_items/1
+***** remove fetch_extra/1
+***** remove fetch_plug_extra/1
+***** remove selected_yard in mount
+***** remove yards in mount
+***** remove Template.subscribe()
+***** remove handle_info({:template_yard, _], _}, socket)
+***** remove handle_event("edit_yards", _, socket)
+**** create fields
+***** modify function init_args/0
+****** %{type: type, special: special, name: :name, display_name: "display_name", selected: selected, list: list, step: step
+****** required fields
+******* type:
+******** :date
+********* date select
+******** :date_ro
+********* read only but formats date
+******** :drop_down
+********* requires selected, and list
+******** :number
+********* requires step
+******** :notes
+********* text area
+******** :read_only
+********* field with no editable value
+******** :text
+********* text input
+******* special:
+******** nil
+********* standard, do nothing
+********* :currency, $0,000.00
+********* :percent,  0,000.00%
+********* :number,   0,000.00
+********** same as type == :number
+******* name:
+******** field name
+******** must start with :
+******* display_name:
+******** column name
+****** special fields
+******* selected:
+******** required for drop down
+******** integer
+******* list:
+******** required for drop down
+******** [%{key: $key, value: $value}]
+******** where $key is a string and $value is an integer
+******* step:
+******** required for number
+******** integer
+*** vim $new_plug.html.leex
+**** if there is a drop down field
+***** :%s/yard/$field/g
+**** if there is multiple drop down fields
+***** copy button "Manage Yards"
+***** change yard to $field in new button
+***** copy if @modal == :change_yard do
+***** change yard to $field in new modal
+**** if there are no drop down fields
+***** remove if @is_admin do section
+***** remove if @modal == :change_yard section

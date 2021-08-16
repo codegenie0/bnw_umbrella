@@ -14,7 +14,7 @@ defmodule Accounts.Authenticate do
         user = Users.get_user_by(:username, Map.get(user_info, "username"))
 
         cond do
-          Argon2.verify_pass(Map.get(user_info, "password"), user.password_hash) ->
+          user && Argon2.verify_pass(Map.get(user_info, "password"), user.password_hash) ->
             user
           true -> nil
         end

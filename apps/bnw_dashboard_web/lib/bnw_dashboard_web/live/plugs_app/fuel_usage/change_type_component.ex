@@ -7,18 +7,26 @@ defmodule BnwDashboardWeb.PlugsApp.FuelUsage.ChangeTypeComponent do
     {:ok, socket}
   end
 
-  def handle_event("save", %{"fuel_usage_type" => plug}, socket) do
-    %{changeset: changeset} = socket.assigns
+  def handle_event("new", %{"new" => plug}, socket) do
+    changeset = FuelUsageTypes.new_plug()
+    |> FuelUsageTypes.change_plug()
     changeset = FuelUsageTypes.validate(changeset.data, plug)
     if changeset.valid? do
       case FuelUsageTypes.create_or_update_plug(changeset.data, plug) do
         {:ok, _plug} ->
-          {:noreply, socket}
+          changeset = FuelUsageTypes.new_plug()
+          {:noreply, assign(socket, changeset: changeset)}
         {:error, %Ecto.Changeset{} = changest} ->
           {:noreply, assign(socket, changeset: changest)}
       end
     else
       {:noreply, assign(socket, changeset: changeset)}
     end
+  end
+
+  def handle_event("delete", %{"id" => id}, socket) do
+    FuelUsageTypes.get_plug_struct(id)
+    |> FuelUsageTypes.delete_plug()
+    {:noreply, socket}
   end
 end

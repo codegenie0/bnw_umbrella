@@ -16,6 +16,7 @@ services:
     image: mysql:5.7
     environment:
       - MYSQL_ROOT_PASSWORD=sxkjad94
+    command: --sql_mode=""
     ports:
       - "13306:3306"
     volumes:

@@ -1,0 +1,122 @@
+<div>
+  <div class="uk-text-middle uk-padding-small uk-padding-remove-vertical" uk-flex phx-hook="uk_grid">
+    <%= f = form_for :search, "#",
+        [phx_change: :search_lots,
+         phx_submit: :search_lots,
+         phx_target: @myself,
+         class: "uk-width-auto"] %>
+      <div class="uk-inline">
+        <%= submit "", [phx_disable_with: "",
+                        class: "uk-preserve-width uk-form-icon",
+                        uk_icon: "icon: search",
+                        phx_hook: "uk_icon"] %>
+        <%= text_input f, :search, class: "uk-input uk-form-small",
+                          placeholder:  "Search",
+                          phx_debounce: "700",
+                          value: @search %>
+      </div>
+    </form>
+  </div>
+  <div class="uk-overflow-auto uk-height-max-large uk-margin"
+       phx-hook="infinite_scroll_container">
+    <table class="uk-table uk-table-middle uk-table-small uk-table-divider uk-table-hover uk-table-striped">
+      <thead>
+        <tr>
+          <th class="uk-background-secondary uk-text-center">
+            <%= link to: "#",
+                class: "uk-preserve-width uk-text-muted",
+                phx_click: "open_all",
+                phx_target: @myself do %>
+              <div class="uk-flex uk-flex-inline">
+                <span class="uk-preserve-width" phx-hook="uk_icon" uk-icon="<%= if @all_open, do: "minus", else: "plus" %>"></span>
+                <div class="uk-margin-small-left">Detail</div>
+              </div>
+            <% end %>
+          </th>
+          <%= raw render_th("yard_number", "Yard Number", @sort, @myself) %>
+          <%= raw render_th("lot_number", "Lot Number", @sort, @myself) %>
+          <%= raw render_th("pen_number", "Pen Number", @sort, @myself) %>
+          <%= raw render_th("customer", "Customer", @sort, @myself) %>
+          <%= raw render_th("date_in", "Date In", @sort, @myself) %>
+          <%= raw render_th("proj_out_date", "Proj Out", @sort, @myself) %>
+          <%= raw render_th("pay_weight", "In Weight", @sort, @myself) %>
+          <%= raw render_th("current_weight", "Curr Weight", @sort, @myself) %>
+          <%= raw render_th("est_ship_weight", "Out Weight", @sort, @myself) %>
+          <%= raw render_th("origin", "Origin", @sort, @myself) %>
+          <%= raw render_th("terminal_sort", "Terminal Sort", @sort, @myself) %>
+          <%= raw render_th("head_count_in", "Head In", @sort, @myself) %>
+          <%= raw render_th("head_count_current", "Curr Head", @sort, @myself) %>
+
+          <th class="uk-background-secondary uk-text-center">
+            <a class="uk-preserve-width" href="" uk-icon="chevron-left" uk-tooltip="Go Back a Week" phx-hook="uk_icon"></a>
+          </th>
+          <th class="uk-background-secondary uk-text-center">06-06-2021</th>
+          <th class="uk-background-secondary uk-text-center uk-text-nowrap">
+            <a class="uk-preserve-width" href="" uk-icon="chevron-right" uk-tooltip="Go Forward a Week" phx-hook="uk_icon"></a>
+          </th>
+
+          <th class="uk-background-secondary uk-text-center">Remaining Head</th>
+        </tr>
+      </thead>
+      <tbody id="lots"
+             phx-update="<%= @update_action %>"
+             data-page="<%= @page %>">
+        <%= for lot <- @lots do %>
+          <tr>
+            <td class="uk-text-center">
+              <%= link "", to: "#",
+                  class: "uk-preserve-width",
+                  phx_click: "open",
+                  phx_value_id: lot.id,
+                  phx_hook: "uk_icon",
+                  phx_target: @myself,
+                  uk_icon: (if lot.open, do: "minus", else: "plus") %>
+            </td>
+            <td class="uk-text-center"><%= lot.yard_number %></td>
+            <td class="uk-text-center"><%= lot.lot_number %></td>
+            <td></td>
+            <td colspan="8"><%= lot.owners_name %></td>
+            <td class="uk-text-center"><%= Number.Delimit.number_to_delimited(lot.head_count_in, precision: 0) %></td>
+            <td class="uk-text-center"><%= Number.Delimit.number_to_delimited(lot.head_count_current, precision: 0) %></td>
+            <td class="uk-text-center">
+              <a class="uk-preserve-width" href="" uk-icon="chevron-left" uk-tooltip="Go Back a Week" phx-hook="uk_icon"></a>
+            </td>
+            <td class="uk-text-center">06-06-2021</td>
+            <td class="uk-text-center">
+              <a class="uk-preserve-width" href="" uk-icon="chevron-right" uk-tooltip="Go Forward a Week" phx-hook="uk_icon"></a>
+            </td>
+            <td class="uk-text-center"><%= Number.Delimit.number_to_delimited(lot.head_count_current, precision: 0) %></td>
+          </tr>
+          <%= if lot.open do %>
+            <%= for pen <- lot.pens do %>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="uk-text-center"><%= pen.pen_number %></td>
+                <td></td>
+                <td class="uk-text-center"><%= if pen.in_date, do: Timex.format!(pen.in_date, "{0M}-{0D}-{YYYY}"), else: "" %></td>
+                <td class="uk-text-center"><%= if pen.proj_out_date, do: Timex.format!(pen.proj_out_date, "{0M}-{0D}-{YYYY}") %></td>
+                <td class="uk-text-center"><%= Number.Delimit.number_to_delimited(pen.pay_weight, precision: 0) %></td>
+                <td class="uk-text-center"><%= Number.Delimit.number_to_delimited(pen.current_weight, precision: 0) %></td>
+                <td class="uk-text-center"><%= Number.Delimit.number_to_delimited(pen.est_ship_weight, precision: 0) %></td>
+                <td class="uk-text-center"><%= pen.origin %></td>
+                <td class="uk-text-center"><%= pen.terminal_sort %></td>
+                <td class="uk-text-center"><%= Number.Delimit.number_to_delimited(pen.head_count_in, precision: 0) %></td>
+                <td class="uk-text-center"><%= Number.Delimit.number_to_delimited(pen.head_count_current, precision: 0) %></td>
+                <td class="uk-text-center">
+                  <a class="uk-preserve-width" href="" uk-icon="chevron-left" uk-tooltip="Go Back a Week" phx-hook="uk_icon"></a>
+                </td>
+                <td class="uk-text-center">06-06-2021</td>
+                <td class="uk-text-center">
+                  <a class="uk-preserve-width" href="" uk-icon="chevron-right" uk-tooltip="Go Forward a Week" phx-hook="uk_icon"></a>
+                </td>
+                <td class="uk-text-center"><%= Number.Delimit.number_to_delimited(pen.head_count_current, precision: 0) %></td>
+              </tr>
+            <% end %>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

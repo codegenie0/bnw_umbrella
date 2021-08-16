@@ -1,0 +1,45 @@
+<div>
+  <h3>Users</h3>
+  <div class="uk-grid uk-grid-small uk-width-1-1" uk-grid>
+    <%= f = form_for :search, "#",
+        [phx_change: :search_users,
+         phx_submit: :search_users,
+         class: "uk-width-auto"] %>
+      <div class="uk-inline">
+        <%= submit "", [phx_disable_with: "",
+                        class: "uk-preserve-width uk-form-icon",
+                        uk_icon: "icon: search",
+                        phx_hook: "uk_icon"] %>
+        <%= text_input f, :search, class: "uk-input",
+                          placeholder:  "Search",
+                          value: @search %>
+      </div>
+    </form>
+  </div>
+  <ul class="uk-list" id="users" phx-hook="infinite_scroll"
+                  phx-update="<%= @update_action %>"
+                  data-page="<%= @page %>">
+    <%= for user <- @users do %>
+      <li id="user_<%= user.id %>" class="uk-padding-small">
+        <label class="uk-margin-small-right">App Admin:</label>
+        <%= cond do
+          Enum.any?(user.roles, &(&1.app_admin)) ->
+            link "", to: "#", class: "uk-preserve-width uk-icon-button uk-text-success",
+                        uk_icon: "check",
+                        uk_tooltip: "Remove app admin access",
+                        phx_hook: "uk_icon",
+                        phx_click: "change_role",
+                        phx_value_id: user.id
+          true ->
+            link "", to: "#", class: "uk-preserve-width uk-icon-button uk-text-danger",
+                        uk_icon: "ban",
+                        uk_tooltip: "Add app admin access",
+                        phx_hook: "uk_icon",
+                        phx_click: "change_role",
+                        phx_value_id: user.id
+        end %>
+        <label class="uk-margin-left"><%= user.name %></label>
+      </li>
+    <% end %>
+  </ul>
+</div>

@@ -1,0 +1,18 @@
+<div class="uk-margin-small uk-card uk-card-default uk-card-body uk-card-small">
+  <div class="uk-padding-small uk-padding-remove-top uk-padding-remove-horizontal" uk-grid phx-hook="uk_grid">
+    <p class="uk-text-lead"><%= @user.username %></p>
+    <p class="uk-text-lead"><%= @user.name %></p>
+    <p class="uk-text-lead"><%= @user.email %></p>
+  </div>
+  <div>
+    <%= for role <- @roles do %>
+      <input class="uk-checkbox"
+             type="checkbox"
+             phx-click="change_role"
+             phx-value-role-id=<%= role.id %>
+             <%= if role.active, do: "checked", else: "" %>>
+      <label class="uk-margin-right"><%= role.name %></label>
+      <div uk-dropdown="pos: top-center" phx-hook="uk_dropdown"><%= role.description %></div>
+    <% end %>
+  </div>
+</div>

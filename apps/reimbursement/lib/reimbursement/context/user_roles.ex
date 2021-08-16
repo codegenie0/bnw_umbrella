@@ -45,13 +45,18 @@ defmodule Reimbursement.UserRoles do
   check who the users reviewer is
   """
   def get_reviewer(id) do
-    User
+    reviewer = User
       |> join(:left, [user], user_roles in UserRole, on: user.id == user_roles.reviewer_id)
       |> join(:left, [user], user_roles_2 in UserRole, on: user.id == user_roles_2.user_id)
       |> where([user, user_roles, user_roles_2], not user.customer and user.active and user_roles.user_id == ^id and user_roles.role == "none" and user_roles_2.role == "active")
       |> group_by([user, user_roles], user.id)
       |> order_by([user, user_roles], user.name)
       |> Repo.one()
+    if !is_nil(reviewer) do
+      reviewer
+    else
+      %{id: -1, name: "None", email: ""}
+    end
   end
 
   @doc """

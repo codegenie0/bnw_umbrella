@@ -44,11 +44,8 @@ defmodule ComponentApplications.MixProject do
       {:tentative_ship, in_umbrella: true},
       {:borrowing_base, in_umbrella: true},
       {:customer_access, in_umbrella: true},
-      {:ocb_report_plugs, in_umbrella: true},
       {:reimbursement, in_umbrella: true},
       {:plugs_app, in_umbrella: true},
-      {:cattle_purchase, in_umbrella: true},
-      {:cih_report_plugs, in_umbrella: true}
     ]
   end
 

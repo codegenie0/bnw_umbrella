@@ -28,20 +28,6 @@ config :reimbursement, Reimbursement.Repo,
   hostname: System.get_env("AWS_DATABASES_URL"),
   show_sensitive_data_on_connection_error: true
 
-config :ocb_report_plugs, OcbReportPlugs.Repo,
-  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
-  username: System.get_env("AWS_DATABASES_USERNAME"),
-  password: System.get_env("AWS_DATABASES_PASSWORD"),
-  database: "bnw_dashboard_ocb_report_plugs",
-  hostname: System.get_env("AWS_DATABASES_URL")
-
-config :cih_report_plugs, CihReportPlugs.Repo,
-  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
-  username: System.get_env("AWS_DATABASES_USERNAME"),
-  password: System.get_env("AWS_DATABASES_PASSWORD"),
-  database: "bnw_dashboard_cih_report_plugs",
-  hostname: System.get_env("AWS_DATABASES_URL")
-
 config :customer_access, CustomerAccess.Repo,
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
   username: System.get_env("AWS_DATABASES_USERNAME"),
@@ -82,6 +68,27 @@ config :tentative_ship, TentativeShip.Repo,
   username: System.get_env("AWS_DATABASES_USERNAME"),
   password: System.get_env("AWS_DATABASES_PASSWORD"),
   database: "bnw_dashboard_tentative_ship",
+  hostname: System.get_env("AWS_DATABASES_URL")
+
+config :tentative_ship, TentativeShip.Repo.Turnkey,
+  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+  username: System.get_env("AWS_DATABASES_USERNAME"),
+  password: System.get_env("AWS_DATABASES_PASSWORD"),
+  database: "turnkey",
+  hostname: System.get_env("AWS_DATABASES_URL")
+
+config :tentative_ship, TentativeShip.Repo.CattlePurchase,
+  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+  username: System.get_env("AWS_DATABASES_USERNAME"),
+  password: System.get_env("AWS_DATABASES_PASSWORD"),
+  database: "cattle_purchase",
+  hostname: System.get_env("AWS_DATABASES_URL")
+
+config :tentative_ship, TentativeShip.Repo.Microbeef,
+  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+  username: System.get_env("AWS_DATABASES_USERNAME"),
+  password: System.get_env("AWS_DATABASES_PASSWORD"),
+  database: "microbeef_data",
   hostname: System.get_env("AWS_DATABASES_URL")
 
 config :accounts, Accounts.Repo,

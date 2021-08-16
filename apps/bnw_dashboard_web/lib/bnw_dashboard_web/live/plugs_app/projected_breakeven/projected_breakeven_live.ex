@@ -2,10 +2,18 @@ defmodule BnwDashboardWeb.PlugsApp.ProjectedBreakeven.ProjectedBreakevenLive do
 
   use BnwDashboardWeb, :live_view
 
-  alias BnwDashboardWeb.PlugsApp.ProjectedBreakeven.ChangePlugComponent
+  alias BnwDashboardWeb.PlugsApp.Helpers.{
+    ModalComponent,
+    TableLive,
+    SearchLive,
+    ChangeReportComponent
+  }
+  alias BnwDashboardWeb.PlugsApp.ProjectedBreakeven.ChangeYardComponent
   alias PlugsApp.{
     ProjectedBreakevens,
+    ProjectedBreakevenYards,
     Authorize,
+    Reports,
     Users
   }
 
@@ -29,30 +37,105 @@ defmodule BnwDashboardWeb.PlugsApp.ProjectedBreakeven.ProjectedBreakevenLive do
 
   defp fetch_permissions(socket) do
     role = get_role(socket)
+    it_admin = socket.assigns.current_user.it_admin
     is_admin = role == "admin"
     is_edit  = role == "admin" or role == "edit"
-    assign(socket, is_admin: is_admin, is_edit: is_edit)
+    assign(socket, it_admin: it_admin, is_admin: is_admin, is_edit: is_edit)
+  end
+
+  defp init_args(socket) do
+    %{
+      selected_yard: selected_yard,
+      yards: yards,
+    } = socket.assigns
+    args = [
+      %{type: :date,      special: nil,       name: :co_month,                display_name: "Date"},
+      %{type: :drop_down, special: nil,       name: :yard,                    display_name: "Yard", selected: selected_yard, list: yards},
+      %{type: :text,      special: nil,       name: :lot,                     display_name: "Lot"},
+      %{type: :number,    special: nil,       name: :proj_dmc,                display_name: "Proj DMC",             step: 0.01},
+      %{type: :number,    special: :currency, name: :proj_other_costs,        display_name: "Proj Other Costs",     step: 0.01},
+      %{type: :number,    special: :currency, name: :proj_rations_costs,      display_name: "Proj Rations Costs",   step: 0.01},
+      %{type: :number,    special: :percent,  name: :proj_death_loss_percent, display_name: "Proj Death Loss %",    step: 0.01},
+      %{type: :number,    special: :percent,  name: :op_percent,              display_name: "OP %",                 step: 0.01},
+      %{type: :number,    special: nil,       name: :proj_adg,                display_name: "Proj ADG",             step: 0.01},
+      %{type: :number,    special: :currency, name: :fat_freight,             display_name: "Fat Freight",          step: 0.01},
+      %{type: :number,    special: :currency, name: :proj_cog_w_interest,     display_name: "Proj COG w/ Int",      step: 0.0001, precision: 4},
+      %{type: :number,    special: :currency, name: :proj_be_wo_interest,     display_name: "Proj BE w/o Interest", step: 0.0001, precision: 4},
+      %{type: :number,    special: :currency, name: :proj_be,                 display_name: "Proj BE",              step: 0.0001, precision: 4},
+      %{type: :number,    special: :currency, name: :cnb_purchase_price,      display_name: "CNB Purchase Price",   step: 0.0001, precision: 4},
+      %{type: :disp_only, special: nil,       name: :yard_lot,                display_name: "Yard/Lot"},
+    ]
+
+    assign(socket, args: args)
+  end
+
+  defp fetch_items(plug) do
+    yard = Map.get(plug, :yard, 0)
+    |> ProjectedBreakevenYards.get_plug()
+    Map.put(plug, :yard, yard)
   end
 
   defp fetch_plugs(socket) do
+    %{
+      page: page,
+      per_page: per_page,
+      search: search,
+      selected_search_col: search_col
+    } = socket.assigns
+    pre_plugs = Map.get(socket.assigns, :plugs, [])
+
     plugs =
-      ProjectedBreakevens.list_plugs()
+      ProjectedBreakevens.list_plugs(page, per_page, search_col, search)
+      |> Enum.map(&(fetch_items(&1)))
       |> Enum.map(&(ProjectedBreakevens.change_plug(&1)))
-    assign(socket, plugs: plugs)
+    assign(socket, plugs: pre_plugs ++ plugs)
+  end
+
+  defp fetch_extra(socket) do
+    yards = ProjectedBreakevenYards.list_plugs()
+    assign(socket, yards: yards)
+  end
+
+  defp fetch_plug_extra(socket) do
+    plug_yards = ProjectedBreakevenYards.list_all_plugs()
+    assign(socket, plug_yards: plug_yards)
+  end
+
+  defp init_reports(socket) do
+    %{plug: plug} = socket.assigns
+    reports = Reports.list_reports(plug)
+
+    assign(socket, can_show_reports: Enum.count(reports) > 0, reports: reports)
   end
 
   @impl true
   def mount(_params, session, socket) do
+    page = 1
+    per_page = 20
     socket =
       assign_defaults(session, socket)
-      |> fetch_plugs()
-      |> fetch_permissions()
       |> assign(page_title: "BNW Dashboard · Plugs Projected Breakeven",
                 app: "Plugs",
-                modal: nil)
+                add_more: false,
+                selected_yard: nil,
+                yards: nil,
+                modal: nil,
+                update_action: "replace",
+                page: page,
+                plug: "projected_breakeven",
+                selected_search_col: :co_month,
+                search: "",
+                per_page: per_page)
+      |> fetch_plugs()
+      |> fetch_extra()
+      |> fetch_permissions()
+      |> init_args()
+      |> init_reports()
 
     if connected?(socket) do
       ProjectedBreakevens.subscribe()
+      ProjectedBreakevenYards.subscribe()
+      Reports.subscribe()
       Users.subscribe()
     end
 
@@ -68,15 +151,58 @@ defmodule BnwDashboardWeb.PlugsApp.ProjectedBreakeven.ProjectedBreakevenLive do
   end
 
   @impl true
+  def handle_info({[:projected_breakeven_yard, :created_or_updated], _}, socket) do
+    socket = fetch_extra(socket)
+    |> fetch_plug_extra()
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({[:projected_breakeven_yard, :deleted], _}, socket) do
+    socket = fetch_extra(socket)
+    |> fetch_plug_extra()
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({[:projected_breakeven, :created_or_updated_add_more], _}, socket) do
+    changeset =
+      ProjectedBreakevens.new_plug()
+      |> ProjectedBreakevens.change_plug()
+    socket = assign(socket,
+      changeset: changeset,
+      modal: :change_plug,
+      modal_title: "New Projected Breakeven",
+      selected_yard: 1)
+    |> assign(page: 1, plugs: [])
+    |> fetch_plugs()
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info({[:projected_breakeven, :created_or_updated], _}, socket) do
-    socket = fetch_plugs(socket)
+    socket = assign(socket, page: 1, plugs: [])
+    |> fetch_plugs()
       |> assign(modal: nil)
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({[:projected_breakeven, :deleted], _}, socket) do
-    socket = fetch_plugs(socket)
+    socket = assign(socket, page: 1, plugs: [])
+    |> fetch_plugs()
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({[:report, :created_or_updated], _}, socket) do
+    socket = init_reports(socket)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({[:report, :deleted], _}, socket) do
+    socket = init_reports(socket)
     {:noreply, socket}
   end
 
@@ -94,10 +220,27 @@ defmodule BnwDashboardWeb.PlugsApp.ProjectedBreakeven.ProjectedBreakevenLive do
   end
 
   @impl true
+  def handle_event("edit_yards", _, socket) do
+    socket = assign(socket,
+      modal: :change_yard,
+      modal_title: "Manage Yards")
+      |> fetch_plug_extra()
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("edit", params, socket) do
     {id, ""} = Integer.parse(params["id"])
     cur = Enum.find(socket.assigns.plugs, fn u -> u.data.id == id end)
-    socket = assign(socket, changeset: cur, modal: :change_plug, modal_title: "Edit Projected Breakeven")
+    %{yards: yards} = socket.assigns
+    yard = Enum.find(yards, fn x-> x[:key] == cur.data.yard end)[:value]
+
+    socket = assign(socket,
+      changeset: cur,
+      modal: :change_plug,
+      modal_title: "Edit Projected Breakeven",
+      selected_yard: yard)
+      |> init_args()
     {:noreply, socket}
   end
 
@@ -106,7 +249,12 @@ defmodule BnwDashboardWeb.PlugsApp.ProjectedBreakeven.ProjectedBreakevenLive do
     changeset =
       ProjectedBreakevens.new_plug()
       |> ProjectedBreakevens.change_plug()
-    socket = assign(socket, changeset: changeset, modal: :change_plug, modal_title: "New Projected Breakeven")
+    socket = assign(socket,
+      changeset: changeset,
+      modal: :change_plug,
+      modal_title: "New Projected Breakeven",
+      selected_yard: 1)
+      |> init_args()
     {:noreply, socket}
   end
 
@@ -121,6 +269,89 @@ defmodule BnwDashboardWeb.PlugsApp.ProjectedBreakeven.ProjectedBreakevenLive do
     {id, ""} = Integer.parse(params["id"])
     cur = Enum.find(socket.assigns.plugs, fn u -> u.data.id == id end)
     ProjectedBreakevens.delete_plug(cur.data)
+    {:noreply, socket}
+  end
+
+  def handle_event("save", %{"projected_breakeven" => plug}, socket) do
+    %{changeset: changeset, add_more: add_more} = socket.assigns
+
+    changeset = ProjectedBreakevens.validate(changeset.data, plug)
+    if changeset.valid? do
+      case ProjectedBreakevens.create_or_update_plug(changeset.data, plug, add_more) do
+        {:ok, _plug} ->
+          {:noreply, socket}
+        {:error, %Ecto.Changeset{} = changest} ->
+          {:noreply, assign(socket, changeset: changest)}
+      end
+    else
+      {:noreply, assign(socket, changeset: changeset)}
+    end
+  end
+
+  def handle_event("add_more", _, socket) do
+    {:noreply, assign(socket, add_more: true)}
+  end
+
+  def handle_event("done", _, socket) do
+    {:noreply, assign(socket, add_more: false)}
+  end
+
+  def handle_event("validate", %{"projected_breakeven" => plug}, socket) do
+    %{changeset: changeset} = socket.assigns
+    changeset = ProjectedBreakevens.validate(changeset.data, plug)
+
+    {:noreply, assign(socket, changeset: changeset)}
+  end
+
+  def handle_event("load_more", _, socket) do
+    %{
+      page: page
+    } = socket.assigns
+    page = page + 1
+    socket = assign(socket, update_action: "append", page: page)
+
+    {:noreply, fetch_plugs(socket)}
+  end
+
+  def handle_event("show_reports", _, socket) do
+    {:noreply, assign(socket,
+        modal: :show_reports,
+        modal_title: "Projected Breakeven Reports")}
+  end
+
+  def handle_event("search", %{"search" => params}, socket) do
+    %{
+      selected_search_col: prev_col,
+      search: prev_search
+    } = socket.assigns
+    %{
+      "search" => search,
+      "search_col" => search_col
+    } = params
+
+    search_col = String.to_atom(search_col)
+
+    search =
+    if prev_col == search_col do
+      search
+    else
+      ""
+    end
+
+    socket = assign(socket,
+      selected_search_col: search_col,
+      search: search
+    )
+
+    socket =
+    if search_col &&
+       (search != "" ||
+         prev_search != "") do
+      assign(socket, page: 1, plugs: [])
+      |> fetch_plugs()
+    else
+      socket
+    end
     {:noreply, socket}
   end
 end

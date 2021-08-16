@@ -1,5 +1,6 @@
 defmodule PlugsApp.ProfitCenterKeys do
 
+  import Ecto.Query
   alias PlugsApp.{
     ProfitCenterKey,
     Repo
@@ -23,8 +24,24 @@ defmodule PlugsApp.ProfitCenterKeys do
   @doc """
   Get all plugs from the database.
   """
-  def list_plugs() do
-    Repo.all(ProfitCenterKey)
+  def list_plugs(page \\ 1,
+                 per_page \\ 20,
+                 search_col \\ nil,
+                 search \\ "") do
+    query = ProfitCenterKey
+    |> order_by([plug], desc: plug.id)
+    |> offset(^(per_page * (page - 1)))
+    |> limit(^per_page)
+
+    query = cond do
+      search_col && search != "" ->
+        search = "%#{search}%"
+        where(query, [plug], like(field(plug, ^search_col), ^search))
+      true -> query
+    end
+
+    query
+    |> Repo.all()
   end
 
   def new_plug() do
@@ -47,11 +64,11 @@ defmodule PlugsApp.ProfitCenterKeys do
   @doc """
   Create or update a specifc plug. Called by the create update modal.
   """
-  def create_or_update_plug(%ProfitCenterKey{} = plug, attrs \\ %{}) do
+  def create_or_update_plug(%ProfitCenterKey{} = plug, attrs \\ %{}, add_more \\ false) do
     plug
-    |> ProfitCenterKey.changeset(attrs)
-    |> Repo.insert_or_update()
-    |> notify_subscribers([:profit_center_key, :created_or_updated])
+      |> ProfitCenterKey.changeset(attrs)
+      |> Repo.insert_or_update()
+      |> notify_subscribers([:profit_center_key, (if add_more, do: :created_or_updated_add_more, else: :created_or_updated)])
   end
 
   @doc """
@@ -71,4 +88,6 @@ defmodule PlugsApp.ProfitCenterKeys do
 
     {:ok, result}
   end
+
+  def notify_subscribers({:error, reason}, _event), do: {:error, reason}
 end

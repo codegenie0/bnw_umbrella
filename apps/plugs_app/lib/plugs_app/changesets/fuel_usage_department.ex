@@ -13,6 +13,8 @@ defmodule PlugsApp.FuelUsageDepartment do
 
   schema "fuel_usage_department" do
     field :department, :string
+
+    timestamps()
   end
 
   def changeset(plug, attrs \\ %{}) do
@@ -20,5 +22,7 @@ defmodule PlugsApp.FuelUsageDepartment do
     |> cast(attrs, [
           :department
         ])
+    |> validate_required(:department)
+    |> unique_constraint(:department, name: :fuel_usage_departments_unique_key)
   end
 end

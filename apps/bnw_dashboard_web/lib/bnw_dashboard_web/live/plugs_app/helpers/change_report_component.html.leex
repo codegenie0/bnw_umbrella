@@ -1,0 +1,147 @@
+<%= if @show_report do %>
+  <div class="uk-flex-top
+              uk-modal
+              uk-flex
+              uk-open"
+       id="user_report_<%= @report.id %>"
+       uk-modal="">
+    <div class="uk-light
+                uk-background-secondary
+                uk-modal-dialog
+                uk-margin-auto-vertical
+                uk-width-auto">
+      <button class="uk-modal-close-default
+                     uk-icon
+                     uk-close"
+              type="button"
+              uk-close=""
+              phx-click="cancel">
+      </button>
+      <div class="uk-modal-header
+                  uk-background-secondary">
+        <h2 class="uk-modal-title"><%= @report.report_name %></h2>
+      </div>
+      <div class="uk-modal-body">
+        <embed src=<%= @report.report_url %> frameboarder="0" width="1300" height="700">
+      </div>
+    </div>
+  </div>
+
+<% else %>
+  <div style="display: block;" class="uk-modal uk-open">
+    <div class="uk-modal-dialog uk-overflow-auto" phx-hook="close_modal">
+      <button class="uk-modal-close-default"
+              type="button"
+              phx-click="cancel"
+              uk-close phx-hook="uk_close"></button>
+      <div class="uk-modal-header">
+        <h2 class="uk-modal-title"><%= @modal_title %></h2>
+      </div>
+
+      <%= if @it_admin do %>
+        <div class="uk-modal-body
+                    uk-background-muted">
+          <%= f = form_for :new, "#",
+              [phx_submit: :new,
+              phx_target: @myself,
+              class: "uk-width-auto"] %>
+              <%= hidden_input f,
+                  :plug_name,
+                  value: @plug %>
+              <div class="uk-margin-small">
+                <%= label f, :report_name, class: "uk-form-label" do %>
+                  Report
+                  <%= error_tag f, :report_name %>
+                <% end %>
+                <div class="uk-form-controls">
+                  <%= text_input f,
+                      :report_name,
+                      class: "uk-input",
+                      placeholder: "Report" %>
+                </div>
+              </div>
+              <div class="uk-margin-small">
+                <%= label f, :report_url, class: "uk-form-label" do %>
+                  URL
+                  <%= error_tag f, :report_url %>
+                <% end %>
+                <div class="uk-form-controls">
+                  <%= text_input f,
+                      :report_url,
+                      class: "uk-input",
+                      placeholder: "URL" %>
+                </div>
+              </div>
+              <div class="uk-form-controls uk-flex uk-margin-remove">
+                <%= submit "Add", [phx_disable_with: "Saving...",
+                    class: "uk-button
+                            uk-button-primary
+                            uk-align-right
+                            uk-margin-remove"] %>
+              </div>
+          </form>
+        </div>
+      <% end %>
+      <div class="uk-modal-body
+                  uk-background-muted
+                  uk-overflow-auto
+                  uk-height-max-large
+                  uk-padding-remove-top">
+        <table class="uk-table
+                      uk-table-hover">
+          <thead>
+            <tr>
+              <th class="uk-text-center
+                         uk-background-default">Report</th>
+              <%= if @it_admin do %>
+                <th class="uk-text-center
+                           uk-background-default">URL</th>
+                <th class="uk-background-default"></th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for report <- @reports do %>
+              <tr>
+                <td class="uk-text-center">
+                  <button class="uk-button
+                                 uk-button-primary"
+                          type="button"
+                          phx-target="<%= @myself %>"
+                          phx-click="show"
+                          phx-value-id="<%= report.id %>">
+                    <%= if @it_admin do %>
+                      <abbr title="<%= report.report_url %>">
+                        <%= report.report_name %>
+                      </abbr>
+                    <% else %>
+                      <%= report.report_name %>
+                    <% end %>
+                  </button>
+                </td>
+                <%= if @it_admin do %>
+                  <td class="uk-text-center">
+                    <%= link "", to: "#",
+                        class: "uk-padding-remove-vertical uk-preserve-width",
+                        style: "color: red;",
+                        uk_icon: "trash",
+                        phx_target: @myself,
+                        phx_hook: "uk_icon",
+                        phx_click: "delete",
+                        phx_value_id: report.id,
+                        data: [confirm: "Are you sure?"]  %>
+                  </td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <div class="uk-modal-footer uk-text-right">
+        <button class="uk-button uk-button-default"
+                type="button"
+                phx-click="cancel">Close</button>
+      </div>
+    </div>
+  </div>
+<% end %>

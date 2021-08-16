@@ -18,37 +18,10 @@ import NProgress from "nprogress"
 import {LiveSocket} from "phoenix_live_view"
 import UIkit from 'uikit';
 import Icons from 'uikit/dist/js/uikit-icons';
-import "select2";
-import "select2/dist/css/select2.css";
-import $ from "jquery";
-import jQuery from "jquery";
 
 UIkit.use(Icons);
 
-let Hooks = {};
-Hooks.select2 = {
-  initSelect2() {
-    let hook = this,
-      $select = jQuery(hook.el).find("select");
-
-    $select
-      .select2({
-        dropdownParent: jQuery(hook.el).find("select").parent(),
-        focus: true,
-        paging: true,
-      })
-      .on("select2:open", (e) =>
-        document.querySelector(".select2-search__field").focus()
-      );
-
-    return $select;
-  },
-
-  mounted() {
-    this.initSelect2();
-  },
-};
-
+let Hooks = {}
 Hooks.uk_icon = {
   mounted() {UIkit.icon(this.el, {})},
   updated() {UIkit.icon(this.el, {})}
@@ -96,6 +69,10 @@ Hooks.uk_accordion = {
 Hooks.uk_toggle = {
   mounted() {UIkit.toggle(this.el).toggle()},
   updated() {UIkit.toggle(this.el).toggle()}
+}
+Hooks.uk_dropdown = {
+  mounted() {UIkit.dropdown(this.el, {})},
+  updated() {UIkit.dropdown(this.el, {})}
 }
 Hooks.close_modal = {
   mounted() {

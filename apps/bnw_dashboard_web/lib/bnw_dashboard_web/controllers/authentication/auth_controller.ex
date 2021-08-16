@@ -34,6 +34,7 @@ defmodule BnwDashboardWeb.AuthController do
     case Authenticate.authenticate(auth) do
       {:ok, user} ->
         conn
+        |> put_session(:live_socket_id, "users_socket:#{user.id}")
         |> Authenticate.Plug.sign_in(user)
         |> redirect(to: "/")
       {:error, reason} ->

@@ -3,6 +3,7 @@ defmodule PlugsApp.Users do
 
   alias PlugsApp.{
     Repo,
+    Roles,
     User,
     UserRole
   }
@@ -67,6 +68,25 @@ defmodule PlugsApp.Users do
     else
       %{level: level} = role
       {true, level}
+    end
+  end
+
+  def list_secondary_roles(user_id) do
+    {admin, _} = has_roll(user_id, "admin")
+    if admin do
+      Roles.list_secondary_roles()
+    else
+      admin_roles = UserRole
+        |> where([user_role], user_role.user_id == ^user_id and user_role.level == ^"admin")
+        |> Repo.all()
+      Roles.list_secondary_roles()
+        |> Enum.filter(fn x ->
+          %{name: name} = x
+          Enum.any?(admin_roles, fn y ->
+            %{role: role} = y
+            name == role
+          end)
+        end)
     end
   end
 

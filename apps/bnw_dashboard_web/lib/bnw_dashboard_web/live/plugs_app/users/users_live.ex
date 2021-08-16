@@ -26,6 +26,12 @@ defmodule BnwDashboardWeb.PlugsApp.Users.UsersLive do
     end
   end
 
+  defp fetch_permissions(socket) do
+    role = get_role(socket)
+    is_admin = role == "admin"
+
+    assign(socket, admin: is_admin)
+  end
   # Private function that gets all users
   defp fetch_users(socket) do
     %{page: page, per_page: per_page, search: search} = socket.assigns
@@ -34,11 +40,6 @@ defmodule BnwDashboardWeb.PlugsApp.Users.UsersLive do
       |> Enum.map(&(&1.name))
     users = Users.list_users(page, per_page, search)
     assign(socket, users: users, roles: roles)
-  end
-
-  defp fetch_secondary_roles(socket) do
-    roles = Roles.list_secondary_roles()
-    assign(socket, secondary_roles: roles)
   end
 
   @doc """
@@ -73,7 +74,7 @@ defmodule BnwDashboardWeb.PlugsApp.Users.UsersLive do
                 per_page: per_page,
                 search: search)
       |> fetch_users()
-      |> fetch_secondary_roles()
+      |> fetch_permissions()
 
     {:noreply, socket}
   end
@@ -85,10 +86,11 @@ defmodule BnwDashboardWeb.PlugsApp.Users.UsersLive do
   @impl true
   def handle_info({[:user, :updated], _customer}, socket) do
     case authenticate(socket) do
-      true -> {:noreply, socket}
+      true -> {:noreply, fetch_permissions(socket)}
       false -> {:noreply, redirect(socket, to: "/")}
     end
   end
+
 
   @impl true
   def handle_info(_, socket) do

@@ -13,7 +13,7 @@ defmodule PlugsApp.Template do
 
   schema "template" do
     field :co_month,                :date
-    field :yard,                    :string
+    field :yard,                    :integer
     field :lot,                     :string
     field :proj_dmc,                :decimal
     field :proj_other_costs,        :decimal
@@ -27,6 +27,8 @@ defmodule PlugsApp.Template do
     field :proj_be,                 :decimal
     field :cnb_purchase_price,      :decimal
     field :yard_lot,                :string
+
+    timestamps()
   end
 
   def changeset(plug, attrs \\ %{}) do
@@ -48,5 +50,7 @@ defmodule PlugsApp.Template do
           :cnb_purchase_price,
           :yard_lot,
         ])
+    |> validate_required(:yard)
+    |> unique_constraint([:co_month, :yard, :lot], name: :template_unique_constraint)
   end
 end

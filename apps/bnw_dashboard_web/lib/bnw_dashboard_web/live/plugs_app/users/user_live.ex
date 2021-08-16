@@ -8,25 +8,44 @@ defmodule BnwDashboardWeb.PlugsApp.Users.UserLive do
   use BnwDashboardWeb, :live_view
 
   alias BnwDashboardWeb.PlugsApp.Users.ChangeUserRoleComponent
-  alias PlugsApp.Users
+  alias PlugsApp.{
+    Roles,
+    Users
+  }
+
+  defp fetch_secondary_roles(socket) do
+    current_user = Map.get(socket.assigns, :current_user)
+    %{id: user_id} = current_user
+    {admin, _} = Users.has_roll(user_id, "admin")
+    if current_user.it_admin || admin do
+      assign(socket,
+        secondary_roles: Roles.list_secondary_roles(),
+        admin: true)
+    else
+        assign(socket,
+          secondary_roles: Users.list_secondary_roles(user_id),
+          admin: false)
+    end
+  end
 
   @doc """
   This function is the entry point the live view. This is called when live_component(..., this, ...) is called
   """
   @impl true
   def mount(_params, %{"roles" => roles,
-                       "secondary_roles" => secondary_roles,
                        "user" => user,
+                       "current_user" => current_user,
                        "it_admin" => it_admin}, socket) do
     roles = Enum.map(roles, &(%{name: &1, checked: Enum.find_value(user.users_roles, fn r -> r.role == &1 end)}))
 
     socket = assign(socket,
       user: user,
       roles: roles,
-      secondary_roles: secondary_roles,
+      current_user: current_user,
       it_admin: it_admin,
       modal: nil,
       modal_count: 0)
+      |> fetch_secondary_roles()
     if connected?(socket), do: Users.subscribe()
     {:ok, socket}
   end
@@ -50,8 +69,9 @@ defmodule BnwDashboardWeb.PlugsApp.Users.UserLive do
       true -> socket
     end
     my_roles = Users.get_users_rolls(user.id)
-    {:noreply, assign(socket,
-        my_roles: my_roles)}
+    socket = assign(socket, my_roles: my_roles)
+      |> fetch_secondary_roles()
+    {:noreply, socket}
   end
 
   @doc """

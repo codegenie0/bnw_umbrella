@@ -1,0 +1,55 @@
+<h3 class="uk-h3">Customers</h3>
+<p class="uk-padding-small uk-text-lead">
+  To update customer info please enter the change in Turnkey CAS.
+  Allow 10-20 minutes for the change to propagate then click the “Update Customers” button below.
+  If the change does not appear please create a help desk ticket describing the issue.
+</p>
+<div>
+  <h3>Customers</h3>
+  <div class="uk-grid uk-grid-small uk-width-1-1" uk-grid>
+    <%= f = form_for :search, "#",
+        [phx_change: :search_customers,
+         phx_submit: :search_customers,
+         class: "uk-width-auto"] %>
+      <div class="uk-inline">
+        <%= submit "", [phx_disable_with: "",
+                        class: "uk-preserve-width uk-form-icon",
+                        uk_icon: "icon: search",
+                        phx_hook: "uk_icon"] %>
+        <%= text_input f, :search, class: "uk-input",
+                          placeholder:  "Search",
+                          value: @search %>
+      </div>
+    </form>
+    <div class="uk-width-expand@s uk-flex uk-flex-center">
+      <button class="uk-button uk-button-primary uk-border-pill uk-width-4-5 uk-text-nowrap"
+              type="button"
+              phx-click="update">Update Customers</button>
+    </div>
+  </div>
+  <div class="uk-overflow-auto uk-padding-small">
+    <table class="uk-table uk-table-middle uk-table-divider uk-table-striped uk-table-hover uk-table-small uk-margin-small">
+      <thead>
+        <tr>
+          <th class="uk-text-center">Customer Number</th>
+          <th class="uk-text-center">Customer Name</th>
+        </tr>
+      </thead>
+      <tbody id="customers"
+             phx-hook="infinite_scroll"
+             phx-update="<%= @update_action %>"
+             data-page="<%= @page %>">
+        <%= for customer <- @customers do %>
+          <tr id="customer_<%= customer.id %>">
+            <td class="uk-table-shrink uk-text-center">
+              <%= customer.customer_number %>
+            </td>
+            <td class="uk-table-shrink  uk-text-center">
+              <%= customer.name %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

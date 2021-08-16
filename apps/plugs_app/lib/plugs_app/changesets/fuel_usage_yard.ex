@@ -13,6 +13,8 @@ defmodule PlugsApp.FuelUsageYard do
 
   schema "fuel_usage_yard" do
     field :yard, :string
+
+    timestamps()
   end
 
   def changeset(plug, attrs \\ %{}) do
@@ -20,5 +22,7 @@ defmodule PlugsApp.FuelUsageYard do
     |> cast(attrs, [
           :yard
         ])
+        |> validate_required(:yard)
+        |> unique_constraint(:yard, name: :fuel_usage_yard_unique_constraint)
   end
 end

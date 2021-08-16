@@ -9,3 +9,16 @@
 #
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
+
+alias TentativeShip.{
+  Repo,
+  Role
+}
+
+if (Repo.get_by(Role, name: "App Admin") |> is_nil()) do
+  Repo.insert! %Role{
+    name: "App Admin",
+    app_admin: true,
+    description: "Admin for the Tentative Shipments application"
+  }
+end

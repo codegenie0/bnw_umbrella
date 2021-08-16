@@ -1,17 +1,35 @@
 <div>
   <h3><%= @page_title %></h3>
-  <%= if @is_edit do %>
-    <button class="uk-button
-                   uk-button-primary
-                   uk-border-pill
-                   uk-align-center
-                   uk-width-1-2@l
-                   uk-width-2-3@m"
-            type="button"
-            phx-click="new">
-      Add New
-    </button>
-  <% end %>
+  <div class="uk-flex">
+    <div class="uk-align-center
+                uk-width-1-2@l
+                uk-width-2-3@m">
+      <%= if @is_edit do %>
+        <button class="uk-button
+                       uk-button-primary
+                       uk-border-pill
+                       uk-flex-center
+                       uk-align-center
+                       uk-width-1-1"
+                type="button"
+                phx-click="new">
+          Add New
+        </button>
+      <% end %>
+    </div>
+
+    <%= if @can_show_reports || @it_admin do %>
+      <div class="uk-flex-right
+                  uk-align-right">
+        <button class="uk-button
+                       uk-button-primary"
+                type="button"
+                phx-click="show_reports">
+          Reports
+        </button>
+      </div>
+    <% end %>
+  </div>
 
   <%= if @is_admin do %>
     <div class="uk-flex uk-align-right">
@@ -19,103 +37,79 @@
                      uk-button-primary
                      uk-border-pill"
               type="button"
-              phx-click="new_department">
-        New Department
+              phx-click="edit_yards">
+        Manage Yards
       </button>
       <button class="uk-button
                      uk-button-primary
                      uk-border-pill"
               type="button"
-              phx-click="new_type">
-        New Type
+              phx-click="edit_types">
+        Manage Types
       </button>
       <button class="uk-button
                      uk-button-primary
                      uk-border-pill"
               type="button"
-              phx-click="new_yard">
-        New Yard
+              phx-click="edit_departments">
+        Manage Departments
       </button>
     </div>
   <% end %>
 
-  <table class="uk-table
-                uk-table-striped
-                uk-table-hover">
-    <thead>
-      <tr>
-        <th class="uk-text-center">Month</th>
-        <th class="uk-text-center">yard</th>
-        <th class="uk-text-center">type</th>
-        <th class="uk-text-center">Department</th>
-        <th class="uk-text-center">Gallons Used</th>
-        <th class="uk-text-center">Total Amount</th>
-        <%= if @is_edit do %>
-          <th class="uk-text-center"></th>
-          <th class="uk-text-center"></th>
-        <% end %>
-      </tr>
-    </thead>
-    <tbody>
-      <%= for plug <- @plugs do %>
-        <tr>
-          <td class="uk-text-center"><%= plug.data.start_date %></td>
-          <td class="uk-text-center"><%= FuelUsageYards.get_plug(plug.data.yard) %></td>
-          <td class="uk-text-center"><%= FuelUsageTypes.get_plug(plug.data.type) %></td>
-          <td class="uk-text-center"><%= FuelUsageDepartments.get_plug(plug.data.department) %></td>
-          <td class="uk-text-center"><%= plug.data.gallons %></td>
-          <td class="uk-text-center"><%= plug.data.amount %></td>
-          <%= if @is_edit do %>
-            <td class="uk-text-center">
-              <%= link "", to: "#", class: " uk-padding-remove-vertical uk-preserve-width",
-                  uk_icon: "trash",
-                  phx_hook: "uk_icon",
-                  phx_click: "delete",
-                  phx_value_id: plug.data.id,
-                  data: [confirm: "Are you sure?"]  %>
-            </td>
-            <td class="uk-text-center">
-              <%= link "", to: "#", class: "uk-padding-remove-vertical uk-preserve-width",
-                  uk_icon: "pencil",
-                  phx_hook: "uk_icon",
-                  phx_click: "edit",
-                  phx_value_id: plug.data.id %>
-            </td>
-          <% end %>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
+  <div class="uk-align-left">
+    <%= live_component(@socket, SearchLive,
+        id: "search_component_#{@current_user.id}",
+        args: @args,
+        selected: @selected_search_col,
+        search: @search) %>
+  </div>
+
+  <div id="users"
+       class="uk-width-1-1"
+       uk-overflow-auto
+       phx-hook="infinite_scroll"
+       data-page="<%= @page %>"
+       phx-update="<%= @update_action %>">
+    <%= live_component(@socket, TableLive,
+      id: "table_component_#{@current_user.id}",
+      is_edit: @is_edit,
+      args: @args,
+      header: nil,
+      plugs: @plugs) %>
+  </div>
 </div>
 
 <%= if @modal == :change_plug do
-    live_component(@socket, ChangePlugComponent,
-    id: "projected_breakeven_change_plug_component_#{@current_user.id}",
-    plugs: @plugs,
+    live_component(@socket, ModalComponent,
+    id: "change_plug_component_#{@current_user.id}",
+    args: @args,
     changeset: @changeset,
-    departments: @departments,
-    types:       @types,
-    yards:       @yards,
-    selected_department: @selected_department,
-    selected_type:       @selected_type,
-    selected_yard:       @selected_yard,
     modal_title: @modal_title)
 end %>
 <%= if @modal == :change_department do
     live_component(@socket, ChangeDepartmentComponent,
     id: "projected_breakeven_change_Department_component_#{@current_user.id}",
-    changeset: @changeset,
+    departments: @plug_departments,
     modal_title: @modal_title)
 end %>
 <%= if @modal == :change_type do
     live_component(@socket, ChangeTypeComponent,
     id: "projected_breakeven_change_type_component_#{@current_user.id}",
-    changeset: @changeset,
+    types: @plug_types,
     modal_title: @modal_title)
 end %>
 <%= if @modal == :change_yard do
     live_component(@socket, ChangeYardComponent,
     id: "projected_breakeven_change_yard_component_#{@current_user.id}",
-    changeset: @changeset,
+    yards: @plug_yards,
     modal_title: @modal_title)
+end %>
+<%= if @modal == :show_reports do
+    live_component(@socket, ChangeReportComponent, id:
+    "change_yard_component_#{@current_user.id}",
+    modal_title: @modal_title,
+    reports: @reports,
+    it_admin: @it_admin,
+    plug: @plug)
 end %>

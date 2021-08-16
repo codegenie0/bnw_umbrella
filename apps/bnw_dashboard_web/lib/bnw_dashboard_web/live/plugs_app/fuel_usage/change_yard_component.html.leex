@@ -1,5 +1,3 @@
-<%= f = form_for @changeset, "#",
-    [phx_submit: :save, phx_target: @myself, class: "uk-form-stacked"] %>
   <div style="display: block;" class="uk-modal uk-open">
     <div class="uk-modal-dialog uk-overflow-auto" phx-hook="close_modal">
       <button class="uk-modal-close-default"
@@ -10,23 +8,67 @@
         <h2 class="uk-modal-title"><%= @modal_title %></h2>
       </div>
 
-      <div class="uk-modal-body uk-background-secondary uk-overflow-auto uk-height-max-large uk-light">
-        <div class="uk-margin-small">
-          <%= label f, :yard, class: "uk-form-label" do %>
-            Yard
-            <%= error_tag f, :yard %>
-          <% end %>
-          <div class="uk-form-controls">
-            <%= text_input f, :yard, class: "uk-input", placeholder: "Yard" %>
+      <div class="uk-modal-body uk-background-muted">
+        <%= f = form_for :new, "#",
+            [phx_submit: :new,
+            phx_target: @myself,
+            class: "uk-width-auto"] %>
+          <div class="uk-inline uk-width-1-1">
+            <div class="uk-margin-small">
+              <%= label f, :yard, class: "uk-form-label" do %>
+                New Yard
+                <%= error_tag f, :yard %>
+              <% end %>
+              <div class="uk-form-controls uk-flex uk-margin-remove">
+                <%= text_input f, :yard, class: "uk-input" %>
+                <%= submit "Add", [phx_disable_with: "Saving...",
+                    class: "uk-button
+                            uk-button-primary
+                            uk-align-right
+                            uk-margin-remove"] %>
+              </div>
+            </div>
           </div>
-        </div>
-
+        </form>
+      </div>
+      <div class="uk-modal-body
+                  uk-background-muted
+                  uk-overflow-auto
+                  uk-height-max-large
+                  uk-padding-remove-top">
+        <table class="uk-table
+                      uk-table-hover">
+          <thead>
+            <tr>
+              <th class="uk-text-center
+                         uk-background-default">Yard</th>
+              <th class="uk-background-default"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for yard <- @yards do %>
+              <tr>
+                <td class="uk-text-center"><%= yard.yard %></td>
+                <td class="uk-text-center">
+                  <%= link "", to: "#",
+                      class: "uk-padding-remove-vertical uk-preserve-width",
+                      style: "color: red;",
+                      uk_icon: "trash",
+                      phx_target: @myself,
+                      phx_hook: "uk_icon",
+                      phx_click: "delete",
+                      phx_value_id: yard.id,
+                      data: [confirm: "Are you sure?"]  %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
       <div class="uk-modal-footer uk-text-right">
         <button class="uk-button uk-button-default"
                 type="button"
-                phx-click="cancel">Cancel</button>
-        <%= submit "Save", [phx_disable_with: "Saving...",
-                          class: "uk-button uk-button-primary"] %>
+                phx-click="cancel">Close</button>
       </div>
     </div>
   </div>

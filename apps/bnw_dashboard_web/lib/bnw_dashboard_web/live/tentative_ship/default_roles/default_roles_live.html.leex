@@ -1,0 +1,50 @@
+<div>
+  <h3>Tentative Ship Default Roles</h3>
+  <div class="uk-width-expand@s uk-flex uk-flex-center">
+    <button class="uk-button uk-button-primary uk-border-pill uk-width-1-2 uk-text-nowrap"
+            type="button"
+            phx-click="new">Create Role</button>
+  </div>
+  <%= for role <- @roles do %>
+    <div class="uk-card uk-card-small uk-card-default uk-width-1-1 uk-margin">
+      <div class="uk-card-header">
+        <h3 class="uk-card-title uk-grid" phx-hook="uk_grid">
+          <div><%= role.name %></div>
+          <div uk-dropdown="pos: right-center" phx-hook="uk_dropdown"><%= role.description %></div>
+          <%= link "", to: "#", class: "uk-preserve-width uk-padding uk-padding-remove-vertical",
+                       uk_icon: "pencil",
+                       phx_hook: "uk_icon",
+                       phx_click: "edit",
+                       phx_value_id: role.id %>
+          <%= link "", to: "#", class: "uk-preserve-width uk-padding uk-padding-remove-vertical uk-padding-remove-left",
+                       uk_icon: "trash",
+                       phx_hook: "uk_icon",
+                       phx_click: "delete",
+                       phx_value_id: role.id,
+                       data: [confirm: "Are you sure?"]  %>
+        </h3>
+      </div>
+      <div class="uk-card-body">
+        <ul class="uk-list">
+          <%= for permission <- role.permissions do %>
+            <li class="uk-grid-collapse" uk-grid phx-hook="uk_grid">
+              <input class="uk-checkbox"
+                     type="checkbox"
+                     phx-click="change_permission"
+                     phx-value-role-id=<%= role.id %>
+                     phx-value-permission-id=<%= permission.id %>
+                     <%= if permission.active, do: "checked", else: "" %>>
+              <label class="uk-margin-left"><%= permission.name %></label>
+              <div uk-dropdown="pos: right-center" phx-hook="uk_dropdown"><%= permission.description %></div>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+</div>
+<%= case @modal do
+  :change ->
+    live_component(@socket, ChangeDefaultRoleComponent, id: @current_user.id, changeset: @changeset)
+  _ -> nil
+end %>

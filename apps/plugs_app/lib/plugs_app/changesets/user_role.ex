@@ -16,6 +16,8 @@ defmodule PlugsApp.UserRole do
     field :role,  :string
     field :level, :string
     belongs_to :user, User
+
+    timestamps()
   end
 
   def changeset(user_role, attrs \\ %{}) do

@@ -75,14 +75,20 @@ defmodule Accounts.Users do
   def create_or_update_user(%User{} = user, attrs \\ %{}) do
     changeset = User.changeset(user, attrs)
     {_, email} = fetch_field(changeset, :email)
-    cond do
+    changeset = cond do
       is_nil(email) || email == "" ->
         force_change(changeset, :allow_password_reset, false)
       true ->
         changeset
     end
-    |> Repo.insert_or_update()
-    |> notify_subscribers([:user, (if Ecto.get_meta(user, :state) == :built, do: :created, else: :updated)])
+
+    {result, new_user} = Repo.insert_or_update(changeset)
+
+    if result == :ok && !new_user.active do
+      BnwDashboardWeb.Endpoint.broadcast("users_socket:#{new_user.id}", "disconnect", %{})
+    end
+
+    notify_subscribers({result, new_user}, [:user, (if Ecto.get_meta(user, :state) == :built, do: :created, else: :updated)])
   end
 
   def delete_user(%User{} = user) do

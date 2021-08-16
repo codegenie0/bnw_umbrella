@@ -13,6 +13,8 @@ defmodule PlugsApp.FuelUsageType do
 
   schema "fuel_usage_type" do
     field :type, :string
+
+    timestamps()
   end
 
   def changeset(plug, attrs \\ %{}) do
@@ -20,5 +22,7 @@ defmodule PlugsApp.FuelUsageType do
     |> cast(attrs, [
           :type
         ])
+    |> validate_required(:type)
+    |> unique_constraint([:type], name: :fuel_usage_type_unique_key)
   end
 end

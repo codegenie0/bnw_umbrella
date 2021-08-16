@@ -13,6 +13,8 @@ defmodule PlugsApp.NbxTruckingDepartment do
 
   schema "nbx_trucking_departments" do
     field :department, :string
+
+    timestamps()
   end
 
   def changeset(plug, attrs \\ %{}) do
@@ -20,5 +22,7 @@ defmodule PlugsApp.NbxTruckingDepartment do
     |> cast(attrs, [
           :department
         ])
+    |> validate_required(:department)
+    |> unique_constraint(:department, name: :nbx_trucking_departments_unique_key)
   end
 end

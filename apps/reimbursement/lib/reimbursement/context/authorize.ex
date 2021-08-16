@@ -77,7 +77,7 @@ defmodule Reimbursement.Authorize do
   Else they only have access to the plugs page.
   """
   def authorize(%User{} = user, page) do
-    if UserRoles.get_a_role(user.id, "active") do
+    if UserRoles.get_a_role(user.id, "active") || user.it_admin do
       cond do
         user.it_admin || UserRoles.get_a_role(user.id, "admin") -> true
         UserRoles.get_a_role(user.id, "reviewer") && (page == "review"  || page == "help") -> true

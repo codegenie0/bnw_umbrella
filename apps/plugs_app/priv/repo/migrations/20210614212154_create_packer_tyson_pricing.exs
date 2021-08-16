@@ -31,6 +31,10 @@ defmodule PlugsApp.Repo.Migrations.CreatePackerTysonPricing do
       add :hol_yg5,              :decimal, precision: 12, scale: 2, default: 0.00
       add :hol_dn_550,           :decimal, precision: 12, scale: 2, default: 0.00
       add :hol_up_1050,          :decimal, precision: 12, scale: 2, default: 0.00
+
+      timestamps()
     end
+
+    create unique_index(:packer_tyson_pricing, [:mpc_week_end_date], name: :packer_tyson_pricing_unique_constraint)
   end
 end

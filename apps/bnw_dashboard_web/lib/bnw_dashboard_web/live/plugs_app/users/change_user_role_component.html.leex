@@ -29,19 +29,21 @@
     </div>
 
     <div class="uk-modal-body
-                uk-background-secondary
+                uk-background-muted
                 uk-overflow-auto
                 uk-height-max-large
-                uk-light
                 uk-padding-remove-top
                 uk-margin-remove-top">
       <table class="uk-table
                     uk-table-hover">
         <thead>
           <tr>
-            <th class="uk-text-center uk-background-secondary">Page</th>
-            <th class="uk-text-center uk-background-secondary">View</th>
-            <th class="uk-text-center uk-background-secondary">Edit</th>
+            <th class="uk-text-center uk-background-muted">Page</th>
+            <th class="uk-text-center uk-background-muted">View</th>
+            <th class="uk-text-center uk-background-muted">Edit</th>
+            <%= if @admin do %>
+              <th class="uk-text-center uk-background-muted">Admin</th>
+            <% end %>
           </tr>
         </thead>
         <tbody>
@@ -53,7 +55,7 @@
             <tr>
               <td class="uk-text-left"><%= role.external_name %></td>
               <td class="uk-text-center">
-                <% checked = val == "view" || val == "edit" %>
+                <% checked = val == "view" || val == "edit" || val == "admin" %>
                 <%= link to: "#",
                     class: "uk-button uk-button-text",
                     uk_icon: (if checked, do: "check", else: "ban"),
@@ -66,7 +68,7 @@
                 <% end %>
               </td>
               <td class="uk-text-center">
-                <% checked = val == "edit" %>
+                <% checked = val == "edit" || val == "admin"%>
                 <%= link to: "#",
                     class: "uk-button uk-button-text",
                     uk_icon: (if checked, do: "check", else: "ban"),
@@ -78,6 +80,21 @@
                     phx_value_level: (if checked, do: "view", else: "edit") do %>
                 <% end %>
               </td>
+              <%= if @admin do %>
+                <td class="uk-text-center">
+                  <% checked = val == "admin" %>
+                  <%= link to: "#",
+                      class: "uk-button uk-button-text",
+                      uk_icon: (if checked, do: "check", else: "ban"),
+                      style: (if checked, do: "color: green;", else: "color: red;"),
+                      phx_hook: "uk_icon",
+                      phx_click: "change_role",
+                      phx_value_user: @user.id,
+                      phx_value_role: role.name,
+                      phx_value_level: (if checked, do: "edit", else: "admin") do %>
+                  <% end %>
+                </td>
+              <% end %>
             </tr>
           <% end %>
         </tbody>

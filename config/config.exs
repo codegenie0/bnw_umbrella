@@ -22,14 +22,6 @@ config :reimbursement,
   ecto_repos: [Reimbursement.Repo]
 
 # Configure Mix tasks and generators
-config :cih_report_plugs,
-  ecto_repos: [CihReportPlugs.Repo]
-
-# Configure Mix tasks and generators
-config :ocb_report_plugs,
-  ecto_repos: [OcbReportPlugs.Repo]
-
-# Configure Mix tasks and generators
 config :customer_access,
   ecto_repos: [CustomerAccess.Repo]
 

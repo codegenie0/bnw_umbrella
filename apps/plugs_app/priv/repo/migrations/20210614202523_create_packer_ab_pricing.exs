@@ -25,6 +25,10 @@ defmodule PlugsApp.Repo.Migrations.CreatePackerAbPricing do
       add :overweight,        :decimal, precision: 12, scale: 2, default: 0.00
       add :plus_30_months,    :decimal, precision: 12, scale: 2, default: 0.00
       add :plus_30_2_percent, :decimal, precision: 12, scale: 2, default: 0.00
+
+      timestamps()
     end
+
+    create unique_index(:packer_ab_pricing, [:mpc_week_end_date], name: :packer_ab_pricing_unique_constraint)
   end
 end

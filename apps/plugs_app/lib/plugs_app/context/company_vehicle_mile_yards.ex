@@ -25,7 +25,7 @@ defmodule PlugsApp.CompanyVehicleMileYards do
   Get all plugs from the database.
   """
   def list_plugs() do
-    Repo.all(CompanyVehicleMileYard)
+    list_all_plugs()
     |> Enum.map(fn x->
       %{id: id, yard: yard} = x
       [key: yard, value: id]
@@ -33,11 +33,29 @@ defmodule PlugsApp.CompanyVehicleMileYards do
   end
 
   def get_plug(id) do
-    plug = CompanyVehicleMileYard
-    |> where([plug], plug.id == ^id)
-    |> Repo.one()
-    %{yard: yard} = plug
+    %{yard: yard} = get_plug_struct(id)
     yard
+  end
+
+  def list_all_plugs() do
+    CompanyVehicleMileYard
+    |> order_by([plug], asc: plug.yard)
+    |> Repo.all()
+  end
+
+  def get_plug_struct(id) do
+    if is_nil(id) do
+      %{yard: nil}
+    else
+      plug = CompanyVehicleMileYard
+      |> where([plug], plug.id == ^id)
+      |> Repo.one()
+      if !is_nil(plug) do
+        plug
+      else
+        %{yard: nil}
+      end
+    end
   end
 
   def new_plug() do
@@ -84,4 +102,5 @@ defmodule PlugsApp.CompanyVehicleMileYards do
 
     {:ok, result}
   end
+  def notify_subscribers({:error, reason}, _event), do: {:error, reason}
 end

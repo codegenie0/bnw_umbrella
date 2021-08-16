@@ -25,7 +25,7 @@ defmodule PlugsApp.FuelUsageTypes do
   Get all plugs from the database.
   """
   def list_plugs() do
-    Repo.all(FuelUsageType)
+    list_all_plugs()
     |> Enum.map(fn x->
       %{id: id, type: type} = x
       [key: type, value: id]
@@ -33,11 +33,29 @@ defmodule PlugsApp.FuelUsageTypes do
   end
 
   def get_plug(id) do
-    plug = FuelUsageType
-    |> where([plug], plug.id == ^id)
-    |> Repo.one()
-    %{type: type} = plug
+    %{type: type} = get_plug_struct(id)
     type
+  end
+
+  def list_all_plugs() do
+    FuelUsageType
+    |> order_by([plug], asc: plug.type)
+    |> Repo.all()
+  end
+
+  def get_plug_struct(id) do
+    if is_nil(id) do
+      %{type: nil}
+    else
+      plug = FuelUsageType
+      |> where([plug], plug.id == ^id)
+      |> Repo.one()
+      if !is_nil(plug) do
+        plug
+      else
+        %{type: nil}
+      end
+    end
   end
 
   def new_plug() do
@@ -84,4 +102,5 @@ defmodule PlugsApp.FuelUsageTypes do
 
     {:ok, result}
   end
+  def notify_subscribers({:error, reason}, _event), do: {:error, reason}
 end

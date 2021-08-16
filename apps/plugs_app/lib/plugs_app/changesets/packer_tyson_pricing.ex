@@ -40,6 +40,8 @@ defmodule PlugsApp.PackerTysonPricing do
       field :hol_yg5,              :decimal
       field :hol_dn_550,           :decimal
       field :hol_up_1050,          :decimal
+
+      timestamps()
   end
 
   def changeset(plug, attrs \\ %{}) do
@@ -74,5 +76,6 @@ defmodule PlugsApp.PackerTysonPricing do
       :hol_dn_550,
       :hol_up_1050,
         ])
+    |> unique_constraint([:mpc_week_end_date], name: :packer_tyson_pricing_unique_constraint)
   end
 end

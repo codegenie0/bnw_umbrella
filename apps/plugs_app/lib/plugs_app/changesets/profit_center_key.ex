@@ -15,6 +15,8 @@ defmodule PlugsApp.ProfitCenterKey do
     field :company,            :integer
     field :profit_center,      :integer
     field :profit_center_desc, :string
+
+    timestamps()
   end
 
   def changeset(plug, attrs \\ %{}) do
@@ -24,5 +26,7 @@ defmodule PlugsApp.ProfitCenterKey do
           :profit_center,
           :profit_center_desc,
         ])
+    |> validate_required(:company)
+    |> unique_constraint([:company, :profit_center], name: :turnkey_unique_constraint)
   end
 end

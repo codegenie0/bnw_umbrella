@@ -6,6 +6,8 @@ defmodule PlugsApp.Repo.Migrations.CreateUsersRoles do
       add :user_id, references(:users, prefix: user_prefix(Application.get_env(:reimbursement, :env)), on_delete: :delete_all, null: false)
       add :role,  :string
       add :level, :string
+
+      timestamps()
     end
   end
 

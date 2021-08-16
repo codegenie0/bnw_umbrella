@@ -2,6 +2,8 @@ defmodule PlugsApp.ProjectedBreakeven do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias PlugsApp.ProjectedBreakevenYards
+
   prefix = "bnw_dashboard_plugs_app"
   prefix = case Application.get_env(:plugs_app, :env) do
     :dev -> prefix <> "_dev"
@@ -13,7 +15,7 @@ defmodule PlugsApp.ProjectedBreakeven do
 
   schema "projected_breakeven_data" do
     field :co_month,                :date
-    field :yard,                    :string
+    field :yard,                    :integer
     field :lot,                     :string
     field :proj_dmc,                :decimal
     field :proj_other_costs,        :decimal
@@ -27,6 +29,8 @@ defmodule PlugsApp.ProjectedBreakeven do
     field :proj_be,                 :decimal
     field :cnb_purchase_price,      :decimal
     field :yard_lot,                :string
+
+    timestamps()
   end
 
   def changeset(plug, attrs \\ %{}) do
@@ -49,15 +53,21 @@ defmodule PlugsApp.ProjectedBreakeven do
           :yard_lot,
         ])
     |> yard_lot()
+    |> validate_required(:yard)
+    |> unique_constraint([:co_month, :yard, :lot], name: :projected_breakeven_unique_constraint)
   end
 
-  def yard_lot(changeset) do
-    yard = fetch_field(changeset, :yard)
-    lot  = fetch_field(changeset, :lot)
+  defp yard_lot(changeset) do
+    {_, yard} = fetch_field(changeset, :yard)
+    {_, lot}  = fetch_field(changeset, :lot)
 
     if !is_nil(yard) && !is_nil(lot) do
-      {_, yard} = yard
-      {_, lot}  = lot
+      yard =
+      if is_integer(yard) do
+        ProjectedBreakevenYards.get_plug(yard)
+      else
+        yard
+      end
       change(changeset, %{yard_lot: yard <> "/" <> lot})
     else
       changeset

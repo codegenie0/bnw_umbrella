@@ -28,24 +28,6 @@ config :reimbursement, Reimbursement.Repo,
   pool_size: 10
 
 # Configure your database
-config :cih_report_plugs, CihReportPlugs.Repo,
-  username: "root",
-  password: "sxkjad94",
-  database: "bnw_dashboard_cih_report_plugs_dev",
-  hostname: "bnw-dashboard-db",
-  show_sensitive_data_on_connection_error: true,
-  pool_size: 10
-
-# Configure your database
-config :ocb_report_plugs, OcbReportPlugs.Repo,
-  username: "root",
-  password: "sxkjad94",
-  database: "bnw_dashboard_ocb_report_plugs_dev",
-  hostname: "bnw-dashboard-db",
-  show_sensitive_data_on_connection_error: true,
-  pool_size: 10
-
-# Configure your database
 config :customer_access, CustomerAccess.Repo,
   username: "root",
   password: "sxkjad94",
@@ -88,6 +70,7 @@ config :borrowing_base, BorrowingBase.Repo.InformationSchema,
   pool_size: 10
 
 # Configure your database
+# Start Tentative Ship
 config :tentative_ship, TentativeShip.Repo,
   username: "root",
   password: "sxkjad94",
@@ -95,6 +78,41 @@ config :tentative_ship, TentativeShip.Repo,
   hostname: "bnw-dashboard-db",
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
+
+# # for turnkey aws external connection
+# config :tentative_ship, TentativeShip.Repo.Turnkey,
+#   username: System.get_env("AWS_DATABASES_USERNAME"),
+#   password: System.get_env("AWS_DATABASES_PASSWORD"),
+#   database: "turnkey",
+#   hostname: System.get_env("AWS_DATABASES_URL"),
+#   show_sensitive_data_on_connection_error: true,
+#   pool_size: 10
+
+# for turnkey localhost connection
+config :tentative_ship, TentativeShip.Repo.Turnkey,
+  username: "root",
+  password: "sxkjad94",
+  database: "turnkey",
+  hostname: "bnw-dashboard-db",
+  show_sensitive_data_on_connection_error: true,
+  pool_size: 10
+
+config :tentative_ship, TentativeShip.Repo.CattlePurchase,
+  username: System.get_env("AWS_DATABASES_USERNAME"),
+  password: System.get_env("AWS_DATABASES_PASSWORD"),
+  database: "cattle_purchase",
+  hostname: System.get_env("AWS_DATABASES_URL"),
+  show_sensitive_data_on_connection_error: true,
+  pool_size: 10
+
+config :tentative_ship, TentativeShip.Repo.Microbeef,
+  username: System.get_env("AWS_DATABASES_USERNAME"),
+  password: System.get_env("AWS_DATABASES_PASSWORD"),
+  database: "microbeef_data",
+  hostname: System.get_env("AWS_DATABASES_URL"),
+  show_sensitive_data_on_connection_error: true,
+  pool_size: 10
+# End Tentative Ship
 
 # Configure your database
 config :accounts, Accounts.Repo,
@@ -205,8 +223,5 @@ config :borrowing_base, env: :dev
 config :component_applications, env: :dev
 config :customer_access, env: :dev
 config :tentative_ship, env: :dev
-config :ocb_report_plugs, env: :dev
-config :cih_report_plugs, env: :dev
 config :reimbursement, env: :dev
 config :plugs_app, env: :dev
-config :cattle_purchase, env: :dev

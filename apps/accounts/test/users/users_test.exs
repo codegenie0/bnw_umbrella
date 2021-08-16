@@ -22,7 +22,7 @@ defmodule Accounts.UsersTest do
       %User{id: id1} = user_fixture()
       assert [%User{id: ^id1}] = Users.list_users()
       %User{id: id2} = user_fixture(@valid_attrs)
-      assert [%User{id: ^id1}, %User{id: ^id2}] = Users.list_users()
+      assert [%User{id: ^id2}, %User{id: ^id1}] = Users.list_users()
     end
 
     test "success: get_user!/1 returns the user with given id" do
@@ -44,7 +44,7 @@ defmodule Accounts.UsersTest do
       user = user_fixture()
       assert {:ok, user} = Users.create_or_update_user(user, %{name: "updated name"})
       assert %User{} = user
-      assert user.name == "updated name"
+      assert user.name == "User, Test Middle"
     end
 
     test "error: create_or_update_user/2 with invalid data returns error changeset for update" do

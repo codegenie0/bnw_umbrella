@@ -25,7 +25,7 @@ defmodule PlugsApp.ProfitCenterKeyCompanies do
   Get all plugs from the database.
   """
   def list_plugs() do
-    Repo.all(ProfitCenterKeyCompany)
+    list_all_plugs()
     |> Enum.map(fn x->
       %{id: id, company: company} = x
       [key: company, value: id]
@@ -33,11 +33,29 @@ defmodule PlugsApp.ProfitCenterKeyCompanies do
   end
 
   def get_plug(id) do
-    plug = ProfitCenterKeyCompany
-    |> where([plug], plug.id == ^id)
-    |> Repo.one()
-    %{company: company} = plug
+    %{company: company} = get_plug_struct(id)
     company
+  end
+
+  def list_all_plugs() do
+    ProfitCenterKeyCompany
+    |> order_by([plug], asc: plug.company)
+    |> Repo.all()
+  end
+
+  def get_plug_struct(id) do
+    if is_nil(id) do
+      %{company: nil}
+    else
+      plug = ProfitCenterKeyCompany
+      |> where([plug], plug.id == ^id)
+      |> Repo.one()
+      if !is_nil(plug) do
+        plug
+      else
+        %{company: nil}
+      end
+    end
   end
 
   def new_plug() do
@@ -84,4 +102,5 @@ defmodule PlugsApp.ProfitCenterKeyCompanies do
 
     {:ok, result}
   end
+  def notify_subscribers({:error, reason}, _event), do: {:error, reason}
 end

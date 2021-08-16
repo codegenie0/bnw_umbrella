@@ -11,6 +11,10 @@ defmodule PlugsApp.Repo.Migrations.CreateMpcComparison do
       add :usda_notes,    :string
       add :tt_price,      :decimal, precision: 12, scale: 2, default: 0.00
       add :tt_notes,      :string
+
+      timestamps()
     end
+
+    create unique_index(:mpc_comparison, [:monday_date], name: :mpc_comparison_unique_constraint)
   end
 end

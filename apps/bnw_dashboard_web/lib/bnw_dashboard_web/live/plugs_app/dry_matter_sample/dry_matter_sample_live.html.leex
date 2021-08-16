@@ -1,0 +1,121 @@
+<div>
+  <h3><%= @page_title %></h3>
+
+  <%= if @show_yards do %>
+    <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid" phx-hook="uk_grid">
+      <%= for yard <- @yards do %>
+        <label>
+          <input class="uk-radio"
+                 type="radio"
+                 name="yard"
+                 phx-click="set_yard"
+                 phx-value-yard=<%= yard[:value] %>
+                 <%= if @selected_yard == yard[:value], do: "checked", else: "" %>>
+            <%= yard[:key] %>
+          </input>
+        </label>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="uk-flex">
+    <div class="uk-align-center
+                uk-width-1-2@l
+                uk-width-2-3@m">
+      <%= if @is_edit do %>
+        <button class="uk-button
+                       uk-button-primary
+                       uk-border-pill
+                       uk-flex-center
+                       uk-align-center
+                       uk-width-1-1"
+                type="button"
+                phx-click="new">
+          Add New
+        </button>
+      <% end %>
+    </div>
+
+    <%= if @can_show_reports || @it_admin do %>
+      <div class="uk-flex-right
+                  uk-align-right">
+        <button class="uk-button
+                       uk-button-primary"
+                type="button"
+                phx-click="show_reports">
+          Reports
+        </button>
+      </div>
+    <% end %>
+  </div>
+
+  <%= if @is_admin do %>
+    <div class="uk-flex uk-align-right">
+      <button class="uk-button
+                     uk-button-primary
+                     uk-border-pill"
+              type="button"
+              phx-click="edit_yards">
+        Manage Yards
+      </button>
+      <button class="uk-button
+                     uk-button-primary
+                     uk-border-pill"
+              type="button"
+              phx-click="edit_items">
+        Manage Items
+      </button>
+    </div>
+  <% end %>
+
+  <div class="uk-align-left">
+    <%= live_component(@socket, SearchLive,
+        id: "search_component_#{@current_user.id}",
+        args: @args,
+        selected: @selected_search_col,
+        search: @search) %>
+  </div>
+
+  <div id="users"
+       class="uk-width-1-1"
+       uk-overflow-auto
+       phx-hook="infinite_scroll"
+       data-page="<%= @page %>"
+       phx-update="<%= @update_action %>">
+    <%= live_component(@socket, TableLive,
+      id: "table_component_#{@current_user.id}",
+      is_edit: @is_edit,
+      args: @args,
+      header: nil,
+      plugs: @plugs) %>
+  </div>
+</div>
+
+<%= if @modal == :change_plug do
+    live_component(@socket, ModalComponent,
+    id: "change_plug_component_#{@current_user.id}",
+    args: @args,
+    changeset: @changeset,
+    modal_title: @modal_title)
+end %>
+<%= if @modal == :change_yard do
+    live_component(@socket, ChangeYardComponent, id:
+    "change_yard_component_#{@current_user.id}",
+    yards: @plug_yards,
+    modal_title: @modal_title)
+end %>
+<%= if @modal == :change_item do
+    live_component(@socket, ChangeItemComponent, id:
+    "change_item_component_#{@current_user.id}",
+    items: @plug_items,
+    yard: @selected_yard,
+    modal_title: @modal_title)
+end %>
+<%= if @modal == :show_reports do
+    live_component(@socket, ChangeReportComponent, id:
+    "change_yard_component_#{@current_user.id}",
+    modal_title: @modal_title,
+    reports: @reports,
+    it_admin: @it_admin,
+    plug: @plug)
+end %>

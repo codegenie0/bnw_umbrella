@@ -23,11 +23,13 @@
                    phx-update="<%= @update_action %>"
                    data-page="<%= @page %>">
     <%= for user <- @users do %>
-      <%= live_render(@socket, UserLive, id: "user_live_#{user.id}",
-        session: %{"user" => user,
-                   "secondary_roles" => @secondary_roles,
-                   "roles" => @roles,
-                   "it_admin" => @current_user.it_admin}) %>
+      <%= if user.id != @current_user.id || @admin do %>
+        <%= live_render(@socket, UserLive, id: "user_live_#{user.id}",
+          session: %{"user" => user,
+                     "roles" => @roles,
+                     "current_user" => @current_user,
+                     "it_admin" => @current_user.it_admin}) %>
+      <% end %>
     <% end %>
   </div>
 </div>

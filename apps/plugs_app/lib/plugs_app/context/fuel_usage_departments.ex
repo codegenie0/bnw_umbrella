@@ -25,7 +25,7 @@ defmodule PlugsApp.FuelUsageDepartments do
   Get all plugs from the database.
   """
   def list_plugs() do
-    Repo.all(FuelUsageDepartment)
+    list_all_plugs()
     |> Enum.map(fn x->
       %{id: id, department: department} = x
       [key: department, value: id]
@@ -33,11 +33,29 @@ defmodule PlugsApp.FuelUsageDepartments do
   end
 
   def get_plug(id) do
-    plug = FuelUsageDepartment
-    |> where([plug], plug.id == ^id)
-    |> Repo.one()
-    %{department: department} = plug
+    %{department: department} = get_plug_struct(id)
     department
+  end
+
+  def list_all_plugs() do
+    FuelUsageDepartment
+    |> order_by([plug], asc: plug.department)
+    |> Repo.all()
+  end
+
+  def get_plug_struct(id) do
+    if is_nil(id) do
+      %{department: nil}
+    else
+      plug = FuelUsageDepartment
+      |> where([plug], plug.id == ^id)
+      |> Repo.one()
+      if !is_nil(plug) do
+        plug
+      else
+        %{department: nil}
+      end
+    end
   end
 
   def new_plug() do
@@ -84,4 +102,5 @@ defmodule PlugsApp.FuelUsageDepartments do
 
     {:ok, result}
   end
+  def notify_subscribers({:error, reason}, _event), do: {:error, reason}
 end

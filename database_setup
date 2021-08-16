@@ -16,7 +16,6 @@
 # reimbursement
 # plugs_app
 # tentative_ship
-# cattle_purchase
 
 echo ""
 echo "bnw_dashboard"
@@ -82,24 +81,6 @@ echo "done"
 echo ""
 
 echo ""
-echo "ocb_report_plugs"
-echo ""
-docker-compose run app mix cmd --app ocb_report_plugs mix ecto.create
-docker-compose run app mix cmd --app ocb_report_plugs mix ecto.migrate
-echo ""
-echo "done"
-echo ""
-
-echo ""
-echo "cih_report_plugs"
-echo ""
-docker-compose run app mix cmd --app cih_report_plugs mix ecto.create
-docker-compose run app mix cmd --app cih_report_plugs mix ecto.migrate
-echo ""
-echo "done"
-echo ""
-
-echo ""
 echo "reimbursement"
 echo ""
 docker-compose run app mix cmd --app reimbursement mix ecto.create
@@ -118,24 +99,6 @@ echo "done"
 echo ""
 
 echo ""
-echo "tentative_ship"
-echo ""
-docker-compose run app mix cmd --app tentative_ship mix ecto.create
-docker-compose run app mix cmd --app tentative_ship mix ecto.migrate
-echo ""
-echo "done"
-echo ""
-
-echo ""
-echo "tentative_ship"
-echo ""
-docker-compose run app mix cmd --app tentative_ship mix ecto.create
-docker-compose run app mix cmd --app tentative_ship mix ecto.migrate
-echo ""
-echo "done"
-echo ""
-
-echo ""
 echo "cattle_purchase"
 echo ""
 docker-compose run app mix cmd --app cattle_purchase mix ecto.create
@@ -143,3 +106,4 @@ docker-compose run app mix cmd --app cattle_purchase mix ecto.migrate
 echo ""
 echo "done"
 echo ""
+

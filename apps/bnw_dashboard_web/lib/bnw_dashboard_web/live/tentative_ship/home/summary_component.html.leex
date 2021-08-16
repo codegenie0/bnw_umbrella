@@ -1,0 +1,83 @@
+<div class="uk-flex">
+  <div class="uk-width-1-4 uk-margin-small-right">
+    <ul uk-accordion="multiple: true" phx-hook="uk_accordion">
+      <%= for x <- 1..5 do %>
+        <li class="uk-open">
+          <a class="uk-accordion-title uk-background-secondary uk-light uk-padding-small uk-padding-remove-vertical" href="#">Total <%= x %><p class="uk-align-right uk-margin-remove"><%= x * 42 %></p></a>
+          <div class="uk-accordion-content">
+            <table class="uk-table uk-table-small uk-table-middle uk-table-hover">
+              <tr>
+                <td>Regular (R)</td>
+                <td><%= trunc(((42 * x) / 2) + 5) %></td>
+              </tr>
+              <tr>
+                <td>Out of Program (M)</td>
+                <td><%= trunc(((42 * x) / 2) - 5) %></td>
+              </tr>
+            </table>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+  <div class="uk-padding uk-padding-remove-vertical">
+    <div class="uk-background-secondary uk-text-warning uk-text-middle uk-text-center uk-padding-small uk-padding-remove-bottom">Running Inventory</div>
+    <div class="uk-overflow-auto uk-height-max-medium">
+      <table class="uk-table uk-table-middle">
+        <thead>
+          <tr>
+            <th class="uk-background-secondary uk-text-center"></th>
+            <th class="uk-background-secondary uk-text-center">Starting Inventory</th>
+            <th class="uk-background-secondary uk-text-center">AB Foods</th>
+            <th class="uk-background-secondary uk-text-center">CNB Traditional</th>
+            <th class="uk-background-secondary uk-text-center">Tyson</th>
+            <th class="uk-background-secondary uk-text-center">Total Scheduled</th>
+            <th class="uk-background-secondary uk-text-center">Actual Scheduled</th>
+            <th class="uk-background-secondary uk-text-center">Receiving</th>
+            <th class="uk-background-secondary uk-text-center">Ending Inventory</th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= for _x <- 1..100 do %>
+            <tr>
+              <td>05-23-2021</td>
+              <td>35,732</td>
+              <td>0</td>
+              <td>325</td>
+              <td>1,464</td>
+              <td>1,789</td>
+              <td>1,300</td>
+              <td>1,555</td>
+              <td>35,987</td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <div class="uk-background-secondary uk-text-warning uk-text-middle uk-text-center uk-margin-small-top uk-padding-small uk-padding-remove-bottom">Monitored Shipments</div>
+    <div class="uk-overflow-auto uk-height-max-medium">
+      <table class="uk-table uk-table-middle">
+        <thead>
+          <tr>
+            <th class="uk-background-secondary uk-text-center">Week Of</th>
+            <th class="uk-background-secondary uk-text-center">AB Foods</th>
+            <th class="uk-background-secondary uk-text-center">Canadians</th>
+            <th class="uk-background-secondary uk-text-center">CNB Traditional</th>
+            <th class="uk-background-secondary uk-text-center">Reg Holst NW Cust</th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= for _x <- 1..100 do %>
+            <tr>
+              <td>05-23-2021</td>
+              <td>100</td>
+              <td>200</td>
+              <td>300</td>
+              <td>400</td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

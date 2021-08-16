@@ -34,6 +34,8 @@ defmodule PlugsApp.PackerAbPricing do
       field :overweight,        :decimal
       field :plus_30_months,    :decimal
       field :plus_30_2_percent, :decimal
+
+      timestamps()
   end
 
   def changeset(plug, attrs \\ %{}) do
@@ -62,5 +64,6 @@ defmodule PlugsApp.PackerAbPricing do
           :plus_30_months,
           :plus_30_2_percent,
         ])
+    |> unique_constraint([:mpc_week_end_date], name: :packer_ab_pricing_unique_constraint)
   end
 end

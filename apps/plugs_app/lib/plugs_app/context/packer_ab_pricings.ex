@@ -1,5 +1,6 @@
 defmodule PlugsApp.PackerAbPricings do
 
+  import Ecto.Query
   alias PlugsApp.{
     PackerAbPricing,
     Repo
@@ -23,8 +24,24 @@ defmodule PlugsApp.PackerAbPricings do
   @doc """
   Get all plugs from the database.
   """
-  def list_plugs() do
-    Repo.all(PackerAbPricing)
+  def list_plugs(page \\ 1,
+                 per_page \\ 20,
+                 search_col \\ nil,
+                 search \\ "") do
+    query = PackerAbPricing
+    |> order_by([plug], [desc: plug.mpc_week_end_date, desc: plug.id])
+    |> offset(^(per_page * (page - 1)))
+    |> limit(^per_page)
+
+    query = cond do
+      search_col && search != "" ->
+        search = "%#{search}%"
+        where(query, [plug], like(field(plug, ^search_col), ^search))
+      true -> query
+    end
+
+    query
+    |> Repo.all()
   end
 
   def new_plug() do
@@ -47,11 +64,11 @@ defmodule PlugsApp.PackerAbPricings do
   @doc """
   Create or update a specifc plug. Called by the create update modal.
   """
-  def create_or_update_plug(%PackerAbPricing{} = plug, attrs \\ %{}) do
+  def create_or_update_plug(%PackerAbPricing{} = plug, attrs \\ %{}, add_more \\ false) do
     plug
     |> PackerAbPricing.changeset(attrs)
     |> Repo.insert_or_update()
-    |> notify_subscribers([:packer_ab_pricing, :created_or_updated])
+    |> notify_subscribers([:packer_ab_pricing, (if add_more, do: :created_or_updated_add_more, else: :created_or_updated)])
   end
 
   @doc """
@@ -71,4 +88,5 @@ defmodule PlugsApp.PackerAbPricings do
 
     {:ok, result}
   end
+  def notify_subscribers({:error, reason}, _event), do: {:error, reason}
 end

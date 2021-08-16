@@ -29,13 +29,11 @@ defmodule ComponentApplications.InternalApplications do
   """
   def list_internal_applications() do
     [
-      %{name: "Accounts",         pages: Accounts.Pages.list_pages()},
-      %{name: "Applications",     pages: ComponentApplications.Pages.list_pages()},
-      %{name: "Cattle Purchase",  pages: CattlePurchase.Pages.list_pages()},
-      %{name: "Customer Access",  pages: CustomerAccess.Pages.list_pages()},
-      %{name: "Borrowing Base",   pages: BorrowingBase.Pages.list_pages()},
-      %{name: "CIH Report Plugs", pages: CihReportPlugs.Pages.list_pages()},
-      %{name: "OCB Report Plugs", pages: OcbReportPlugs.Pages.list_pages()},
+      %{name: "Accounts", pages: Accounts.Pages.list_pages()},
+      %{name: "Borrowing Base", pages: BorrowingBase.Pages.list_pages()},
+      %{name: "Applications", pages: ComponentApplications.Pages.list_pages()},
+      %{name: "Tentative Shipments", pages: TentativeShip.Pages.list_pages()},
+      %{name: "Customer Access", pages: CustomerAccess.Pages.list_pages()},
       %{name: "Plugs",            pages: PlugsApp.Pages.list_pages()},
       %{name: "Reimbursement",    pages: Reimbursement.Pages.list_pages()}
     ]

@@ -13,6 +13,8 @@ defmodule PlugsApp.ProfitCenterKeyCompany do
 
   schema "turnkey_profit_center_key_companies" do
     field :company, :string
+
+    timestamps()
   end
 
   def changeset(plug, attrs \\ %{}) do
@@ -20,5 +22,7 @@ defmodule PlugsApp.ProfitCenterKeyCompany do
     |> cast(attrs, [
           :company,
         ])
+    |> validate_required(:company)
+    |> unique_constraint([:company], name: :tk_company_unique_key)
   end
 end

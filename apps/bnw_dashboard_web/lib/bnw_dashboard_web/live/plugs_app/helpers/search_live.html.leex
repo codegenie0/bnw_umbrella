@@ -1,0 +1,50 @@
+<div>
+  <% columns = convert_args(@args) %>
+  <% type    = get_selected_type(@args, @selected) %>
+  <%= f = form_for :search, "#", [phx_change: :search, phx_submit: :search] %>
+    <div class="uk-inline">
+      <%= select f,
+          :search_col,
+          columns,
+          selected: @selected,
+          class: "uk-select" %>
+    </div>
+    <div class="uk-inline">
+      <%= case type do %>
+        <% :check_box -> %>
+          <% val = if @search == 1, do: "true", else: "false" %>
+          <%= checkbox f,
+             :search,
+              value: val,
+              placeholder: "Search",
+             class: "uk-checkbox" %>
+        <% :date -> %>
+          <%= date_input f,
+             :search,
+              value: @search,
+              placeholder: "Search",
+             class: "uk-input" %>
+        <% :drop_down -> %>
+          <%= select f,
+              :search,
+              drop_down_fields(@args, @selected),
+              value: @search,
+              placeholder: "Search",
+              class: "uk-select" %>
+          <% :number -> %>
+          <%= number_input f,
+              :search,
+              class: "uk-input",
+              value: @search,
+              placeholder: "Search",
+              step: get_step(@args, @selected) %>
+        <% _ -> %>
+          <%= text_input f,
+              :search,
+              class: "uk-input",
+              value: @search,
+              placeholder: "Search" %>
+      <% end %>
+    </div>
+  </form>
+</div>

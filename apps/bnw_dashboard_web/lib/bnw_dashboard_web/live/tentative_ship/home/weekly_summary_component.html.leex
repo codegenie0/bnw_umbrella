@@ -1,0 +1,116 @@
+<div>
+  <div class="uk-flex">
+    <select class="uk-select uk-width-1-5 uk-form-small uk-margin-left">
+      <option>05-30-2021</option>
+      <option>06-06-2021</option>
+      <option>06-13-2021</option>
+      <option>06-20-2021</option>
+      <option>06-27-2021</option>
+      <option>07-04-2021</option>
+    </select>
+    <h4 class="uk-margin-remove uk-padding uk-padding-remove-vertical"> Total Head Shipped: 4242</h4>
+  </div>
+  <div class="uk-overflow-auto uk-height-large uk-margin">
+    <table class="uk-table uk-table-middle uk-table-small uk-table-divider uk-table-hover uk-table-striped">
+      <thead>
+        <tr>
+          <th class="uk-background-secondary uk-text-center"></th>
+          <th class="uk-background-secondary uk-text-center">Lot Number</th>
+          <th class="uk-background-secondary uk-text-center">Pen Number</th>
+          <th class="uk-background-secondary uk-text-center">Customer</th>
+          <th class="uk-background-secondary uk-text-center">Head In</th>
+          <th class="uk-background-secondary uk-text-center">Curr Head</th>
+          <th class="uk-background-secondary uk-text-center">In Weight</th>
+          <th class="uk-background-secondary uk-text-center">Out Weight</th>
+          <th class="uk-background-secondary uk-text-center">Graded Prev</th>
+          <th class="uk-background-secondary uk-text-center uk-text-nowrap">% Pr & Ch</th>
+          <th class="uk-background-secondary uk-text-center uk-text-nowrap">% 4 & 5</th>
+          <th class="uk-background-secondary uk-text-center">Yield</th>
+          <th class="uk-background-secondary uk-text-center">Hvy %</th>
+          <th class="uk-background-secondary uk-text-center">Hd Shipped</th>
+          <th class="uk-background-secondary uk-text-center">DOF</th>
+          <th class="uk-background-secondary uk-text-center">Head Left</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for x <- 1..5 do %>
+          <tr>
+            <td>
+              <a href="" uk-icon="minus" phx-hook="uk_toggle" class="uk-preserve-width lot_<%= x %>" uk-toggle="target: .lot_<%= x %>; animation: uk-animation-slide-top" hidden></a>
+              <a href="" uk-icon="plus" phx-hook="uk_toggle" class="uk-preserve-width lot_<%= x %>" uk-toggle="target: .lot_<%= x %>; animation: uk-animation-slide-bottom"></a>
+            </td>
+            <td><%= x %></td>
+            <td>93,74,R01</td>
+            <td>Nw-Zuprevo</td>
+            <td>279</td>
+            <td>147</td>
+            <td>647</td>
+            <td>1358</td>
+            <td>110</td>
+            <td>0.0</td>
+            <td>0.0</td>
+            <td>56.46</td>
+            <td>0.0</td>
+            <td>142</td>
+            <td>210</td>
+            <td>5</td>
+          </tr>
+          <tr class="lot_<%= x %>" hidden>
+            <td></td>
+            <td><%= x %></td>
+            <td>93</td>
+            <td>Nw-Zuprevo</td>
+            <td>93</td>
+            <td>49</td>
+            <td>647</td>
+            <td>1358</td>
+            <td>36</td>
+            <td>0.0</td>
+            <td>0.0</td>
+            <td>56.46</td>
+            <td>0.0</td>
+            <td>47</td>
+            <td>210</td>
+            <td>1</td>
+          </tr>
+          <tr class="lot_<%= x %>" hidden>
+            <td></td>
+            <td><%= x %></td>
+            <td>74</td>
+            <td>Nw-Zuprevo</td>
+            <td>93</td>
+            <td>49</td>
+            <td>647</td>
+            <td>1358</td>
+            <td>36</td>
+            <td>0.0</td>
+            <td>0.0</td>
+            <td>56.46</td>
+            <td>0.0</td>
+            <td>47</td>
+            <td>210</td>
+            <td>1</td>
+          </tr>
+          <tr class="lot_<%= x %>" hidden>
+            <td></td>
+            <td><%= x %></td>
+            <td>R01</td>
+            <td>Nw-Zuprevo</td>
+            <td>93</td>
+            <td>49</td>
+            <td>647</td>
+            <td>1358</td>
+            <td>36</td>
+            <td>0.0</td>
+            <td>0.0</td>
+            <td>56.46</td>
+            <td>0.0</td>
+            <td>47</td>
+            <td>210</td>
+            <td>1</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

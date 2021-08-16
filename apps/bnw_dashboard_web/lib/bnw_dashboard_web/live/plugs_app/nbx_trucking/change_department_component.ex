@@ -7,18 +7,26 @@ defmodule BnwDashboardWeb.PlugsApp.NbxTrucking.ChangeDepartmentComponent do
     {:ok, socket}
   end
 
-  def handle_event("save", %{"nbx_trucking_department" => plug}, socket) do
-    %{changeset: changeset} = socket.assigns
+  def handle_event("new", %{"new" => plug}, socket) do
+    changeset = NbxTruckingDepartments.new_plug()
+    |> NbxTruckingDepartments.change_plug()
     changeset = NbxTruckingDepartments.validate(changeset.data, plug)
     if changeset.valid? do
       case NbxTruckingDepartments.create_or_update_plug(changeset.data, plug) do
         {:ok, _plug} ->
-          {:noreply, socket}
-        {:error, %Ecto.Changeset{} = changest} ->
-          {:noreply, assign(socket, changeset: changest)}
+          changeset = NbxTruckingDepartments.new_plug()
+          {:noreply, assign(socket, changeset: changeset)}
+        {:error, %Ecto.Changeset{} = changeset} ->
+          {:noreply, assign(socket, changeset: changeset)}
       end
     else
       {:noreply, assign(socket, changeset: changeset)}
     end
+  end
+
+  def handle_event("delete", %{"id" => id}, socket) do
+    NbxTruckingDepartments.get_plug_struct(id)
+    |> NbxTruckingDepartments.delete_plug()
+    {:noreply, socket}
   end
 end

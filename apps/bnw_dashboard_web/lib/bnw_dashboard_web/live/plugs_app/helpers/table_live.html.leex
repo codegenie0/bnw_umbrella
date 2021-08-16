@@ -1,0 +1,104 @@
+<div>
+  <table class="uk-table
+                uk-table-striped
+                uk-table-hover">
+    <thead>
+      <%= if !is_nil(@header) do %>
+        <tr>
+          <%= for head <- @header do %>
+            <th class="uk-background-muted uk-text-center" colspan="<%= head.span %>"><%= head.name %></th>
+          <% end %>
+        </tr>
+      <% end %>
+      <tr>
+        <%= for item <- @args do %>
+          <%= if item.type == :filler do %>
+            <th class="uk-background-muted uk-table-shrink"></th>
+          <% else %>
+            <th class="uk-background-muted uk-text-center"><%= item.display_name %></th>
+          <% end %>
+        <% end %>
+        <%= if @is_edit do %>
+          <%= if !Map.has_key?(assigns, :can_delete)
+              || Map.has_key?(assigns, :can_delete) && @can_delete do %>
+            <th class="uk-background-muted uk-text-center"></th>
+          <% end %>
+          <th class="uk-background-muted uk-text-center"></th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for plug <- @plugs do %>
+        <tr>
+          <%= for item <- @args do %>
+            <%= cond do %>
+              <% item.type == :filler -> %>
+                <td class="uk-background-muted uk-table-shrink"></td>
+
+              <% item.type == :date || item.type == :date_ro -> %>
+                <% date = Map.get(plug.data, item.name, DateTime.utc_now()) %>
+                <%= if is_nil(date) do %>
+                  <td class="uk-text-center"></td>
+                <% else %>
+                  <td class="uk-text-center"><%= date.month %>/<%= date.day %>/<%= date.year %></td>
+                <% end %>
+
+              <% item.type == :check_box -> %>
+                <td class="uk-text-center">
+                  <% val = Map.get(plug.data, item.name, false) %>
+                  <%= if val do %>
+                    <span phx-hook="uk_icon"
+                          uk-icon="check"
+                          style="color: green;">
+                    </span>
+                  <% else %>
+                    <span phx-hook="uk_icon"
+                          uk-icon="ban"
+                          style="color: red;">
+                  <% end %>
+                </td>
+
+              <% true -> %>
+                <% special = Map.get(item, :special, nil) %>
+                <%= cond do %>
+                  <% !is_nil(special) && special == :currency -> %>
+                    <% precision = Map.get(item, :precision, 2) %>
+                    <td class="uk-text-center"><%= Number.Currency.number_to_currency(Map.get(plug.data, item.name, ""), precision: precision) %></td>
+                  <% !is_nil(special) && special == :percent -> %>
+                    <% precision = Map.get(item, :precision, 2) %>
+                    <td class="uk-text-center"><%= Number.Percentage.number_to_percentage(Map.get(plug.data, item.name, ""), precision: precision) %></td>
+                  <% !is_nil(special) && special == :int -> %>
+                    <td class="uk-text-center"><%= Number.Delimit.number_to_delimited(Map.get(plug.data, item.name, ""), precision: 0) %></td>
+                  <% item.type == :number || special == :number -> %>
+                    <% precision = Map.get(item, :precision, 2) %>
+                    <td class="uk-text-center"><%= Number.Delimit.number_to_delimited(Map.get(plug.data, item.name, ""), precision: precision) %></td>
+                  <% true -> %>
+                    <td class="uk-text-center"><%= Map.get(plug.data, item.name, "") %></td>
+                <% end %>
+            <% end %>
+          <% end %>
+          <%= if @is_edit do %>
+            <%= if !Map.has_key?(assigns, :can_delete)
+                || Map.has_key?(assigns, :can_delete) && @can_delete do %>
+              <td class="uk-text-center">
+                <%= link "", to: "#", class: " uk-padding-remove-vertical uk-preserve-width",
+                    uk_icon: "trash",
+                    phx_hook: "uk_icon",
+                    phx_click: "delete",
+                    phx_value_id: plug.data.id,
+                    data: [confirm: "Are you sure?"]  %>
+              </td>
+            <% end %>
+            <td class="uk-text-center">
+              <%= link "", to: "#", class: "uk-padding-remove-vertical uk-preserve-width",
+                  uk_icon: "pencil",
+                  phx_hook: "uk_icon",
+                  phx_click: "edit",
+                  phx_value_id: plug.data.id %>
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -8,7 +8,7 @@ import Config
 config :cattle_purchase, CattlePurchase.Repo,
   username: "root",
   password: "sxkjad94",
-  database: "bnw_dashboard_cattle_purchase_test",
+  database: "cattle_purchase_test#{System.get_env("MIX_TEST_PARTITION")}",
   hostname: "bnw-dashboard-db",
   pool: Ecto.Adapters.SQL.Sandbox
 
@@ -20,7 +20,7 @@ config :cattle_purchase, CattlePurchase.Repo,
 config :plugs_app, PlugsApp.Repo,
   username: "root",
   password: "sxkjad94",
-  database: "bnw_dashboard_plugs_app_test",
+  database: "plugs_app_test#{System.get_env("MIX_TEST_PARTITION")}",
   hostname: "bnw-dashboard-db",
   pool: Ecto.Adapters.SQL.Sandbox
 
@@ -32,7 +32,7 @@ config :plugs_app, PlugsApp.Repo,
 config :reimbursement, Reimbursement.Repo,
   username: "root",
   password: "sxkjad94",
-  database: "bnw_dashboard_reimbursement_test",
+  database: "reimbursement_test#{System.get_env("MIX_TEST_PARTITION")}",
   hostname: "bnw-dashboard-db",
   pool: Ecto.Adapters.SQL.Sandbox
 
@@ -41,46 +41,18 @@ config :reimbursement, Reimbursement.Repo,
 # The MIX_TEST_PARTITION environment variable can be used
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
-config :cih_reports, CihReports.Repo,
-  username: "root",
-  password: "sxkjad94",
-  database: "bnw_dashboard_cih_report_plugs_test",
-  hostname: "bnw-dashboard-db",
-  pool: Ecto.Adapters.SQL.Sandbox
 
-# Configure your database
-#
-# The MIX_TEST_PARTITION environment variable can be used
-# to provide built-in test partitioning in CI environment.
-# Run `mix help test` for more information.
-config :ocb_report_plugs, OcbReportPlugs.Repo,
-  username: "root",
-  password: "sxkjad94",
-  database: "bnw_dashboard_ocb_report_plugs_test",
-  hostname: "bnw-dashboard-db",
-  pool: Ecto.Adapters.SQL.Sandbox
-
-# Configure your database
-#
-# The MIX_TEST_PARTITION environment variable can be used
-# to provide built-in test partitioning in CI environment.
-# Run `mix help test` for more information.
 config :customer_access, CustomerAccess.Repo,
   username: "root",
   password: "sxkjad94",
-  database: "bnw_dashboard_customer_access_test",
+  database: "customer_access_test#{System.get_env("MIX_TEST_PARTITION")}",
   hostname: "bnw-dashboard-db",
   pool: Ecto.Adapters.SQL.Sandbox
 
-# Configure your database
-#
-# The MIX_TEST_PARTITION environment variable can be used
-# to provide built-in test partitioning in CI environment.
-# Run `mix help test` for more information.
 config :borrowing_base, BorrowingBase.Repo,
   username: "root",
   password: "sxkjad94",
-  database: "bnw_dashboard_borrowing_base_test",
+  database: "borrowing_base_test#{System.get_env("MIX_TEST_PARTITION")}",
   hostname: "bnw-dashboard-db",
   pool: Ecto.Adapters.SQL.Sandbox
 
@@ -88,54 +60,55 @@ config :borrowing_base, BorrowingBase.Repo.Turnkey,
   username: System.get_env("AWS_DATABASES_USERNAME"),
   password: System.get_env("AWS_DATABASES_PASSWORD"),
   database: "turnkey",
-  hostname: "System.get_env("AWS_DATABASES_URL")",
+  hostname: System.get_env("AWS_DATABASES_URL"),
   pool: Ecto.Adapters.SQL.Sandbox
 
-# Configure your database
-#
-# The MIX_TEST_PARTITION environment variable can be used
-# to provide built-in test partitioning in CI environment.
-# Run `mix help test` for more information.
 config :tentative_ship, TentativeShip.Repo,
   username: "root",
   password: "sxkjad94",
-  database: "bnw_dashboard_tentative_ship_test",
+  database: "tentative_ship_test#{System.get_env("MIX_TEST_PARTITION")}",
   hostname: "bnw-dashboard-db",
   pool: Ecto.Adapters.SQL.Sandbox
 
-# Configure your database
-#
-# The MIX_TEST_PARTITION environment variable can be used
-# to provide built-in test partitioning in CI environment.
-# Run `mix help test` for more information.
+config :tentative_ship, TentativeShip.Repo.Turnkey,
+  username: System.get_env("AWS_DATABASES_USERNAME"),
+  password: System.get_env("AWS_DATABASES_PASSWORD"),
+  database: "turnkey",
+  hostname: System.get_env("AWS_DATABASES_URL"),
+  pool: Ecto.Adapters.SQL.Sandbox
+
+config :tentative_ship, TentativeShip.Repo.CattlePurchase,
+  username: System.get_env("AWS_DATABASES_USERNAME"),
+  password: System.get_env("AWS_DATABASES_PASSWORD"),
+  database: "cattle_purchase",
+  hostname: System.get_env("AWS_DATABASES_URL"),
+  pool: Ecto.Adapters.SQL.Sandbox
+
+config :tentative_ship, TentativeShip.Repo.Microbeef,
+  username: System.get_env("AWS_DATABASES_USERNAME"),
+  password: System.get_env("AWS_DATABASES_PASSWORD"),
+  database: "microbeef_data",
+  hostname: System.get_env("AWS_DATABASES_URL"),
+  pool: Ecto.Adapters.SQL.Sandbox
+
 config :accounts, Accounts.Repo,
   username: "root",
   password: "sxkjad94",
-  database: "bnw_dashboard_accounts_test",
+  database: "bnw_dashboard_accounts_test#{System.get_env("MIX_TEST_PARTITION")}",
   hostname: "bnw-dashboard-db",
   pool: Ecto.Adapters.SQL.Sandbox
 
-# Configure your database
-#
-# The MIX_TEST_PARTITION environment variable can be used
-# to provide built-in test partitioning in CI environment.
-# Run `mix help test` for more information.
 config :component_applications, ComponentApplications.Repo,
   username: "root",
   password: "sxkjad94",
-  database: "bnw_dashboard_component_applications_test",
+  database: "bnw_dashboard_component_applications_test#{System.get_env("MIX_TEST_PARTITION")}",
   hostname: "bnw-dashboard-db",
   pool: Ecto.Adapters.SQL.Sandbox
 
-# Configure your database
-#
-# The MIX_TEST_PARTITION environment variable can be used
-# to provide built-in test partitioning in CI environment.
-# Run `mix help test` for more information.
 config :bnw_dashboard, BnwDashboard.Repo,
   username: "root",
   password: "sxkjad94",
-  database: "bnw_dashboard_test",
+  database: "bnw_dashboard_test#{System.get_env("MIX_TEST_PARTITION")}",
   hostname: "bnw-dashboard-db",
   pool: Ecto.Adapters.SQL.Sandbox
 
@@ -147,3 +120,13 @@ config :bnw_dashboard_web, BnwDashboardWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+config :accounts, env: :test
+config :bnw_dashboard, env: :test
+config :bnw_dashboard_web, env: :test
+config :borrowing_base, env: :test
+config :component_applications, env: :test
+config :customer_access, env: :test
+config :tentative_ship, env: :test
+config :ocb_report_plugs, env: :test
+config :cih_report_plugs, env: :test

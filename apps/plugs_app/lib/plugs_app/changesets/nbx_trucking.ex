@@ -17,6 +17,8 @@ defmodule PlugsApp.NbxTrucking do
     field :dept,       :integer
     field :miles,      :integer
     field :tons,       :integer
+
+    timestamps()
   end
 
   def changeset(plug, attrs \\ %{}) do
@@ -28,5 +30,7 @@ defmodule PlugsApp.NbxTrucking do
           :miles,
           :tons,
         ])
+    |> validate_required(:dept)
+    |> unique_constraint([:start_date, :truck, :dept], name: :nbx_trucking_unique_constraint)
   end
 end

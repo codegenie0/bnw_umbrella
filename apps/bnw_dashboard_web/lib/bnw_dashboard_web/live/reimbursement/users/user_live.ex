@@ -22,20 +22,13 @@ defmodule BnwDashboardWeb.Reimbursement.Users.UserLive do
       |> Enum.map(&([key: &1.name, value: &1.id]))
 
     reviewers = cond do
-      is_nil(my_reviewer) ->
+      my_reviewer.id == -1 ->
         [[key: "None", value: -1]] ++ reviewers
       true ->
         reviewers
     end
 
-    my_reviewer_index = cond do
-      !is_nil(my_reviewer) ->
-        my_reviewer.id
-      true ->
-        -1
-    end
-
-    assign(socket, my_reviewer: my_reviewer_index, reviewers: reviewers)
+    assign(socket, my_reviewer: my_reviewer.id, reviewers: reviewers)
   end
 
   defp check_role(socket, user) do

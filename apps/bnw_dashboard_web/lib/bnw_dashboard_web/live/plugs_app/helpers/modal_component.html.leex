@@ -1,0 +1,131 @@
+<%= f = form_for @changeset, "#",
+    [phx_submit: :save,
+    phx_change: :validate,
+    class: "uk-form-stacked"] %>
+  <div style="display: block;" class="uk-modal uk-open">
+    <div class="uk-modal-dialog uk-overflow-auto" phx-hook="close_modal">
+      <button class="uk-modal-close-default"
+              type="button"
+              phx-click="cancel"
+              uk-close phx-hook="uk_close">
+      </button>
+      <div class="uk-modal-header">
+        <h2 class="uk-modal-title"><%= @modal_title %></h2>
+      </div>
+
+      <div class="uk-modal-body
+                  uk-background-muted
+                  uk-overflow-auto
+                  uk-height-max-large">
+        <% tab_index = 1 %>
+        <%= for item <- @args do %>
+          <%= if item.type != :filler and item.type != :disp_only do %>
+            <div class="uk-margin-small">
+              <%= label f, item.name, class: "uk-form-label" do %>
+                <%= item.display_name %>
+                <%= error_tag f, item.name %>
+              <% end %>
+              <div class="uk-form-controls">
+                <%= case item.type do %>
+                  <% :check_box -> %>
+                    <!-- check box -->
+                    <%= checkbox f,
+                        item.name,
+                        class: "uk-checkbox",
+                        tabindex: tab_index %>
+
+                  <% :date -> %>
+                    <!-- date -->
+                    <%= date_input f,
+                        item.name,
+                        class: "uk-input",
+                        placeholder: item.display_name,
+                        tabindex: tab_index %>
+
+                  <% :drop_down -> %>
+                    <!-- drop down -->
+                    <%= select f,
+                        item.name,
+                        item.list,
+                        selected: item.selected,
+                        class: "uk-select",
+                        tabindex: tab_index %>
+
+                  <% :number -> %>
+                    <!-- number -->
+                    <%= number_input f,
+                        item.name,
+                        class: "uk-input",
+                        placeholder: item.display_name,
+                        step: item.step,
+                        tabindex: tab_index %>
+
+                  <% :read_only -> %>
+                    <!-- read only -->
+                    <label class="uk-input">
+                      <%= cond do
+                        Map.has_key?(@changeset.changes, item.name) -> Map.get(@changeset.changes, item.name)
+                        Map.has_key?(@changeset.data, item.name) -> Map.get(@changeset.data, item.name)
+                        true -> ""
+                      end %>
+                    </label>
+
+                  <% :date_ro -> %>
+                    <!-- read only date -->
+                    <label class="uk-input">
+                      <%= cond do
+                        Map.has_key?(@changeset.changes, item.name) -> Map.get(@changeset.changes, item.name)
+                        Map.has_key?(@changeset.data, item.name) -> Map.get(@changeset.data, item.name)
+                        true -> DateTime.utc_now()
+                      end %>
+                    </label>
+
+                  <% :notes -> %>
+                    <%= textarea f,
+                        item.name,
+                        class: "uk-input",
+                        style: "height: 100px;",
+                        rows: 10,
+                        placeholder: item.display_name,
+                        tabindex: tab_index %>
+
+                  <% _ -> %>
+                    <!-- text -->
+                    <%= text_input f,
+                        item.name,
+                        class: "uk-input",
+                        placeholder: item.display_name,
+                        tabindex: tab_index %>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+      <div class="uk-modal-footer uk-text-right">
+        <%= if !@changeset.data.id do %>
+          <button class="uk-button uk-button-default"
+                  type="button"
+                  tabindex="<%= tab_index = tab_index + 3 %>"
+                  phx-click="cancel">Cancel</button>
+          <%= submit "Save", [phx_disable_with: "Saving...",
+                              phx_click: "add_more",
+                              tabindex: tab_index = tab_index - 2,
+                              class: "uk-button uk-button-primary"] %>
+          <%= submit "Save and Quit", [phx_disable_with: "Saving...",
+                              phx_click: "done",
+                              tabindex: tab_index + 1,
+                              class: "uk-button uk-button-primary"] %>
+        <% else %>
+          <button class="uk-button uk-button-default"
+                  type="button"
+                  tabindex="<%= tab_index = tab_index + 2 %>"
+                  phx-click="cancel">Cancel</button>
+          <%= submit "Save", [phx_disable_with: "Saving...",
+                              phx_click: "done",
+                              tabindex: tab_index - 1,
+                              class: "uk-button uk-button-primary"] %>
+        <% end %>
+      </div>
+    </div>
+  </div>

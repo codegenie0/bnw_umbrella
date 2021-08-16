@@ -61,9 +61,6 @@ defmodule BnwDashboardWeb.Reimbursement.Update.UpdateLive do
         [key: "Dec", value: "12"],
       ]
 
-    IO.puts "{{{{{{{{{{{{{{{{{ months }}}}}}}}}}}}}}}}}"
-    IO.inspect available_months
-    IO.puts "{{{{{{{{{{{{{{{{{ months }}}}}}}}}}}}}}}}}"
     assign(socket, available_months: available_months)
   end
 
