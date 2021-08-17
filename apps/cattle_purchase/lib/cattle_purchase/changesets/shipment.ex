@@ -6,7 +6,8 @@ defmodule CattlePurchase.Shipment do
     Sex,
     DestinationGroup,
     Purchase,
-    CattleReceiving
+    CattleReceiving,
+    Repo
   }
 
   prefix = "bnw_dashboard_cattle_purchase"
@@ -43,16 +44,43 @@ defmodule CattlePurchase.Shipment do
   @allowed @required ++ @optional
 
   def changeset(%__MODULE__{} = model, attrs \\ %{}) do
-    model
-    |> cast(attrs, @allowed)
-    |> validate_required(@required)
-    |> foreign_key_constraint(:sex_id)
-    |> foreign_key_constraint(:destination_group_id)
-    |> foreign_key_constraint(:purchase_id)
+    if model.id == nil do
+      model
+      |> cast(attrs, @allowed)
+      |> validate_required(@required)
+      |> foreign_key_constraint(:sex_id)
+      |> foreign_key_constraint(:destination_group_id)
+      |> foreign_key_constraint(:purchase_id)
+      |> validate_head_count(attrs["head_count"], attrs["purchase_id"])
+    else
+      model
+      |> cast(attrs, @allowed)
+      |> validate_required(@required)
+      |> foreign_key_constraint(:sex_id)
+      |> foreign_key_constraint(:destination_group_id)
+      |> foreign_key_constraint(:purchase_id)
+    end
   end
 
   def new_changeset(%__MODULE__{} = model, attrs \\ %{}) do
     model
     |> cast(attrs, @allowed)
+  end
+
+  def validate_head_count(cs, head_count, purchase_id) do
+    head_count_empty = String.trim(head_count) == ""
+    purchase_id_empty = String.trim(purchase_id) == ""
+
+    if !head_count_empty && !purchase_id_empty do
+      purchase = Repo.get(Purchase, purchase_id |> String.to_integer())
+
+      if head_count |> String.to_integer() > purchase.head_count do
+        add_error(cs, :head_count, "Must be less or equal to the head_count of purchases")
+      else
+        cs
+      end
+    else
+      cs
+    end
   end
 end
