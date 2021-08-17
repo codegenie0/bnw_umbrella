@@ -266,6 +266,18 @@ defmodule CattlePurchase.Purchases do
     |> Decimal.to_integer()
   end
 
+  def get_purchases_data_total_pages(per_page \\ 10, search \\ "") do
+    purchase_count =
+      Purchase
+      |> Repo.all()
+      |> Enum.count()
+
+    (purchase_count / per_page)
+    |> Decimal.from_float()
+    |> Decimal.round(0, :up)
+    |> Decimal.to_integer()
+  end
+
   def notify_subscribers({:ok, result}, event) do
     Phoenix.PubSub.broadcast(CattlePurchase.PubSub, @topic, {event, result})
     Phoenix.PubSub.broadcast(CattlePurchase.PubSub, "#{@topic}:#{result.id}", {event, result})
