@@ -46,7 +46,10 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
     ]
 
     {id, ""} = Integer.parse(params["id"])
-    purchase = Repo.get(Purchase, id) |> Repo.preload([:sex, :purchase_buyer, :destination_group])
+
+    purchase =
+      Repo.get(Purchase, id)
+      |> Repo.preload([:sex, :purchase_buyer, :destination_group, :shipments])
 
     socket =
       assign_defaults(session, socket)
@@ -55,6 +58,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
         app: "Cattle Purchase",
         purchase: purchase,
         shipments: Shipments.get_shipments(id),
+        max_head_count: purchase.head_count,
         shipment_form_data: %{
           "destination_group_id" => "",
           "estimated_ship_date" => "",

@@ -49,12 +49,26 @@ defmodule CattlePurchase.Shipments do
     |> notify_subscribers([:shipments, :created_or_updated])
   end
 
+  def create_multiple_shipments(cs_list) do
+    Repo.transaction(fn ->
+      Enum.each(cs_list, &Repo.insert!(&1, []))
+    end)
+    |> notify_subscribers([:shipments, :created_or_updated])
+  end
+
   @doc """
   Delete a shipment
   """
   def delete_shipment(%Shipment{} = shipment) do
     Repo.delete(shipment)
     |> notify_subscribers([:shipments, :deleted])
+  end
+
+  def notify_subscribers({:ok, :ok}, event) do
+    Phoenix.PubSub.broadcast(CattlePurchase.PubSub, @topic, {event, %{ok: :ok}})
+    Phoenix.PubSub.broadcast(CattlePurchase.PubSub, "#{@topic}:#{1}", {event, %{ok: :ok}})
+
+    {:ok, :ok}
   end
 
   def notify_subscribers({:ok, result}, event) do

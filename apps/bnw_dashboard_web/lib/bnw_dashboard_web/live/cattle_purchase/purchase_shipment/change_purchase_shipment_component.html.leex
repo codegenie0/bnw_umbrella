@@ -33,7 +33,7 @@
             <%= error_tag f, :head_count %>
           <% end %>
           <div class="uk-form-controls">
-            <%= number_input f, :head_count, class: "uk-input", placeholder: "Head Count" %>
+            <%= number_input f, :head_count, max: @max_head_count, class: "uk-input", placeholder: "Head Count" %>
           </div>
         </div>
         <div class="uk-margin-small">
