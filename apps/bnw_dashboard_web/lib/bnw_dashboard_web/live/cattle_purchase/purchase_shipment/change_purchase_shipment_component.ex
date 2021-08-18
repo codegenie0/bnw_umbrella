@@ -68,16 +68,20 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
     else
       changeset = List.last(changesets)
 
-      changeset =
-        if shipment["head_count"] != "" do
-          if purchase.head_count != shipment["head_count"] |> String.to_integer() do
-            add_error(changeset, :head_count, "Must be equal to the head_count of purchases")
+      changeset_insert =
+        if changeset.data.id == nil && already_have_shipments?(shipment["purchase_id"]) == false do
+          if shipment["head_count"] != "" do
+            if purchase.head_count != shipment["head_count"] |> String.to_integer() do
+              add_error(changeset, :head_count, "Must be equal to the head_count of purchases")
+            else
+              changeset
+            end
           else
-            changeset
+            add_error(changeset, :head_count, "head count is blank")
           end
-        else
-          add_error(changeset, :head_count, "head count is blank")
         end
+
+      changeset = if is_nil(changeset_insert), do: changeset, else: changeset_insert
 
       if !changeset.valid? do
         {:noreply, assign(socket, changesets: [changeset])}
@@ -216,5 +220,10 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
     else
       %{id: data, name: ""}
     end
+  end
+
+  def already_have_shipments?(purchase_id) do
+    purchase_shipments = Repo.get(Purchase, purchase_id) |> Repo.preload(:shipments)
+    if purchase_shipments.shipments == [], do: false, else: true
   end
 end

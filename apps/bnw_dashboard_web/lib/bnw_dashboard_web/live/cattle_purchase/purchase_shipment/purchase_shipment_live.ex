@@ -51,6 +51,18 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
       Repo.get(Purchase, id)
       |> Repo.preload([:sex, :purchase_buyer, :destination_group, :shipments])
 
+    max_head_count =
+      if purchase.shipments == [] do
+        purchase.head_count
+      else
+        shipments_head_count =
+          Enum.reduce(purchase.shipments, 0, fn shipment, acc ->
+            acc + shipment.head_count
+          end)
+
+        purchase.head_count - shipments_head_count
+      end
+
     socket =
       assign_defaults(session, socket)
       |> assign(
@@ -58,7 +70,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
         app: "Cattle Purchase",
         purchase: purchase,
         shipments: Shipments.get_shipments(id),
-        max_head_count: purchase.head_count,
+        max_head_count: max_head_count,
         shipment_form_data: %{
           "destination_group_id" => "",
           "estimated_ship_date" => "",
@@ -102,7 +114,25 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
   end
 
   @impl true
-  def handle_event("new", _, socket) do
+  def handle_event("new", params, socket) do
+    %{"id" => purchase_id} = params
+
+    purchase =
+      Repo.get(Purchase, purchase_id |> String.to_integer())
+      |> Repo.preload([:shipments])
+
+    max_head_count =
+      if purchase.shipments == [] do
+        purchase.head_count
+      else
+        shipments_head_count =
+          Enum.reduce(purchase.shipments, 0, fn shipment, acc ->
+            acc + shipment.head_count
+          end)
+
+        purchase.head_count - shipments_head_count
+      end
+
     changeset = Shipments.new_shipment() |> Map.put(:action, :insert)
     changesets = socket.assigns.changesets
 
@@ -111,7 +141,8 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
         changesets: changesets ++ [changeset],
         modal: :change_purchase_shipment,
         destinations: Purchases.get_destination("") |> format_destination_group(),
-        sexes: Sexes.get_active_sexes()
+        sexes: Sexes.get_active_sexes(),
+        max_head_count: max_head_count
       )
 
     {:noreply, socket}
@@ -139,7 +170,8 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
         changesets: changesets,
         modal: :change_purchase_shipment,
         sexes: Enum.map(sexes, &%{id: &1.id, name: &1.name}),
-        destinations: destination_groups
+        destinations: destination_groups,
+        max_head_count: shipment.head_count
       )
 
     {:noreply, socket}
