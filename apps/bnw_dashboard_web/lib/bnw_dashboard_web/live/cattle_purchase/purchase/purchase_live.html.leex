@@ -70,6 +70,16 @@
   <table class="uk-table uk-table-striped uk-table-middle uk-table-hover">
     <thead>
       <tr>
+        <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default">
+        <%= link to: "#",
+            class: "uk-preserve-width uk-text-muted",
+            phx_click: "open_all_shipments" do %>
+            <div class="uk-flex uk-flex-inline">
+              <span class="uk-preserve-width" phx-hook="uk_icon" uk-icon="<%= if @all_open, do: "minus", else: "plus" %>"></span>
+              <div class="uk-margin-small-left">Detail</div>
+            </div>
+        <% end %>
+      </th>
         <%= for sort_column <- @sort_columns do %>
         <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default">
           <span phx-click="toggle-purchase-sort" phx-value-column="<%= sort_column.name %>" class="cursor-pointer"><%= sort_column.title %></span>
@@ -91,6 +101,14 @@
           <% else %>
           <tr>
           <% end %>
+          <td class="uk-text-center">
+            <%= link "", to: "#",
+                class: "uk-preserve-width",
+                phx_click: "open_shipments",
+                phx_value_id: purchase.id,
+                phx_hook: "uk_icon",
+                uk_icon: (if purchase.open_shipments, do: "minus", else: "plus") %>
+          </td>
             <td class="uk-text-nowrap"><%= "#{CattlePurchase.Purchases.parse_date(purchase.purchase_date)}" %></td>
             <td class="uk-text-nowrap"><%= purchase.seller %></td>
             <td class="uk-text-nowrap"><%= purchase.origin %></td>
@@ -137,6 +155,43 @@
               phx_value_id: purchase.id %>
             </td>
           </tr>
+          <%= if purchase.open_shipments do %>
+            <%= for shipment <- purchase.shipments do %>
+              <tr>
+                  <td class="uk-text-center"></td>
+                  <td class="uk-text-nowrap"><%= "#{CattlePurchase.Purchases.parse_date(purchase.purchase_date)}" %></td>
+                  <td class="uk-text-nowrap"><%= purchase.seller %></td>
+                  <td class="uk-text-nowrap"><%= purchase.origin %></td>
+                  <td class="uk-text-nowrap"><%= purchase.purchase_order %></td>
+                  <td class="uk-text-nowrap"><%= shipment.head_count %></td>
+                  <td class="uk-text-nowrap"><%= if purchase.sex do %>
+                    <%= purchase.sex.name %>
+                    <% end %>
+                  </td>
+                  <td class="uk-text-nowrap"></td>
+                  <td class="uk-text-nowrap"><%= purchase.weight %></td>
+                  <td class="uk-text-nowrap"><%= "$#{purchase.price}" %></td>
+                  <td class="uk-text-nowrap"><%= "$#{CattlePurchase.Purchases.price_and_delivery(purchase)}" %></td>
+                  <td class="uk-text-nowrap"><%= if purchase.price_delivered do %>
+                  <span class="uk-preserve-width check-color" uk-icon="icon: check; ratio: 2.5" phx-hook="uk_icon"></span>
+                  <% end %></td>
+                  <td class="uk-text-nowrap"><%= if purchase.purchase_buyer do %>
+                    <%= purchase.purchase_buyer.name %>
+                    <% end %>
+                  </td>
+                  <td class="uk-text-nowrap"><%= shipment.destination_group_name%></td>
+                  <td class="uk-text-nowrap"><%= "#{CattlePurchase.Purchases.parse_date(shipment.estimated_ship_date)}" %></td>
+                  <td class="uk-text-nowrap"><%= if shipment.firm do %>
+                    <span class="uk-preserve-width check-color" uk-icon="icon: check; ratio: 2.5" phx-hook="uk_icon"></span>
+                  <% end %></td>
+                  <td class="uk-text-nowrap"><%= "#{CattlePurchase.Purchases.parse_date(shipment.projected_out_date)}"%></td>
+                  <td class="uk-text-nowrap"><%= "$#{purchase.projected_break_even}"%></td>
+                  <td class="uk-text-nowrap"></td>
+                  <td class="uk-text-nowrap"></td>
+                  <td class="uk-text-nowrap" ></td>
+              </tr>
+            <% end %>
+          <% end %>
         <% end %>
       </tbody>
     </table>

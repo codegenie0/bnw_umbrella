@@ -252,7 +252,7 @@ defmodule CattlePurchase.Purchases do
     |> offset(^offset)
     |> limit(^per_page)
     |> Repo.all()
-    |> Repo.preload([:sex, :purchase_buyer, :destination_group])
+    |> Repo.preload([:sex, :purchase_buyer, :destination_group, :shipments])
   end
 
   def total_pages(per_page \\ 10) do
