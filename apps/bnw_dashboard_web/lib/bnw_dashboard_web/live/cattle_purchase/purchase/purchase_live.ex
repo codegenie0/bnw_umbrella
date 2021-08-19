@@ -501,6 +501,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       socket
       |> assign(:purchases, purchases)
       |> assign(:all_open, all_open)
+      |> assign(:update_action, "replace")
 
     {:noreply, socket}
   end
@@ -518,7 +519,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         end
       )
 
-    socket = assign(socket, :purchases, purchases)
+    socket = socket |> assign(:purchases, purchases) |> assign(:update_action, "replace")
     {:noreply, socket}
   end
 
@@ -601,23 +602,27 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       page: page,
       per_page: per_page,
       search: search,
-      update_action: update_action
+      update_action: update_action,
+      all_open: all_open
     } = socket.assigns
 
     new_purchases = Purchases.list_purchases_by_page(page, per_page)
 
     purchases =
       cond do
-        update_action == "append" ->
-          Map.get(socket.assigns, :purchases, []) ++ new_purchases
+        all_open && update_action == "append" ->
+          Map.get(socket.assigns, :purchases, []) ++
+            Enum.map(new_purchases, &Map.put(&1, :open_shipments, true))
 
-        # update_action == "append" ->
-        #   Map.get(socket.assigns, :purchases, []) ++
-        #     Enum.map(new_purchases, &Map.put(&1, :open, false))
+        all_open ->
+          Enum.map(new_purchases, &Map.put(&1, :open_shipments, true))
+
+        update_action == "append" ->
+          Map.get(socket.assigns, :purchases, []) ++
+            Enum.map(new_purchases, &Map.put(&1, :open_shipments, false))
 
         true ->
-          # Enum.map(new_purchases, &Map.put(&1, :open, false))
-          new_purchases
+          Enum.map(new_purchases, &Map.put(&1, :open_shipments, false))
       end
 
     assign(socket, :purchases, purchases)
