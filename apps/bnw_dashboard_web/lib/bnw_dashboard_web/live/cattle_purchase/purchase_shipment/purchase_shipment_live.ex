@@ -12,6 +12,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
 
   alias BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipmentComponent
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive
+  alias BnwDashboardWeb.CattlePurchase.CattleReceive.CattleReceiveLive
 
   defp authenticate(socket) do
     current_user = Map.get(socket.assigns, :current_user)

@@ -80,4 +80,75 @@ defmodule BnwDashboardWeb.CattlePurchase.CattleReceive.CattleReceiveLive do
   def handle_params(_, _, socket) do
     {:noreply, socket}
   end
+
+  @impl true
+  def handle_info({[:cattle_receivings, :deleted], _}, socket) do
+    socket = assign(socket, modal: nil, changeset: nil)
+
+    {:noreply,
+     assign(socket,
+       cattle_receives: CattleReceivings.get_cattle_receivings(socket.assigns.shipment.id)
+     )}
+  end
+
+  @impl true
+  def handle_info({[:cattle_receivings, :created_or_updated], _}, socket) do
+    socket = assign(socket, modal: nil, changeset: nil)
+
+    {:noreply,
+     assign(socket,
+       cattle_receives: CattleReceivings.get_cattle_receivings(socket.assigns.shipment.id)
+     )}
+  end
+
+  @impl true
+  def handle_event("new", _, socket) do
+    changeset = CattleReceivings.new_cattle_receiving()
+
+    socket =
+      assign(socket,
+        changeset: changeset,
+        modal: :change_cattle_receive,
+        sexes: Sexes.get_active_sexes()
+      )
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("edit", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+    cattle_receive = Enum.find(socket.assigns.cattle_receives, fn sh -> sh.id == id end)
+
+    changeset =
+      cattle_receive
+      |> CattleReceivings.change_cattle_receiving()
+
+    sexes = Sexes.get_active_sexes()
+
+    socket =
+      assign(socket,
+        changeset: changeset,
+        modal: :change_cattle_receive,
+        sexes: Enum.map(sexes, &%{id: &1.id, name: &1.name})
+      )
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("delete", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+
+    Enum.find(socket.assigns.cattle_receives, fn sh -> sh.id == id end)
+    |> CattleReceivings.delete_cattle_receiving()
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("cancel", _, socket) do
+    socket = assign(socket, modal: nil)
+    {:noreply, socket}
+  end
 end

@@ -20,6 +20,7 @@ defmodule CattlePurchase.CattleReceivings do
       where: s.shipment_id == ^shipment_id
     )
     |> Repo.all()
+    |> Repo.preload([:user, :sex])
   end
 
   @doc """
