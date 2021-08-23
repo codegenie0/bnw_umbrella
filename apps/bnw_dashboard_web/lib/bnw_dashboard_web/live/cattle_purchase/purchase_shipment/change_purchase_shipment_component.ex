@@ -106,6 +106,27 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
             "#{parent_destination.name}#{if name == "", do: "", else: " > #{name}"}"
           )
 
+        shipment_date_adjustment =
+          if changeset.data.id != nil && changeset.data.estimated_ship_date &&
+               shipment["estimated_ship_date"] !=
+                 changeset.data.estimated_ship_date |> Date.to_string() &&
+               changeset.data.projected_out_date &&
+               shipment["projected_out_date"] ==
+                 changeset.data.projected_out_date |> Date.to_string() do
+            days =
+              Date.diff(
+                shipment["estimated_ship_date"] |> Date.from_iso8601!(),
+                changeset.data.estimated_ship_date
+              )
+
+            Map.put(
+              shipment,
+              "projected_out_date",
+              Date.add(changeset.data.projected_out_date, days)
+            )
+          end
+
+        shipment = if shipment_date_adjustment, do: shipment_date_adjustment, else: shipment
         changeset = Shipments.validate(changeset.data, shipment)
 
         if changeset.valid? do

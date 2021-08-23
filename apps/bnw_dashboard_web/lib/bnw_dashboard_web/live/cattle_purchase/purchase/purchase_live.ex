@@ -91,6 +91,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         toggle_complete: toggle_complete,
         search_columns: search_columns,
         sort_columns: sort_columns,
+        all_open: false,
         purchase_search: %{
           column_name: "Select column for search",
           search_value: "",
@@ -99,8 +100,10 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         },
         modal: nil,
         page: 1,
-        per_page: 20,
-        total_pages: total_pages
+        per_page: 10,
+        total_pages: 1,
+        search: "",
+        update_action: "replace"
       )
 
     socket = fetch_purchase(socket)
@@ -117,7 +120,11 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
   defp fetch_purchase(socket) do
     %{page: page, per_page: per_page} = socket.assigns
-    purchases = Purchases.list_purchases_by_page(page, per_page)
+
+    purchases =
+      Purchases.list_purchases_by_page(page, per_page)
+      |> Enum.map(&Map.put(&1, :open_shipments, false))
+
     assign(socket, purchases: purchases)
   end
 
@@ -455,24 +462,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     end
   end
 
-  @impl true
-  def handle_event("load_more_purchases", _, socket) do
-    %{page: page, per_page: per_page, total_pages: total_pages} = socket.assigns
-
-    socket =
-      cond do
-        page < total_pages ->
-          page = page + 1
-          purchases = Purchases.list_purchases_by_page(page, per_page)
-          assign(socket, update_action: "append", page: page, purchases: purchases)
-
-        true ->
-          socket
-      end
-
-    {:noreply, socket}
-  end
-
   defp format_destination_group(destination_groups) do
     Enum.reduce(destination_groups, [], fn destination_group, acc ->
       acc = acc ++ [%{id: destination_group.id, name: destination_group.name, child: false}]
@@ -527,5 +516,105 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       true ->
         Integer.to_string(purchase.destination_group_id)
     end
+  end
+
+  @impl true
+  def handle_event("open_all_shipments", _, socket) do
+    %{all_open: all_open, purchases: purchases} = socket.assigns
+    all_open = !all_open
+    purchases = Enum.map(purchases, &Map.put(&1, :open_shipments, all_open))
+
+    socket =
+      socket
+      |> assign(:purchases, purchases)
+      |> assign(:all_open, all_open)
+      |> assign(:update_action, "replace")
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("open_shipments", %{"id" => id}, socket) do
+    %{purchases: purchases} = socket.assigns
+
+    purchases =
+      Enum.map(
+        purchases,
+        &cond do
+          to_string(&1.id) == id -> Map.put(&1, :open_shipments, !&1.open_shipments)
+          true -> &1
+        end
+      )
+
+      socket = socket |> assign(:purchases, purchases) |> assign(:update_action, "replace")
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("load_more", _params, socket) do
+    %{
+      current_user: current_user
+    } = socket.assigns
+
+    socket = assign_total_pages(socket)
+    socket = load_more(socket)
+    {:noreply, socket}
+  end
+
+  defp load_more(socket) do
+    %{
+      page: page,
+      total_pages: total_pages
+    } = socket.assigns
+
+    cond do
+      page < total_pages ->
+        socket
+        |> assign(:page, page + 1)
+        |> assign(:update_action, "append")
+        |> assign_purchases()
+
+      true ->
+        socket
+    end
+  end
+
+  defp assign_purchases(socket) do
+    %{
+      page: page,
+      per_page: per_page,
+      search: search,
+      update_action: update_action,
+      all_open: all_open
+    } = socket.assigns
+
+    new_purchases = Purchases.list_purchases_by_page(page, per_page)
+
+    purchases =
+      cond do
+        all_open && update_action == "append" ->
+          Map.get(socket.assigns, :purchases, []) ++
+            Enum.map(new_purchases, &Map.put(&1, :open_shipments, true))
+
+        all_open ->
+          Enum.map(new_purchases, &Map.put(&1, :open_shipments, true))
+          update_action == "append" ->
+            Map.get(socket.assigns, :purchases, []) ++
+              Enum.map(new_purchases, &Map.put(&1, :open_shipments, false))
+        true ->
+          Enum.map(new_purchases, &Map.put(&1, :open_shipments, false))
+      end
+
+    assign(socket, :purchases, purchases)
+  end
+
+  defp assign_total_pages(socket) do
+    %{
+      per_page: per_page,
+      search: search
+    } = socket.assigns
+
+    total_pages = Purchases.get_purchases_data_total_pages(per_page, search)
+    assign(socket, :total_pages, total_pages)
   end
 end

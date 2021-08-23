@@ -135,6 +135,13 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
       end
 
     changeset = Shipments.new_shipment() |> Map.put(:action, :insert)
+
+    changeset =
+      Ecto.Changeset.put_change(changeset, :estimated_ship_date, purchase.estimated_ship_date)
+
+    changeset =
+      Ecto.Changeset.put_change(changeset, :projected_out_date, purchase.projected_out_date)
+
     changesets = socket.assigns.changesets
 
     socket =

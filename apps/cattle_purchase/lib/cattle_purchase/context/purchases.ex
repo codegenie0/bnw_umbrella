@@ -245,6 +245,29 @@ defmodule CattlePurchase.Purchases do
     Timex.format!(date, "{0M}-{0D}-{YYYY}")
   end
 
+  def check_days_diff_gt(purchase_id) do
+    purchase =
+      Repo.get(Purchase, purchase_id)
+      |> Repo.preload([:shipments])
+
+    if purchase.shipments == [] do
+      false
+    else
+      shipments_gt_purchase =
+        Enum.reduce(purchase.shipments, [], fn shipment, acc ->
+          days = Date.diff(shipment.projected_out_date, purchase.projected_out_date)
+
+          if days >= 30 do
+            acc ++ [true]
+          else
+            acc ++ [false]
+          end
+        end)
+
+      if true in shipments_gt_purchase, do: true, else: false
+    end
+  end
+
   def list_purchases_by_page(current_page \\ 1, per_page \\ 10) do
     offset = per_page * (current_page - 1)
 
@@ -252,13 +275,25 @@ defmodule CattlePurchase.Purchases do
     |> offset(^offset)
     |> limit(^per_page)
     |> Repo.all()
-    |> Repo.preload([:sex, :purchase_buyer, :destination_group])
+    |> Repo.preload([:sex, :purchase_buyer, :destination_group, :shipments])
   end
 
   def total_pages(per_page \\ 10) do
     purchase_count =
       Purchase
       |> Repo.aggregate(:count, :id)
+
+    (purchase_count / per_page)
+    |> Decimal.from_float()
+    |> Decimal.round(0, :up)
+    |> Decimal.to_integer()
+  end
+
+  def get_purchases_data_total_pages(per_page \\ 10, search \\ "") do
+    purchase_count =
+      Purchase
+      |> Repo.all()
+      |> Enum.count()
 
     (purchase_count / per_page)
     |> Decimal.from_float()
