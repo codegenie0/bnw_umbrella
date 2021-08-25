@@ -196,13 +196,14 @@ defmodule CattlePurchase.Purchases do
   end
 
   def get_destination(query) do
-    destination_query = from(des in Destination, where: des.active == true)
+    destination_query = from(des in Destination, where: des.active == true, order_by: des.name)
 
     from(dg in DestinationGroup,
       left_join: d in Destination,
       on: dg.id == d.destination_group_id,
       group_by: dg.id,
       where: like(dg.name, ^"%#{query}%") or (d.active == true and like(d.name, ^"%#{query}%")),
+      order_by: dg.name,
       preload: [destinations: ^destination_query]
     )
     |> Repo.all()

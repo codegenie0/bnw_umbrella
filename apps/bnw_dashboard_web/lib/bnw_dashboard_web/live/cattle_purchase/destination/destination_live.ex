@@ -5,6 +5,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Destination.DestinationLive do
     Destinations
   }
   alias BnwDashboardWeb.CattlePurchase.Destination.ChangeDestinationComponent
+  alias BnwDashboardWeb.CattlePurchase.DestinationGroup.DestinationGroupLive
 
   defp authenticate(socket) do
     current_user = Map.get(socket.assigns, :current_user)

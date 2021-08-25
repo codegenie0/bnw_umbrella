@@ -4,6 +4,8 @@ defmodule CattlePurchase.DestinationGroups do
     Repo
   }
 
+  import Ecto.Query
+
   @doc """
   List all destination_groups
   """
@@ -14,7 +16,8 @@ defmodule CattlePurchase.DestinationGroups do
   def unsubscribe(id), do: Phoenix.PubSub.unsubscribe(CattlePurchase.PubSub, "#{@topic}:#{id}")
 
   def list_destination_groups() do
-    Repo.all(DestinationGroup)
+    from(des in DestinationGroup, order_by: des.name)
+    |> Repo.all()
   end
 
   @doc """
