@@ -1,5 +1,6 @@
 <div>
   <h3><%= @page_title %></h3>
+   <%= live_patch "Go Back To Destination Group", to: Routes.live_path(@socket, DestinationGroupLive), class: "uk-button uk-button-primary uk-margin"  %>
   <div class="uk-flex uk-flex-column uk-flex-left  uk-flex-center">
     <button class="uk-button uk-button-primary uk-border-pill uk-margin-remove  uk-margin-remove-bottom uk-align-center uk-width-1-3@l uk-width-2-3@m"
     type="button"

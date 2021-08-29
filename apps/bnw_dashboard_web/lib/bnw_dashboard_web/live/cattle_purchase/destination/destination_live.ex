@@ -1,16 +1,21 @@
 defmodule BnwDashboardWeb.CattlePurchase.Destination.DestinationLive do
   use BnwDashboardWeb, :live_view
+
   alias CattlePurchase.{
     Authorize,
     Destinations
   }
+
   alias BnwDashboardWeb.CattlePurchase.Destination.ChangeDestinationComponent
+  alias BnwDashboardWeb.CattlePurchase.DestinationGroup.DestinationGroupLive
 
   defp authenticate(socket) do
     current_user = Map.get(socket.assigns, :current_user)
+
     cond do
       current_user && Authorize.authorize(current_user, "destinations") ->
         true
+
       true ->
         false
     end
@@ -19,6 +24,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Destination.DestinationLive do
   @impl true
   def mount(params, session, socket) do
     {id, ""} = Integer.parse(params["id"])
+
     socket =
       assign_defaults(session, socket)
       |> assign(
@@ -29,9 +35,11 @@ defmodule BnwDashboardWeb.CattlePurchase.Destination.DestinationLive do
         parent_id: id,
         destinations: Destinations.list_active_destinations(id)
       )
+
     if connected?(socket) do
       Destinations.subscribe()
     end
+
     case authenticate(socket) do
       true -> {:ok, socket}
       false -> {:ok, redirect(socket, to: "/")}
@@ -59,9 +67,11 @@ defmodule BnwDashboardWeb.CattlePurchase.Destination.DestinationLive do
   @impl true
   def handle_event("edit", params, socket) do
     {id, ""} = Integer.parse(params["id"])
+
     changeset =
       Enum.find(socket.assigns.destinations, fn pt -> pt.id == id end)
       |> Destinations.change_destination()
+
     socket = assign(socket, changeset: changeset, modal: :change_destination)
     {:noreply, socket}
   end
@@ -69,8 +79,10 @@ defmodule BnwDashboardWeb.CattlePurchase.Destination.DestinationLive do
   @impl true
   def handle_event("delete", params, socket) do
     {id, ""} = Integer.parse(params["id"])
+
     Enum.find(socket.assigns.destinations, fn pt -> pt.id == id end)
     |> Destinations.delete_destination()
+
     {:noreply, socket}
   end
 

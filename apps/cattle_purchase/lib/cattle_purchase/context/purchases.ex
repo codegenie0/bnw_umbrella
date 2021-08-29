@@ -8,6 +8,8 @@ defmodule CattlePurchase.Purchases do
     PurchaseGroup,
     Destination,
     DestinationGroup,
+    CattleReceiving,
+    Shipment,
     Sex,
     Repo
   }
@@ -196,12 +198,13 @@ defmodule CattlePurchase.Purchases do
   end
 
   def get_destination(query) do
-    destination_query = from(des in Destination, where: des.active == true)
+    destination_query = from(des in Destination, where: des.active == true, order_by: des.name)
 
     from(dg in DestinationGroup,
       left_join: d in Destination,
       on: dg.id == d.destination_group_id,
       group_by: dg.id,
+      order_by: dg.name,
       where: like(dg.name, ^"%#{query}%") or (d.active == true and like(d.name, ^"%#{query}%")),
       preload: [destinations: ^destination_query]
     )
@@ -266,6 +269,24 @@ defmodule CattlePurchase.Purchases do
 
       if true in shipments_gt_purchase, do: true, else: false
     end
+  end
+
+  def check_cattle_received_count(purchase_id) do
+    from(cattle_receiving in CattleReceiving,
+      join: shipment in Shipment,
+      on: cattle_receiving.shipment_id == shipment.id,
+      where: shipment.purchase_id == ^purchase_id,
+      select: sum(cattle_receiving.number_received)
+    )
+    |> Repo.one()
+  end
+
+  def get_cattle_receiving_count(shipment_id) do
+    from(cattle_receiving in CattleReceiving,
+      where: cattle_receiving.shipment_id == ^shipment_id,
+      select: cattle_receiving.number_received
+    )
+    |> Repo.one()
   end
 
   def list_purchases_by_page(current_page \\ 1, per_page \\ 10) do

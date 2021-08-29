@@ -13,6 +13,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
   alias BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipmentComponent
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive
   alias BnwDashboardWeb.CattlePurchase.CattleReceive.CattleReceiveLive
+  alias BnwDashboardWeb.CattlePurchase.Purchase.CompleteShipmentComponent
 
   defp authenticate(socket) do
     current_user = Map.get(socket.assigns, :current_user)
@@ -239,4 +240,33 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
   def handle_event("add_more", _params, socket) do
     {:noreply, socket}
   end
+
+  def handle_event(
+        "handle_shipment_complete_change",
+        params,
+        socket
+      ) do
+    case params do
+      %{"id" => id, "value" => value} ->
+        change_shipment_complete(socket, params, true)
+        {:noreply, socket}
+
+      %{"id" => id} ->
+        change_shipment_complete(socket, params, false)
+        {:noreply, socket}
+
+      _ ->
+        {:noreply, socket}
+    end
+  end
+
+  defp change_shipment_complete(socket, params, value) do
+    {id, ""} = Integer.parse(params["id"])
+    shipment = Enum.find(socket.assigns.shipments, fn pg -> pg.id == id end)
+
+    changeset =
+      shipment
+      |> Shipments.create_or_update_shipment(%{complete: value})
+  end
+
 end

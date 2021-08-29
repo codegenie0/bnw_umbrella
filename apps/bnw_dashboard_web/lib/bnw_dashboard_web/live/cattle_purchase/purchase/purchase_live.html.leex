@@ -118,7 +118,7 @@
               <%= purchase.sex.name %>
               <% end %>
             </td>
-            <td class="uk-text-nowrap"></td>
+            <td class="uk-text-nowrap"><%= "#{CattlePurchase.Purchases.check_cattle_received_count(purchase.id)}" %></td>
             <td class="uk-text-nowrap"><%= purchase.weight %></td>
             <td class="uk-text-nowrap"><%= "$#{purchase.price}" %></td>
             <td class="uk-text-nowrap"><%= "$#{CattlePurchase.Purchases.price_and_delivery(purchase)}" %></td>
@@ -172,9 +172,15 @@
                     <%= purchase.sex.name %>
                     <% end %>
                   </td>
+                  <%= if CattlePurchase.Purchases.get_cattle_receiving_count(shipment.id) do %>
                   <td class="uk-text-nowrap">
-                    <%= live_redirect "Receives", to: Routes.live_path(@socket, CattleReceiveLive, id: shipment.id), class: "uk-button uk-button-primary uk-width-1-1"  %>
+                    <%= live_redirect "#{CattlePurchase.Purchases.get_cattle_receiving_count(shipment.id)}", to: Routes.live_path(@socket, CattleReceiveLive, id: shipment.id), class: "uk-button uk-button-text complete-check-color"  %>
                   </td>
+                  <% else %>
+                  <td class="uk-text-nowrap">
+                    <%= live_redirect "0", to: Routes.live_path(@socket, CattleReceiveLive, id: shipment.id), class: "uk-button uk-button-text complete-check-color"  %>
+                  </td>
+                  <% end %>
                   <td class="uk-text-nowrap"><%= purchase.weight %></td>
                   <td class="uk-text-nowrap"><%= "$#{purchase.price}" %></td>
                   <td class="uk-text-nowrap"><%= "$#{CattlePurchase.Purchases.price_and_delivery(purchase)}" %></td>

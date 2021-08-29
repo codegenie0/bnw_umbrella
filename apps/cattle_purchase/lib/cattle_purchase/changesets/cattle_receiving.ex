@@ -28,6 +28,7 @@ defmodule CattlePurchase.CattleReceiving do
     field :wcc_notification, :boolean, default: false
     field :receive_override, :boolean, default: false
     field :flow_to_purchase_sheet, :boolean, default: false
+    field :verified, :boolean, default: false
     field :off_truck_weight, :integer
 
     belongs_to :user, User
@@ -40,7 +41,7 @@ defmodule CattlePurchase.CattleReceiving do
   @required ~w(date_received number_received pay_weight lot_number
                 user_id shipment_id off_truck_weight
               )a
-  @optional ~w(comment wcc_notification receive_override flow_to_purchase_sheet sex_id)a
+  @optional ~w(comment wcc_notification receive_override flow_to_purchase_sheet sex_id verified)a
   @allowed @required ++ @optional
 
   def changeset(%__MODULE__{} = model, attrs \\ %{}) do

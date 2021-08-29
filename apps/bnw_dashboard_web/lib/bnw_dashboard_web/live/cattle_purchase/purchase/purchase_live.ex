@@ -19,7 +19,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   alias BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive
   alias BnwDashboardWeb.CattlePurchase.CattleReceive.CattleReceiveLive
 
-
   defp authenticate(socket) do
     current_user = Map.get(socket.assigns, :current_user)
 
@@ -138,6 +137,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   @impl true
   def handle_info({[:purchases, :deleted], _}, socket) do
     socket = assign(socket, modal: nil, changeset: nil)
+
     {:noreply,
      assign(socket,
        purchases: Purchases.list_purchases() |> Enum.map(&Map.put(&1, :open_shipments, false))
@@ -147,6 +147,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   @impl true
   def handle_info({[:purchases, :created_or_updated], _}, socket) do
     socket = assign(socket, modal: nil, changeset: nil)
+
     {:noreply,
      assign(socket,
        purchases: Purchases.list_purchases() |> Enum.map(&Map.put(&1, :open_shipments, false))
@@ -191,6 +192,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
   @impl true
   def handle_event("clear_filters", _, socket) do
+    %{page: page, per_page: per_page} = socket.assigns
+
     active_purchase_types =
       PurchaseTypes.get_active_purchase_types()
       |> Enum.map(fn item -> %{id: item.id, name: item.name, checked: false} end)
@@ -204,8 +207,11 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     {:noreply,
      assign(socket,
        active_purchase_types: active_purchase_types,
+       update_action: "replace",
        purchase_type_filters: purchase_type_filters,
-       purchases: Purchases.list_purchases() |> Enum.map(&Map.put(&1, :open_shipments, false)),
+       purchases:
+         Purchases.list_purchases_by_page(page, per_page)
+         |> Enum.map(&Map.put(&1, :open_shipments, false)),
        toggle_complete: toggle_complete,
        purchase_search: %{
          column_name: "Select column for search",
@@ -447,10 +453,10 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       |> Purchases.ship_date_range(purchase_filters.start_date, purchase_filters.end_date)
       |> Purchases.search(purchase_filters.column_name, purchase_filters.search_value)
       |> Repo.all()
-      |> Repo.preload([:sex, :purchase_buyer, :destination_group])
+      |> Repo.preload([:sex, :purchase_buyer, :destination_group, :shipments])
       |> Enum.map(&Map.put(&1, :open_shipments, false))
 
-    {:noreply, assign(socket, purchases: purchases)}
+    {:noreply, assign(socket, purchases: purchases, update_action: "replace")}
   end
 
   def handle_event(
@@ -556,7 +562,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         end
       )
 
-      socket = socket |> assign(:purchases, purchases) |> assign(:update_action, "replace")
+    socket = socket |> assign(:purchases, purchases) |> assign(:update_action, "replace")
     {:noreply, socket}
   end
 
@@ -608,9 +614,11 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
         all_open ->
           Enum.map(new_purchases, &Map.put(&1, :open_shipments, true))
-          update_action == "append" ->
-            Map.get(socket.assigns, :purchases, []) ++
-              Enum.map(new_purchases, &Map.put(&1, :open_shipments, false))
+
+        update_action == "append" ->
+          Map.get(socket.assigns, :purchases, []) ++
+            Enum.map(new_purchases, &Map.put(&1, :open_shipments, false))
+
         true ->
           Enum.map(new_purchases, &Map.put(&1, :open_shipments, false))
       end

@@ -1,0 +1,5 @@
+<input class="uk-checkbox" type="checkbox"
+phx-click="handle_shipment_complete_change"
+phx-debounce="500"
+phx-value-id="<%= @shipment.id %>" <%= if @shipment.complete, do: "checked",
+else: "" %>>

@@ -18,10 +18,12 @@ defmodule CattlePurchase.Destinations do
 
   def list_active_destinations(parent_id) do
     from(destination in Destination,
-          where: destination.destination_group_id == ^parent_id
-            and destination.active == true
-        )
-        |> Repo.all()
+      where:
+        destination.destination_group_id == ^parent_id and
+          destination.active == true,
+      order_by: destination.name
+    )
+    |> Repo.all()
   end
 
   @doc """
@@ -30,10 +32,12 @@ defmodule CattlePurchase.Destinations do
 
   def list_inactive_destinations(parent_id) do
     from(destination in Destination,
-          where: destination.destination_group_id == ^parent_id
-            and destination.active == false
-        )
-        |> Repo.all()
+      where:
+        destination.destination_group_id == ^parent_id and
+          destination.active == false,
+      order_by: destination.name
+    )
+    |> Repo.all()
   end
 
   @doc """
