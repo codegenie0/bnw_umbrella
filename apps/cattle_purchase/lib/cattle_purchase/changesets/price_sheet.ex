@@ -36,6 +36,7 @@ defmodule CattlePurchase.PriceSheet do
     model
     |> cast(attrs, @allowed)
     |> validate_required(@required)
+    |> unique_constraint(:price_date)
     |> cast_assoc(:price_sheet_details, with: &PriceSheetDetail.new_changeset/2)
   end
 
