@@ -23,7 +23,11 @@
           value: @price_sheet_search.end_date %>
       </div>
     </div>
+  </form>
+  
 </div>
+
+
 <%= if @modal == :change_price_sheet do
   live_component(@socket, ChangePriceSheetComponent, id: "#{@current_user.id}", changeset: @changeset)
 end %>
