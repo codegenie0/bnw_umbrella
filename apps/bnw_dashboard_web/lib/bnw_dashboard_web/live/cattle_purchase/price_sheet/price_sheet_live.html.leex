@@ -1,0 +1,29 @@
+<div>
+  <h3><%= @page_title %></h3>
+  <%= link "New Date", to: "#",
+      class: "uk-button uk-button-primary uk-border-pill uk-align-center uk-width-1-2@l uk-width-2-3@m",
+      phx_click: "new" %>
+  <%= f = form_for :price_sheet_search, "#",
+      [phx_change: :validate, phx_submit: "search"] %>
+    <div class="uk-padding-small" uk-grid phx-hook="uk_grid">
+      <div>
+        <%= label f, :start_date, "Ship Date: From", class: "uk-form-label" %>
+      </div>
+      <div class="uk-form-controls">
+        <%= date_input f, :start_date,
+          class: "uk-input uk-form-small",
+          value: @price_sheet_search.start_date %>
+      </div>
+      <div>
+        <%= label f, :end_date, "To", class: "uk-form-label" %>
+      </div>
+      <div class="uk-form-controls">
+        <%= date_input f, :end_date,
+          class: "uk-input uk-form-small",
+          value: @price_sheet_search.end_date %>
+      </div>
+    </div>
+</div>
+<%= if @modal == :change_price_sheet do
+  live_component(@socket, ChangePriceSheetComponent, id: "#{@current_user.id}", changeset: @changeset)
+end %>

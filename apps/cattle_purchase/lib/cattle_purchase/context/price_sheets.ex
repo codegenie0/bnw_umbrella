@@ -1,4 +1,4 @@
-defmodule CattlePurchase.PurchaseSheets do
+defmodule CattlePurchase.PriceSheets do
   alias CattlePurchase.{
     PriceSheet,
     Repo
@@ -21,9 +21,9 @@ defmodule CattlePurchase.PurchaseSheets do
 
     result =
       from(price_sheet in CattlePurchase.PriceSheet,
-        join: price_sheet_details in CattlePurchase.PriceSheetDetail,
+        left_join: price_sheet_details in CattlePurchase.PriceSheetDetail,
         on: price_sheet.id == price_sheet_details.price_sheet_id,
-        join: w_c in CattlePurchase.WeightCategory,
+        left_join: w_c in CattlePurchase.WeightCategory,
         on: w_c.id == price_sheet_details.weight_category_id,
         group_by: price_sheet.id,
         order_by: [desc: price_sheet.price_date],
@@ -63,9 +63,9 @@ defmodule CattlePurchase.PurchaseSheets do
 
     result =
       from(price_sheet in query,
-        join: price_sheet_details in CattlePurchase.PriceSheetDetail,
+        left_join: price_sheet_details in CattlePurchase.PriceSheetDetail,
         on: price_sheet.id == price_sheet_details.price_sheet_id,
-        join: w_c in CattlePurchase.WeightCategory,
+        left_join: w_c in CattlePurchase.WeightCategory,
         on: w_c.id == price_sheet_details.weight_category_id,
         where: price_sheet.price_date >= ^start_date,
         group_by: price_sheet.id,
@@ -88,9 +88,9 @@ defmodule CattlePurchase.PurchaseSheets do
 
     result =
       from(price_sheet in query,
-        join: price_sheet_details in CattlePurchase.PriceSheetDetail,
+        left_join: price_sheet_details in CattlePurchase.PriceSheetDetail,
         on: price_sheet.id == price_sheet_details.price_sheet_id,
-        join: w_c in CattlePurchase.WeightCategory,
+        left_join: w_c in CattlePurchase.WeightCategory,
         on: w_c.id == price_sheet_details.weight_category_id,
         where: price_sheet.price_date >= ^start_date and price_sheet.price_date <= ^end_date,
         group_by: price_sheet.id,
