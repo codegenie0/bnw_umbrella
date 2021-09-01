@@ -15,7 +15,7 @@ defmodule CattlePurchase.PriceSheetDetail do
   @schema_prefix prefix
 
   schema "price_sheet_details" do
-    field :value, :decimal
+    field :value, :decimal, default: 00.00
 
     belongs_to :sex, Sex
     belongs_to :price_sheet, PriceSheet

@@ -32,6 +32,8 @@ defmodule BnwDashboardWeb.CattlePurchase.PriceSheet.PriceSheetLive do
           end_date: ""
         },
         price_sheets: PriceSheets.list_price_sheets,
+        weight_categories: PriceSheets.get_weight_categories(),
+        sexes: PriceSheets.get_active_sex_with_order(),
         modal: nil
       )
 

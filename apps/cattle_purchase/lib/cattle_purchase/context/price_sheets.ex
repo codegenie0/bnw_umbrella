@@ -56,6 +56,11 @@ defmodule CattlePurchase.PriceSheets do
     |> CattlePurchase.Repo.all()
   end
 
+  def generate_range(weights, sexes) do
+    range = Enum.count(weights) * Enum.count(sexes)
+    1..range
+  end
+
   def price_date_range(_query, nil, _end_date), do: list_price_sheets()
 
   def price_date_range(query, start_date, nil) do

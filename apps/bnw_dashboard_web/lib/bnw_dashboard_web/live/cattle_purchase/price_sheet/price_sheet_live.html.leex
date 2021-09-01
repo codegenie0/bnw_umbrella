@@ -23,6 +23,40 @@
           value: @price_sheet_search.end_date %>
       </div>
     </div>
+    </form>
+    <table class="uk-table uk-table-striped uk-table-middle uk-table-hover">
+    <thead>
+      <tr>
+       <th class="uk-text-nowrap uk-table-shrink ">Date</th>
+      <%= for weight_category <- @weight_categories do %>
+       <th colspan= <%= "#{Enum.count(@sexes)}" %> class="uk-text-nowrap uk-table-shrink "><%= weight_category  %></th>
+       <% end %>
+       <th>edit | delete</th>
+      </tr>
+      <tr>
+      <th></th>
+      <%= for weight_category <- @weight_categories do %>
+        <%= for sex <- @sexes do %>
+          <th class="uk-text-nowrap uk-table-shrink "><%= sex  %></th>
+        <% end %>
+      <% end %>
+      </tr>
+    </thead>
+    </tbody>
+      <%= for price_sheet <- @price_sheets do %>
+        <tr>
+          <td class="uk-text-nowrap">
+            <%= price_sheet.price_date %>
+          </td>
+      <%= for i <- CattlePurchase.PriceSheets.generate_range(@weight_categories, @sexes) do %>
+          <td>
+            175.00
+          </td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 </div>
 <%= if @modal == :change_price_sheet do
   live_component(@socket, ChangePriceSheetComponent, id: "#{@current_user.id}", changeset: @changeset)
