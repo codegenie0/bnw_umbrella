@@ -48,11 +48,13 @@
           <td class="uk-text-nowrap">
             <%= price_sheet.price_date %>
           </td>
-      <%= for i <- CattlePurchase.PriceSheets.generate_range(@weight_categories, @sexes) do %>
-          <td>
-            175.00
-          </td>
+        <%= for wc <- @weight_categories do %>
+          <%= for sexes <- price_sheet.price_sheet_details[wc] do %>
+              <td>
+                <%= sexes.value %>
+              </td>
           <% end %>
+        <% end %>
         </tr>
       <% end %>
     </tbody>
