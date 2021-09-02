@@ -47,11 +47,27 @@ defmodule CattlePurchase.PriceSheets do
     |> CattlePurchase.Repo.all()
   end
 
+  def get_weight_categories_for_create() do
+    from(wc in CattlePurchase.WeightCategory,
+      select: wc.id
+    )
+    |> CattlePurchase.Repo.all()
+  end
+
   def get_active_sex_with_order() do
     from(sex in CattlePurchase.Sex,
       where: sex.active == true,
       order_by: sex.order,
       select: sex.name
+    )
+    |> CattlePurchase.Repo.all()
+  end
+
+  def get_active_sex_with_order_for_create() do
+    from(sex in CattlePurchase.Sex,
+      where: sex.active == true,
+      order_by: sex.order,
+      select: sex.id
     )
     |> CattlePurchase.Repo.all()
   end

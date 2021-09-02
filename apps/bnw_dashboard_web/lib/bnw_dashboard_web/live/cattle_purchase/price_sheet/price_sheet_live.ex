@@ -31,7 +31,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PriceSheet.PriceSheetLive do
           start_date: "",
           end_date: ""
         },
-        price_sheets: PriceSheets.list_price_sheets,
+        price_sheets: PriceSheets.list_price_sheets(),
         weight_categories: PriceSheets.get_weight_categories(),
         sexes: PriceSheets.get_active_sex_with_order(),
         modal: nil
@@ -69,6 +69,6 @@ defmodule BnwDashboardWeb.CattlePurchase.PriceSheet.PriceSheetLive do
   @impl true
   def handle_info({[:price_sheets, :created_or_updated], _}, socket) do
     socket = assign(socket, modal: nil, changeset: nil)
-    {:noreply, assign(socket, price_sheets: PriceSheets.list_price_sheets() )}
+    {:noreply, assign(socket, price_sheets: PriceSheets.list_price_sheets())}
   end
 end
