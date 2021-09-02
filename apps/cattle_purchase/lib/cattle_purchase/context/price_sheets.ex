@@ -42,7 +42,7 @@ defmodule CattlePurchase.PriceSheets do
 
   def get_weight_categories() do
     from(wc in CattlePurchase.WeightCategory,
-      select: wc.start_weight
+      select: wc
     )
     |> CattlePurchase.Repo.all()
   end

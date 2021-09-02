@@ -29,7 +29,7 @@
       <tr>
        <th></th>
       <%= for weight_category <- @weight_categories do %>
-       <th colspan= <%= "#{Enum.count(@sexes)}" %> class="uk-text-nowrap uk-table-shrink "><%= weight_category  %></th>
+       <th colspan= <%= "#{Enum.count(@sexes)}" %> class="uk-text-nowrap uk-table-shrink "><%= weight_category.start_weight  %></th>
        <% end %>
        <th></th>
        <th></th>
@@ -46,14 +46,36 @@
 
       </tr>
     </thead>
-    </tbody>
+    <tbody>
       <%= for price_sheet <- @price_sheets do %>
-        <tr>
-          <td class="uk-text-nowrap">
-            <%= price_sheet.price_date %>
-          </td>
-      <%= for wc <- @weight_categories do %>
-          <%= for sexes <- price_sheet.price_sheet_details[wc] do %>
+      <%= if price_sheet.editable do %>
+      <tr>
+        <td><%= @editable_price_sheet_data.price_date%></td>
+        <%= for price_sheet_details <- @editable_price_sheet_data.price_sheet_details do %>
+          <td><input 
+            value="<%= price_sheet_details.value %>" 
+            phx-keyup="on_sex_edit" 
+            phx-value-weight="<%= price_sheet_details.weight_category_id %>"
+            phx-value-sex="<%= price_sheet_details.sex_id %>"
+            /></td>
+        <% end %>
+        <td>
+        <button class="uk-button uk-button-default"
+                type="button"
+                phx-click="cancel_editable_row">Cancel</button>
+                <button class="uk-button uk-button-default"
+                type="button"
+                phx-value-id="<%= price_sheet.id%>"
+                phx-click="update_editable_row">Update</button>
+              </td>
+      </tr>      
+      <% else %>
+          <tr phx-click="row-editable" phx-value-id="<%= price_sheet.id%>">
+            <td class="uk-text-nowrap">
+              <%= price_sheet.price_date %>
+            </td>
+        <%= for wc <- @weight_categories do %>
+          <%= for sexes <- price_sheet.price_sheet_details[wc.start_weight] do %>
               <td>
                 <%= sexes.value %>
               </td>
@@ -63,6 +85,7 @@
             <%= price_sheet.comment %>
           </td>
         </tr>
+        <% end %>
       <% end %>
     </tbody>
   </table>
