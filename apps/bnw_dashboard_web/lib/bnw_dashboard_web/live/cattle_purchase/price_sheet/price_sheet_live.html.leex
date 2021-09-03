@@ -57,6 +57,7 @@
             phx-keyup="on_sex_edit" 
             phx-value-weight="<%= price_sheet_details.weight_category_id %>"
             phx-value-sex="<%= price_sheet_details.sex_id %>"
+            type="number"
             /></td>
         <% end %>
         <td>
@@ -76,7 +77,7 @@
             </td>
         <%= for wc <- @weight_categories do %>
           <%= for sexes <- price_sheet.price_sheet_details[wc.start_weight] do %>
-              <td>
+              <td>  
                 <%= sexes.value %>
               </td>
           <% end %>

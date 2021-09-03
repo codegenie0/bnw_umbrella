@@ -3,7 +3,8 @@ defmodule BnwDashboardWeb.CattlePurchase.PriceSheet.PriceSheetLive do
 
   alias CattlePurchase.{
     Authorize,
-    PriceSheets
+    PriceSheets,
+    PriceSheet
   }
 
   alias BnwDashboardWeb.CattlePurchase.PriceSheet.ChangePriceSheetComponent
@@ -93,9 +94,10 @@ defmodule BnwDashboardWeb.CattlePurchase.PriceSheet.PriceSheetLive do
 
   @impl true
   def handle_event("on_sex_edit", params, socket) do
+    actual_value = if params["value"] == "", do: "0", else: params["value"]
     {weight, ""} = Integer.parse(params["weight"])
     {sex, ""} = Integer.parse(params["sex"])
-    {value, ""} = Integer.parse(params["value"])
+    {value, ""} = Integer.parse(actual_value)
 
     editable_price_sheet_data = socket.assigns.editable_price_sheet_data
 
@@ -136,17 +138,23 @@ defmodule BnwDashboardWeb.CattlePurchase.PriceSheet.PriceSheetLive do
     price_sheets = socket.assigns.price_sheets
     {id, ""} = Integer.parse(params["id"])
     price_sheets = socket.assigns.price_sheets
-    price_sheet = Enum.find(price_sheets, fn item -> item.id == id end)
+    price_sheet = CattlePurchase.Repo.get(PriceSheet, id)
+
+    editable_price_sheet_data = socket.assigns.editable_price_sheet_data |> Map.delete(:id)
+
+    PriceSheets.create_or_update_price_sheet(price_sheet, editable_price_sheet_data)
 
     price_sheets =
       Enum.map(price_sheets, fn price_sheet ->
         Map.put(price_sheet, :editable, false)
       end)
 
-    editable_price_sheet_data = socket.assigns.editable_price_sheet_data
-    PriceSheets.create_or_update_price_sheet(price_sheet, editable_price_sheet_data)
-    IO.inspect(editable_price_sheet_data)
     {:noreply, assign(socket, price_sheets: price_sheets, editable_price_sheet_data: nil)}
+  end
+
+  @impl true
+  def handle_event("validate", params, socket) do
+    {:noreply, socket}
   end
 
   @impl true
