@@ -157,7 +157,6 @@ Hooks.infinite_scroll_container = {
   page() { return this.el.dataset.page },
   scrollAt() { return (this.el.scrollTop / (this.el.scrollHeight - this.el.offsetHeight)) * 100 },
   mounted(){
-    console.log("test 1");
     this.pending = this.page();
     this.height = this.el.scrollHeight;
     this.el.addEventListener("scroll", e => {
@@ -169,7 +168,6 @@ Hooks.infinite_scroll_container = {
     UIkit.overflowAuto(this.el, {});
   },
   updated() {
-    console.log("test 2");
     this.pending = this.page();
     UIkit.overflowAuto(this.el, {});
   }

@@ -40,6 +40,33 @@ defmodule CattlePurchase.PriceSheets do
     end)
   end
 
+  def list_price_sheets_by_page(current_page \\ 1, per_page \\ 10) do
+    offset = per_page * (current_page - 1)
+    sex_query = from(sex in CattlePurchase.Sex, order_by: sex.order)
+
+    result =
+      from(price_sheet in CattlePurchase.PriceSheet,
+        left_join: price_sheet_details in CattlePurchase.PriceSheetDetail,
+        on: price_sheet.id == price_sheet_details.price_sheet_id,
+        left_join: w_c in CattlePurchase.WeightCategory,
+        on: w_c.id == price_sheet_details.weight_category_id,
+        group_by: price_sheet.id,
+        order_by: [desc: price_sheet.price_date],
+        offset: ^offset,
+        limit: ^per_page,
+        preload: [price_sheet_details: [:weight_category, sex: ^sex_query]]
+      )
+      |> Repo.all()
+
+    Enum.reduce(result, [], fn res, acc ->
+      result =
+        Enum.group_by(res.price_sheet_details, fn resp -> resp.weight_category.start_weight end)
+
+      map = Map.put(res, :price_sheet_details, result)
+      acc ++ [map]
+    end)
+  end
+
   def get_weight_categories() do
     from(wc in CattlePurchase.WeightCategory,
       select: wc
@@ -164,6 +191,28 @@ defmodule CattlePurchase.PriceSheets do
     |> notify_subscribers([:price_sheets, :deleted])
   end
 
+  def total_pages(per_page \\ 10) do
+    price_sheet_count =
+      PriceSheet
+      |> Repo.aggregate(:count, :id)
+
+    (price_sheet_count / per_page)
+    |> Decimal.from_float()
+    |> Decimal.round(0, :up)
+    |> Decimal.to_integer()
+  end
+
+  def get_price_sheet_data_total_pages(per_page \\ 10, search \\ "") do
+    price_sheet_count =
+      PriceSheet
+      |> Repo.all()
+      |> Enum.count()
+
+    (price_sheet_count / per_page)
+    |> Decimal.from_float()
+    |> Decimal.round(0, :up)
+    |> Decimal.to_integer()
+  end
   def notify_subscribers({:ok, result}, event) do
     Phoenix.PubSub.broadcast(CattlePurchase.PubSub, @topic, {event, result})
     Phoenix.PubSub.broadcast(CattlePurchase.PubSub, "#{@topic}:#{result.id}", {event, result})

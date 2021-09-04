@@ -21,8 +21,20 @@ defmodule BnwDashboardWeb.CattlePurchase.PriceSheet.PriceSheetLive do
     end
   end
 
+  defp fetch_price_sheet(socket) do
+    %{page: page, per_page: per_page} = socket.assigns
+
+    price_sheets =
+      PriceSheets.list_price_sheets_by_page(page, per_page)
+      |> Enum.map(&Map.put(&1, :editable, false))
+
+    assign(socket, price_sheets: price_sheets)
+  end
+
   @impl true
   def mount(_, session, socket) do
+    total_pages = PriceSheets.total_pages(1)
+
     socket =
       assign_defaults(session, socket)
       |> assign(
@@ -32,13 +44,17 @@ defmodule BnwDashboardWeb.CattlePurchase.PriceSheet.PriceSheetLive do
           start_date: "",
           end_date: ""
         },
-        price_sheets:
-          PriceSheets.list_price_sheets()
-          |> Enum.map(&Map.put(&1, :editable, false)),
         weight_categories: PriceSheets.get_weight_categories(),
         sexes: PriceSheets.get_active_sex_with_order(),
-        modal: nil
+        modal: nil,
+        page: 1,
+        per_page: 7,
+        total_pages: 1,
+        search: "",
+        update_action: "replace"
       )
+
+    socket = fetch_price_sheet(socket)
 
     if connected?(socket) do
       PriceSheets.subscribe()
@@ -48,6 +64,62 @@ defmodule BnwDashboardWeb.CattlePurchase.PriceSheet.PriceSheetLive do
       true -> {:ok, socket}
       false -> {:ok, redirect(socket, to: "/")}
     end
+  end
+
+  @impl true
+  def handle_event("load_more", _params, socket) do
+    %{
+      current_user: current_user
+    } = socket.assigns
+
+    socket = assign_total_pages(socket)
+    socket = load_more(socket)
+    {:noreply, socket}
+  end
+
+  defp load_more(socket) do
+    %{
+      page: page,
+      total_pages: total_pages
+    } = socket.assigns
+
+    cond do
+      page < total_pages ->
+        socket
+        |> assign(:page, page + 1)
+        |> assign(:update_action, "append")
+        |> assign_price_sheets()
+
+      true ->
+        socket
+    end
+  end
+
+  defp assign_price_sheets(socket) do
+    %{
+      page: page,
+      per_page: per_page,
+      search: search,
+      update_action: update_action
+    } = socket.assigns
+
+    price_sheets =
+      Map.get(socket.assigns, :price_sheets, []) ++
+        PriceSheets.list_price_sheets_by_page(page, per_page)
+
+    price_sheets = Enum.map(price_sheets, &Map.put(&1, :editable, false))
+
+    assign(socket, :price_sheets, price_sheets)
+  end
+
+  defp assign_total_pages(socket) do
+    %{
+      per_page: per_page,
+      search: search
+    } = socket.assigns
+
+    total_pages = PriceSheets.get_price_sheet_data_total_pages(per_page, search)
+    assign(socket, :total_pages, total_pages)
   end
 
   @impl true
