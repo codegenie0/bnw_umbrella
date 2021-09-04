@@ -18,7 +18,7 @@ defmodule CattlePurchase.PriceSheet do
     field :price_date, :date
     field :comment, :string
 
-    has_many(:price_sheet_details, PriceSheetDetail, on_replace: :delete)
+    has_many(:price_sheet_details, PriceSheetDetail, on_replace: :delete, on_delete: :delete_all)
 
     timestamps()
   end

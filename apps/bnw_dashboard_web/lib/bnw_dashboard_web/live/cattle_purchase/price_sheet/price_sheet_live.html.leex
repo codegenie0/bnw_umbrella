@@ -7,7 +7,7 @@
       [phx_change: :validate, phx_submit: "search"] %>
     <div class="uk-padding-small" uk-grid phx-hook="uk_grid">
       <div>
-        <%= label f, :start_date, "Ship Date: From", class: "uk-form-label" %>
+        <%= label f, :start_date, "Price Date: From", class: "uk-form-label" %>
       </div>
       <div class="uk-form-controls">
         <%= date_input f, :start_date,
@@ -23,49 +23,93 @@
           value: @price_sheet_search.end_date %>
       </div>
     </div>
+    <div>
+        <%= submit "Search", [phx_disable_with: "Saving...",  class: "uk-button uk-button-primary uk-button-small"] %>
+        <%= link "Clear all selections", to: "#",
+          class: "uk-button uk-button-primary uk-button-small",
+          phx_click: "clear_filters" %>
+      </div>
     </form>
+    <div class="uk-overflow-auto uk-height-max-large" phx-hook="infinite_scroll_container">
     <table class="uk-table uk-table-striped uk-table-middle uk-table-hover">
     <thead>
       <tr>
-       <th></th>
+        <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default"></th>
       <%= for weight_category <- @weight_categories do %>
-       <th colspan= <%= "#{Enum.count(@sexes)}" %> class="uk-text-nowrap uk-table-shrink "><%= weight_category  %></th>
+       <th colspan= <%= "#{Enum.count(@sexes)}"%> class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default"><%= weight_category.start_weight  %></th>
        <% end %>
-       <th></th>
-       <th></th>
+       <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default"></th>
+       <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default"></th>
       </tr>
       <tr>
-      <th class="uk-text-nowrap uk-table-shrink">Date</th>
+       <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default">Date</th>
       <%= for weight_category <- @weight_categories do %>
         <%= for sex <- @sexes do %>
-          <th class="uk-text-nowrap uk-table-shrink "><%= sex  %></th>
+          <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default"><%= sex  %></th>
         <% end %>
       <% end %>
-      <th class="uk-text-nowrap uk-table-shrink">Comment</th>
+      <th></th>
+       <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default">Comment</th>
       <th>delete</th>
 
       </tr>
     </thead>
-    </tbody>
+     <tbody id="price_sheet" phx-update="<%= @update_action %>" data-page="<%= @page %>">
       <%= for price_sheet <- @price_sheets do %>
-        <tr>
-          <td class="uk-text-nowrap">
-            <%= price_sheet.price_date %>
-          </td>
-      <%= for wc <- @weight_categories do %>
-          <%= for sexes <- price_sheet.price_sheet_details[wc] do %>
+         <%= if price_sheet.editable do %>
+      <tr>
+        <td><%= @editable_price_sheet_data.price_date%></td>
+        <%= for price_sheet_details <- @editable_price_sheet_data.price_sheet_details do %>
+          <td><input
+            value="<%= price_sheet_details.value %>"
+            phx-keyup="on_sex_edit"
+            phx-value-weight="<%= price_sheet_details.weight_category_id %>"
+            phx-value-sex="<%= price_sheet_details.sex_id %>"
+            type="number"
+            step= "0.01"
+            /></td>
+        <% end %>
+        <td>
+        <button class="uk-button uk-button-default"
+                type="button"
+                phx-click="cancel_editable_row">Cancel</button>
+                <button class="uk-button uk-button-default"
+                type="button"
+                phx-value-id="<%= price_sheet.id%>"
+                phx-click="update_editable_row">Update</button>
+              </td>
+      </tr>
+      <% else %>
+          <tr phx-click="row-editable" phx-value-id="<%= price_sheet.id%>">
+            <td class="uk-text-nowrap">
+              <%= price_sheet.price_date %>
+            </td>
+        <%= for wc <- @weight_categories do %>
+          <%= for sexes <- price_sheet.price_sheet_details[wc.start_weight] do %>
               <td>
-                <%= sexes.value %>
+                <%= "$#{sexes.value}" %>
               </td>
           <% end %>
         <% end %>
+        <td></td>
         <td class="uk-text-nowrap">
-            <%= price_sheet.comment %>
+            <%= if price_sheet.comment do  %>
+            <%= "#{String.slice(price_sheet.comment, 0..-5)}..." %>
+            <% end %>
+          </td>
+          <td>
+          <%= link "", to: "#", class: "uk-padding-remove-vertical",
+          uk_icon: "trash",
+          phx_hook: "uk_icon",
+          phx_click: "delete",
+          phx_value_id: price_sheet.id %>
           </td>
         </tr>
+        <% end %>
       <% end %>
     </tbody>
   </table>
+</div>
 </div>
 <%= if @modal == :change_price_sheet do
   live_component(@socket, ChangePriceSheetComponent, id: "#{@current_user.id}", changeset: @changeset)
