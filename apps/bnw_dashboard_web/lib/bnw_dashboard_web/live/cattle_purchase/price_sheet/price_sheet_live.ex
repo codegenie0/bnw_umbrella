@@ -24,6 +24,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PriceSheet.PriceSheetLive do
   @impl true
   def mount(_, session, socket) do
     total_pages = PriceSheets.total_pages(1)
+
     socket =
       assign_defaults(session, socket)
       |> assign(
@@ -43,7 +44,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PriceSheet.PriceSheetLive do
         update_action: "replace"
       )
 
-      socket = fetch_price_sheet(socket)
+    socket = fetch_price_sheet(socket)
 
     if connected?(socket) do
       PriceSheets.subscribe()
@@ -124,6 +125,17 @@ defmodule BnwDashboardWeb.CattlePurchase.PriceSheet.PriceSheetLive do
 
     total_pages = PriceSheets.get_price_sheet_data_total_pages(per_page, search)
     assign(socket, :total_pages, total_pages)
+  end
+
+  @impl true
+  def handle_event("on_comment_edit", params, socket) do
+    actual_value = if params["value"] == "", do: "0", else: params["value"]
+
+    editable_price_sheet_data =
+      socket.assigns.editable_price_sheet_data |> Map.put(:comment, actual_value)
+
+    socket = assign(socket, editable_price_sheet_data: editable_price_sheet_data)
+    {:noreply, socket}
   end
 
   @impl true
@@ -322,7 +334,13 @@ defmodule BnwDashboardWeb.CattlePurchase.PriceSheet.PriceSheetLive do
   end
 
   defp make_price_sheet_editable_data(price_sheet, socket) do
-    data = %{id: price_sheet.id, price_date: price_sheet.price_date, price_sheet_details: []}
+    data = %{
+      id: price_sheet.id,
+      comment: price_sheet.comment,
+      price_date: price_sheet.price_date,
+      price_sheet_details: []
+    }
+
     weight_categories = socket.assigns.weight_categories
 
     result =

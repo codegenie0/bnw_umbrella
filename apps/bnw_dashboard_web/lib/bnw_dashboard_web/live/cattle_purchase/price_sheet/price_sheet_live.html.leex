@@ -48,8 +48,8 @@
           <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default"><%= sex  %></th>
         <% end %>
       <% end %>
-      <th></th>
-       <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default">Comment</th>
+       <th class="uk-width-1-2 uk-table-shrink uk-text-nowrap uk-background-default">Comment</th>
+       <th class="uk-width-1-2 uk-table-shrink uk-text-nowrap uk-background-default"></th>
       <th>delete</th>
 
       </tr>
@@ -69,7 +69,12 @@
             step= "0.01"
             /></td>
         <% end %>
-        <td>
+
+      <td><input
+          value="<%= @editable_price_sheet_data.comment %>"
+          phx-keyup="on_comment_edit"
+      /></td>
+      <td>
         <button class="uk-button uk-button-default"
                 type="button"
                 phx-click="cancel_editable_row">Cancel</button>
@@ -78,6 +83,7 @@
                 phx-value-id="<%= price_sheet.id%>"
                 phx-click="update_editable_row">Update</button>
               </td>
+              <td></td>
       </tr>
       <% else %>
           <tr phx-click="row-editable" phx-value-id="<%= price_sheet.id%>">
@@ -91,12 +97,12 @@
               </td>
           <% end %>
         <% end %>
-        <td></td>
-        <td class="uk-text-nowrap">
+        <td class="uk-text-nowrap" uk-tooltip="<%= if price_sheet.comment, do: price_sheet.comment, else: '' %>">
             <%= if price_sheet.comment do  %>
-            <%= "#{String.slice(price_sheet.comment, 0..-5)}..." %>
+            <%= String.slice(price_sheet.comment, 0..4) %>...
             <% end %>
           </td>
+          <td></td>
           <td>
           <%= link "", to: "#", class: "uk-padding-remove-vertical",
           uk_icon: "trash",

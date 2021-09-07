@@ -11,6 +11,7 @@ defmodule CattlePurchase.Purchases do
     CattleReceiving,
     Shipment,
     Sex,
+    CommissionPayee,
     Repo
   }
 
@@ -297,6 +298,13 @@ defmodule CattlePurchase.Purchases do
     |> limit(^per_page)
     |> Repo.all()
     |> Repo.preload([:sex, :purchase_buyer, :destination_group, :shipments])
+  end
+
+  def get_active_commission_payee() do
+    from(cp in CommissionPayee,
+      where: cp.active == true
+    )
+    |> Repo.all()
   end
 
   def total_pages(per_page \\ 10) do
