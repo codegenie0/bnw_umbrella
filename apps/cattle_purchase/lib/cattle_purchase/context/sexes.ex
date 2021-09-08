@@ -1,6 +1,7 @@
 defmodule CattlePurchase.Sexes do
   alias CattlePurchase.{
     Sex,
+    PriceSheets,
     Repo
   }
 
@@ -43,10 +44,10 @@ defmodule CattlePurchase.Sexes do
     Sex.changeset(sex, attrs)
   end
 
-  def validate(%Sex{} =sex, attrs \\ %{}) do
+  def validate(%Sex{} = sex, attrs \\ %{}) do
     sex
-     |> change_sex(attrs)
-     |> Map.put(:action, :insert)
+    |> change_sex(attrs)
+    |> Map.put(:action, :insert)
   end
 
   @doc """
@@ -59,6 +60,29 @@ defmodule CattlePurchase.Sexes do
     |> notify_subscribers([:sexes, :created_or_updated])
   end
 
+  def update_price_sheets(sex) do
+    new_price_sheet_detail =
+      Enum.map(PriceSheets.get_weight_categories_for_create(), fn wc ->
+        %{weight_category_id: wc, sex_id: sex.id}
+      end)
+
+    price_sheets = CattlePurchase.Repo.all(CattlePurchase.PriceSheet)
+
+    if price_sheets != [] do
+      Enum.map(price_sheets, fn ps ->
+        ps = ps |> Repo.preload(:price_sheet_details)
+
+        price_sheet_detail_list =
+          Enum.map(ps.price_sheet_details, fn psd ->
+            %{weight_category_id: psd.weight_category_id, sex_id: psd.sex_id, value: psd.value}
+          end)
+
+        price_sheet_details = price_sheet_detail_list ++ new_price_sheet_detail
+        Ecto.Changeset.change(ps, price_sheet_details: price_sheet_details) |> Repo.update()
+      end)
+    end
+  end
+
   @doc """
   Delete a sex
   """
@@ -68,6 +92,7 @@ defmodule CattlePurchase.Sexes do
   end
 
   def notify_subscribers({:ok, result}, event) do
+    Task.start_link(fn -> update_price_sheets(result) end)
     Phoenix.PubSub.broadcast(CattlePurchase.PubSub, @topic, {event, result})
     Phoenix.PubSub.broadcast(CattlePurchase.PubSub, "#{@topic}:#{result.id}", {event, result})
 
@@ -75,5 +100,4 @@ defmodule CattlePurchase.Sexes do
   end
 
   def notify_subscribers({:error, reason}, _event), do: {:error, reason}
-
 end

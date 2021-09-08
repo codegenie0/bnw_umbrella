@@ -166,19 +166,25 @@ defmodule CattlePurchase.PriceSheets do
 
   def list_price_sheets_by_page(current_page \\ 1, per_page \\ 10) do
     offset = per_page * (current_page - 1)
-    sex_query = from(sex in CattlePurchase.Sex, order_by: sex.order)
+    sex_query = from(sex in CattlePurchase.Sex, order_by: [asc: sex.order])
+    wc_query = from(wc in CattlePurchase.WeightCategory, order_by: [asc: wc.start_weight])
+
+    ps_query =
+      from(price_sheet_details in CattlePurchase.PriceSheetDetail,
+        left_join: w_c in CattlePurchase.WeightCategory,
+        on: w_c.id == price_sheet_details.weight_category_id,
+        left_join: sex in CattlePurchase.Sex,
+        on: sex.id == price_sheet_details.weight_category_id,
+        order_by: [asc: w_c.start_weight, asc: sex.order],
+        preload: [sex: ^sex_query, weight_category: ^wc_query]
+      )
 
     result =
       from(price_sheet in CattlePurchase.PriceSheet,
-        left_join: price_sheet_details in CattlePurchase.PriceSheetDetail,
-        on: price_sheet.id == price_sheet_details.price_sheet_id,
-        left_join: w_c in CattlePurchase.WeightCategory,
-        on: w_c.id == price_sheet_details.weight_category_id,
-        group_by: price_sheet.id,
         order_by: [desc: price_sheet.price_date],
         offset: ^offset,
         limit: ^per_page,
-        preload: [price_sheet_details: [:weight_category, sex: ^sex_query]]
+        preload: [price_sheet_details: ^ps_query]
       )
       |> Repo.all()
 

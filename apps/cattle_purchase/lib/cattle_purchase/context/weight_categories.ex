@@ -1,6 +1,7 @@
 defmodule CattlePurchase.WeightCategories do
   alias CattlePurchase.{
     WeightCategory,
+    PriceSheets,
     Repo
   }
 
@@ -56,15 +57,41 @@ defmodule CattlePurchase.WeightCategories do
 
   def check_weight_categories_overlapping(start_weight, end_weight) do
     from(wc in WeightCategory,
-            where: wc.start_weight <= ^start_weight
-              or wc.end_weight <= ^end_weight,
-              select: %{id: wc.id}
-        )
-        |> Repo.all()
+      where:
+        wc.start_weight <= ^start_weight or
+          wc.end_weight <= ^end_weight,
+      select: %{id: wc.id}
+    )
+    |> Repo.all()
+  end
 
+  def update_price_sheets(wc) do
+    new_price_sheet_detail =
+      Enum.map(PriceSheets.get_active_sex_with_order_for_create(), fn as ->
+        %{weight_category_id: wc.id, sex_id: as}
+      end)
+
+    weight_category_id = wc.id
+    price_sheets = CattlePurchase.Repo.all(CattlePurchase.PriceSheet)
+
+    if price_sheets != [] do
+      Enum.map(price_sheets, fn ps ->
+        ps = ps |> Repo.preload(:price_sheet_details)
+
+        price_sheet_detail_list =
+          Enum.map(ps.price_sheet_details, fn psd ->
+            %{weight_category_id: psd.weight_category_id, sex_id: psd.sex_id, value: psd.value}
+          end)
+
+        price_sheet_details = price_sheet_detail_list ++ new_price_sheet_detail
+        Ecto.Changeset.change(ps, price_sheet_details: price_sheet_details) |> Repo.update()
+      end)
+    end
   end
 
   def notify_subscribers({:ok, result}, event) do
+    Task.start_link(fn -> update_price_sheets(result) end)
+
     Phoenix.PubSub.broadcast(CattlePurchase.PubSub, @topic, {event, result})
     Phoenix.PubSub.broadcast(CattlePurchase.PubSub, "#{@topic}:#{result.id}", {event, result})
     {:ok, result}

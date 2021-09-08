@@ -6,6 +6,7 @@ defmodule CattlePurchase.Pages do
       %{name: "Destination Groups", url: "/cattle_purchase/destination_groups"},
       %{name: "Page", url: "/cattle_purchase/page"},
       %{name: "Price Sheets", url: "/cattle_purchase/price_sheets"},
+      %{name: "Program", url: "/cattle_purchase/programs"},
       %{name: "Purchase", url: "/cattle_purchase/purchases"},
       %{name: "Purchase Buyer", url: "/cattle_purchase/purchase_buyers"},
       %{name: "Purchase Flag", url: "/cattle_purchase/purchase_flags"},
