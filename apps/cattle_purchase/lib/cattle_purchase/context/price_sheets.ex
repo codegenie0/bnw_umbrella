@@ -17,19 +17,35 @@ defmodule CattlePurchase.PriceSheets do
   """
 
   def list_price_sheets() do
-    sex_query = from(sex in CattlePurchase.Sex, order_by: sex.order)
+    sex_query = from(sex in CattlePurchase.Sex, order_by: [asc: sex.order])
+    wc_query = from(wc in CattlePurchase.WeightCategory, order_by: [asc: wc.start_weight])
+
+    ps_query =
+      from(price_sheet_details in CattlePurchase.PriceSheetDetail,
+        left_join: w_c in CattlePurchase.WeightCategory,
+        on: w_c.id == price_sheet_details.weight_category_id,
+        left_join: sex in CattlePurchase.Sex,
+        on: sex.id == price_sheet_details.weight_category_id,
+        order_by: [asc: w_c.start_weight, asc: sex.order],
+        preload: [sex: ^sex_query, weight_category: ^wc_query]
+      )
 
     result =
       from(price_sheet in CattlePurchase.PriceSheet,
-        left_join: price_sheet_details in CattlePurchase.PriceSheetDetail,
-        on: price_sheet.id == price_sheet_details.price_sheet_id,
-        left_join: w_c in CattlePurchase.WeightCategory,
-        on: w_c.id == price_sheet_details.weight_category_id,
-        group_by: price_sheet.id,
         order_by: [desc: price_sheet.price_date],
-        preload: [price_sheet_details: [:weight_category, sex: ^sex_query]]
+        preload: [price_sheet_details: ^ps_query]
       )
       |> Repo.all()
+
+      result = Enum.reduce(result, [], fn res, acc ->
+        result =
+          Enum.sort_by(res.price_sheet_details, fn resp -> resp.sex.order end)
+          |> Enum.sort_by(fn res -> res.weight_category.start_weight end)
+
+        map = Map.put(res, :price_sheet_details, result)
+        acc ++ [map]
+      end)
+
 
     Enum.reduce(result, [], fn res, acc ->
       result =
@@ -80,20 +96,35 @@ defmodule CattlePurchase.PriceSheets do
   def price_date_range(_query, nil, _end_date), do: list_price_sheets()
 
   def price_date_range(query, start_date, nil) do
-    sex_query = from(sex in CattlePurchase.Sex, order_by: sex.order)
+    sex_query = from(sex in CattlePurchase.Sex, order_by: [asc: sex.order])
+    wc_query = from(wc in CattlePurchase.WeightCategory, order_by: [asc: wc.start_weight])
 
-    result =
-      from(price_sheet in query,
-        left_join: price_sheet_details in CattlePurchase.PriceSheetDetail,
-        on: price_sheet.id == price_sheet_details.price_sheet_id,
+    ps_query =
+      from(price_sheet_details in CattlePurchase.PriceSheetDetail,
         left_join: w_c in CattlePurchase.WeightCategory,
         on: w_c.id == price_sheet_details.weight_category_id,
+        left_join: sex in CattlePurchase.Sex,
+        on: sex.id == price_sheet_details.weight_category_id,
+        order_by: [asc: w_c.start_weight, asc: sex.order],
+        preload: [sex: ^sex_query, weight_category: ^wc_query]
+      )
+
+    result =
+      from(price_sheet in CattlePurchase.PriceSheet,
         where: price_sheet.price_date >= ^start_date,
-        group_by: price_sheet.id,
         order_by: [desc: price_sheet.price_date],
-        preload: [price_sheet_details: [:weight_category, sex: ^sex_query]]
+        preload: [price_sheet_details: ^ps_query]
       )
       |> Repo.all()
+
+      result = Enum.reduce(result, [], fn res, acc ->
+        result =
+          Enum.sort_by(res.price_sheet_details, fn resp -> resp.sex.order end)
+          |> Enum.sort_by(fn res -> res.weight_category.start_weight end)
+
+        map = Map.put(res, :price_sheet_details, result)
+        acc ++ [map]
+      end)
 
     Enum.reduce(result, [], fn res, acc ->
       result =
@@ -105,20 +136,35 @@ defmodule CattlePurchase.PriceSheets do
   end
 
   def price_date_range(query, start_date, end_date) do
-    sex_query = from(sex in CattlePurchase.Sex, order_by: sex.order)
+    sex_query = from(sex in CattlePurchase.Sex, order_by: [asc: sex.order])
+    wc_query = from(wc in CattlePurchase.WeightCategory, order_by: [asc: wc.start_weight])
 
-    result =
-      from(price_sheet in query,
-        left_join: price_sheet_details in CattlePurchase.PriceSheetDetail,
-        on: price_sheet.id == price_sheet_details.price_sheet_id,
+    ps_query =
+      from(price_sheet_details in CattlePurchase.PriceSheetDetail,
         left_join: w_c in CattlePurchase.WeightCategory,
         on: w_c.id == price_sheet_details.weight_category_id,
-        where: price_sheet.price_date >= ^start_date and price_sheet.price_date <= ^end_date,
-        group_by: price_sheet.id,
+        left_join: sex in CattlePurchase.Sex,
+        on: sex.id == price_sheet_details.weight_category_id,
+        order_by: [asc: w_c.start_weight, asc: sex.order],
+        preload: [sex: ^sex_query, weight_category: ^wc_query]
+      )
+
+    result =
+      from(price_sheet in CattlePurchase.PriceSheet,
+      where: price_sheet.price_date >= ^start_date and price_sheet.price_date <= ^end_date,
         order_by: [desc: price_sheet.price_date],
-        preload: [price_sheet_details: [:weight_category, sex: ^sex_query]]
+        preload: [price_sheet_details: ^ps_query]
       )
       |> Repo.all()
+
+      result = Enum.reduce(result, [], fn res, acc ->
+        result =
+          Enum.sort_by(res.price_sheet_details, fn resp -> resp.sex.order end)
+          |> Enum.sort_by(fn res -> res.weight_category.start_weight end)
+
+        map = Map.put(res, :price_sheet_details, result)
+        acc ++ [map]
+      end)
 
     Enum.reduce(result, [], fn res, acc ->
       result =
@@ -187,6 +233,15 @@ defmodule CattlePurchase.PriceSheets do
         preload: [price_sheet_details: ^ps_query]
       )
       |> Repo.all()
+
+      result = Enum.reduce(result, [], fn res, acc ->
+        result =
+          Enum.sort_by(res.price_sheet_details, fn resp -> resp.sex.order end)
+          |> Enum.sort_by(fn res -> res.weight_category.start_weight end)
+
+        map = Map.put(res, :price_sheet_details, result)
+        acc ++ [map]
+      end)
 
     Enum.reduce(result, [], fn res, acc ->
       result =
