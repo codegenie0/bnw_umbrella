@@ -110,6 +110,7 @@ defmodule BnwDashboardWeb.Router do
 
     scope "/cattle_purchase" do
       live "/animal_ordering", CattlePurchase.AnimalOrdering.AnimalOrderingLive
+      live "/background", CattlePurchase.Background.BackgroundLive
       live "/commission_payee", CattlePurchase.CommissionPayee.CommissionPayeeLive
       live "/destination_groups", CattlePurchase.DestinationGroup.DestinationGroupLive
       live "/destination_groups/:id/destinations", CattlePurchase.Destination.DestinationLive
@@ -124,6 +125,7 @@ defmodule BnwDashboardWeb.Router do
       live "/purchase_type_filters", CattlePurchase.PurchaseTypeFilter.PurchaseTypeFilterLive
       live "/purchase_receives", CattlePurchase.CattleReceive.CattleReceiveLive
       live "/purchase_shipments", CattlePurchase.PurchaseShipment.PurchaseShipmentLive
+      live "/treatments", CattlePurchase.Treatment.TreatmentLive
       live "/users", CattlePurchase.Users.UsersLive
       live "/weight_categories", CattlePurchase.WeightCategory.WeightCategoryLive
     end

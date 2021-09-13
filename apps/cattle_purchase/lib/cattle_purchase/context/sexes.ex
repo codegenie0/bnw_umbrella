@@ -93,8 +93,9 @@ defmodule CattlePurchase.Sexes do
 
   def notify_subscribers({:ok, result}, event) do
     if result.inserted_at == result.updated_at do
-    Task.start_link(fn -> update_price_sheets(result) end)
+      Task.start_link(fn -> update_price_sheets(result) end)
     end
+
     Phoenix.PubSub.broadcast(CattlePurchase.PubSub, @topic, {event, result})
     Phoenix.PubSub.broadcast(CattlePurchase.PubSub, "#{@topic}:#{result.id}", {event, result})
 

@@ -37,7 +37,8 @@ defmodule CattlePurchase.PriceSheets do
       )
       |> Repo.all()
 
-      result = Enum.reduce(result, [], fn res, acc ->
+    result =
+      Enum.reduce(result, [], fn res, acc ->
         result =
           Enum.sort_by(res.price_sheet_details, fn resp -> resp.sex.order end)
           |> Enum.sort_by(fn res -> res.weight_category.start_weight end)
@@ -45,7 +46,6 @@ defmodule CattlePurchase.PriceSheets do
         map = Map.put(res, :price_sheet_details, result)
         acc ++ [map]
       end)
-
 
     Enum.reduce(result, [], fn res, acc ->
       result =
@@ -117,7 +117,8 @@ defmodule CattlePurchase.PriceSheets do
       )
       |> Repo.all()
 
-      result = Enum.reduce(result, [], fn res, acc ->
+    result =
+      Enum.reduce(result, [], fn res, acc ->
         result =
           Enum.sort_by(res.price_sheet_details, fn resp -> resp.sex.order end)
           |> Enum.sort_by(fn res -> res.weight_category.start_weight end)
@@ -151,13 +152,14 @@ defmodule CattlePurchase.PriceSheets do
 
     result =
       from(price_sheet in CattlePurchase.PriceSheet,
-      where: price_sheet.price_date >= ^start_date and price_sheet.price_date <= ^end_date,
+        where: price_sheet.price_date >= ^start_date and price_sheet.price_date <= ^end_date,
         order_by: [desc: price_sheet.price_date],
         preload: [price_sheet_details: ^ps_query]
       )
       |> Repo.all()
 
-      result = Enum.reduce(result, [], fn res, acc ->
+    result =
+      Enum.reduce(result, [], fn res, acc ->
         result =
           Enum.sort_by(res.price_sheet_details, fn resp -> resp.sex.order end)
           |> Enum.sort_by(fn res -> res.weight_category.start_weight end)
@@ -234,7 +236,8 @@ defmodule CattlePurchase.PriceSheets do
       )
       |> Repo.all()
 
-      result = Enum.reduce(result, [], fn res, acc ->
+    result =
+      Enum.reduce(result, [], fn res, acc ->
         result =
           Enum.sort_by(res.price_sheet_details, fn resp -> resp.sex.order end)
           |> Enum.sort_by(fn res -> res.weight_category.start_weight end)
