@@ -14,6 +14,7 @@ defmodule CattlePurchase.Pages do
       %{name: "Purchase Group", url: "/cattle_purchase/purchase_groups"},
       %{name: "Purchase Type", url: "/cattle_purchase/purchase_types"},
       %{name: "Purchase Type Filter", url: "/cattle_purchase/purchase_type_filters"},
+      %{name: "State", url: "/cattle_purchase/states"},
       %{name: "Treatment/Calfhood Vaccination", url: "/cattle_purchase/treatments"},
       %{name: "Users", url: "/cattle_purchase/users"},
       %{name: "Weight Category", url: "/cattle_purchase/weight_categories"}

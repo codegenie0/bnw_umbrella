@@ -12,6 +12,7 @@ defmodule CattlePurchase.Purchases do
     Shipment,
     Sex,
     CommissionPayee,
+    Commission,
     Repo
   }
 
@@ -29,7 +30,7 @@ defmodule CattlePurchase.Purchases do
 
   def list_purchases() do
     Repo.all(Purchase)
-    |> Repo.preload([:sex, :purchase_buyer, :destination_group])
+    |> Repo.preload([:sex, :purchase_buyer, :destination_group, :commissions])
   end
 
   @doc """
@@ -297,7 +298,7 @@ defmodule CattlePurchase.Purchases do
     |> offset(^offset)
     |> limit(^per_page)
     |> Repo.all()
-    |> Repo.preload([:sex, :purchase_buyer, :destination_group, :shipments])
+    |> Repo.preload([:sex, :purchase_buyer, :destination_group, :shipments, :commissions])
   end
 
   def get_active_commission_payee() do
