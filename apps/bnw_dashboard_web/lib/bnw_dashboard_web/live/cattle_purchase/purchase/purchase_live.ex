@@ -14,6 +14,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     Repo
   }
 
+  alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent
   alias BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent
   alias BnwDashboardWeb.CattlePurchase.Purchase.CompletePurchaseComponent
   alias BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive
@@ -93,6 +94,12 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         search_columns: search_columns,
         sort_columns: sort_columns,
         all_open: false,
+        is_commission_init: false,
+        form_step: 1,
+        commissions: [],
+        purchase_id: nil,
+        submit_type: nil,
+        commission_payees: Purchases.get_active_commission_payee(),
         purchase_search: %{
           column_name: "Select column for search",
           search_value: "",
@@ -130,7 +137,16 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   end
 
   @impl true
-  def handle_params(_, _, socket) do
+  def handle_params(params \\ %{"submit_type" => nil}, _, socket) do
+    %{"submit_type" => submit_type} = params
+
+    socket =
+      if(submit_type == "Next") do
+        assign(socket, form_step: socket.assigns.form_step + 1, modal: :change_purchase)
+      else
+        socket
+      end
+
     {:noreply, socket}
   end
 
@@ -146,7 +162,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
   @impl true
   def handle_info({[:purchases, :created_or_updated], _}, socket) do
-    socket = assign(socket, modal: nil, changeset: nil)
+    socket = assign(socket, changeset: nil)
 
     {:noreply,
      assign(socket,
@@ -286,8 +302,12 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
   @impl true
   def handle_event("cancel", _, socket) do
-    socket = assign(socket, modal: nil)
+    socket = assign(socket, modal: nil, form_step: 1)
     {:noreply, socket}
+  end
+
+  def handle_event("next_step", _, socket) do
+    {:noreply, assign(socket, form_step: socket.assigns.form_step + 1)}
   end
 
   def handle_event(

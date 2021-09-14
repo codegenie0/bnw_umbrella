@@ -10,7 +10,11 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
     {:ok, socket}
   end
 
-  def handle_event("save", %{"purchase" => purchase}, socket) do
+  def handle_event("save", params, socket) do
+    IO.inspect(params)
+    %{"purchase" => purchase} = params
+    %{"button" => button} = purchase
+    socket = assign(socket, submit_type: button)
     purchase =
       Map.put(purchase, "purchase_flag_ids", get_purchase_flags(socket.assigns.purchase_flags))
 
@@ -58,7 +62,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
     if changeset.valid? do
       case Purchases.create_or_update_purchase(changeset.data, purchase) do
         {:ok, _purchase} ->
-          {:noreply, push_patch(socket, to: Routes.live_path(socket, PurchaseLive))}
+
+          {:noreply, push_patch(socket, to: Routes.live_path(socket, PurchaseLive, submit_type: button))}
 
         {:error, %Ecto.Changeset{} = changest} ->
           result = if name == "", do: id, else: "#{id}|#{name}"
@@ -73,6 +78,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
   end
 
   def handle_event("validate", %{"purchase" => purchase}, socket) do
+    IO.inspect(purchase)
+
     purchase =
       Map.put(purchase, "purchase_flag_ids", get_purchase_flags(socket.assigns.purchase_flags))
 
@@ -120,6 +127,19 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
       end)
 
     {:noreply, assign(socket, purchase_flags: purchase_flags)}
+  end
+
+  def handle_event("init_commission", _, socket) do
+    commissions = [%{"commission_per_hundred" => 0, "commission_payee_id" => ""}]
+    {:noreply, assign(socket, is_commission_init: true, commissions: commissions)}
+  end
+
+  def handle_event("add_commission", _, socket) do
+    commissions =
+      socket.assigns.commissions ++
+        [%{"commission_per_hundred" => 0, "commission_payee_id" => ""}]
+
+    {:noreply, assign(socket, commissions: commissions)}
   end
 
   def get_purchase_flags(purchase_flags) do

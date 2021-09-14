@@ -1,0 +1,58 @@
+<div style="display: block;" class="uk-modal uk-open">
+  <div class="uk-modal-dialog uk-overflow-auto" phx-hook="close_modal">
+    <button class="uk-modal-close-default"
+            type="button"
+            phx-click="cancel"
+            uk-close phx-hook="uk_close"></button>
+            <div class="uk-modal-header">
+              <h2 class="uk-modal-title">
+                Commission
+              </h2>
+            </div>
+            <div class="uk-modal-body uk-background-secondary uk-light uk-overflow-auto uk-height-max-large">
+        <%#= if length(@commissions) >= 1 do %>
+        <div class="uk-margin-small">
+          <h3>Commissions</h3>
+          <%#= for {commission, counter} <- Enum.with_index(@commissions) do %>
+          <div class="uk-margin-small">
+            <%= label :commission_payee, "commission_payee", class: "uk-form-label" do %>
+              Commission Payee
+            <% end %>
+            <div class="uk-form-controls" id="commission_id" phx-hook="select2" phx-update="ignore">
+              <%= select :commission, "commission_payee", Enum.map(@commission_payees, &{&1.name, &1.id}), [ prompt: "Select Commission Payee", selected: "", class: "uk-select select2"] %>
+            </div>
+          </div>
+          <div class="uk-margin-small">
+            <%= label :commission, :commission, class: "uk-form-label" do %>
+            Commission
+            <% end %>
+            <div class="uk-form-controls" id="commission_id" phx-hook="select2" phx-update="ignore">
+              <%= text_input :commission, :commission, class: "uk-input", placeholder: "Comment" %>
+            </div>
+          </div>
+          <%# end %>
+        </div>
+        <!-- <button class="uk-button uk-button-primary"
+                type="button"
+                phx-target="<%= @myself %>"
+                phx-click="add_commission">Add Commission</button> -->
+        <%# end %>
+        <%#= if !@is_commission_init do %>
+        <!-- <button class="uk-button uk-button-primary"
+                type="button"
+                phx-target="<%= @myself %>"
+                phx-click="init_commission">Add Commission</button> -->
+        <%# end %>
+      </div>
+      <div class="uk-modal-footer uk-text-right">
+        <button class="uk-button uk-button-default"
+                type="button"
+                phx-click="cancel">Cancel</button>
+        <button class="uk-button uk-button-primary"
+                type="button"
+                phx-target="<%= @myself %>"
+                phx-click="save">Save</button>
+      </div>
+  </div>
+  </div>
+  
