@@ -209,7 +209,7 @@
     </table>
 
   </div>
-  <%= if @modal == :change_purchase do
+  <%= if @modal == :change_purchase and @form_step == 1 do
     live_component(
       @socket,
       ChangePurchaseComponent,
@@ -222,5 +222,14 @@
       purchase_flags: @purchase_flags,
       purchase_buyers: @purchase_buyers,
       destinations: @destinations
+      )
+  end %>
+  <%= if @modal == :change_purchase and @form_step == 2 do
+    live_component(
+      @socket,
+      PurchaseCommissionComponent,
+      id: "#{@current_user.id}",
+      purchase_id: @purchase_id,
+      commission_payees: @commission_payees
       )
   end %>
