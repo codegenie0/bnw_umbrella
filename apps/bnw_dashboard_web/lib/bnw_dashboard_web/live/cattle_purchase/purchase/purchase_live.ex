@@ -138,14 +138,18 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
   @impl true
   def handle_params(params \\ %{"submit_type" => nil}, _, socket) do
-    %{"submit_type" => submit_type} = params
+    has_submit_type = Map.has_key?(params, "submit_type")
 
     socket =
-      if(submit_type == "Next") do
+      with true <- has_submit_type,
+           %{"submit_type" => submit_type} <- params,
+           true <- submit_type == "Next" do
         assign(socket, form_step: socket.assigns.form_step + 1, modal: :change_purchase)
       else
-        socket
+        _ ->
+          socket
       end
+
 
     {:noreply, socket}
   end
