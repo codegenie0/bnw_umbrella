@@ -147,9 +147,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         assign(socket, form_step: socket.assigns.form_step + 1, modal: :change_purchase)
       else
         _ ->
-          socket
+          assign(socket, modal: nil)
       end
-
 
     {:noreply, socket}
   end
