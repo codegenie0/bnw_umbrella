@@ -10,6 +10,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     PurchaseFlags,
     PurchaseTypeFilters,
     DestinationGroups,
+    Commissions,
     Sexes,
     Repo
   }
@@ -77,6 +78,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       %{name: "firm", title: "Firm", sort_by: nil, is_sort: true},
       %{name: "projected_out_date", title: "Kill Date", sort_by: nil, is_sort: true},
       %{name: "projected_break_even", title: "Proj BE", sort_by: nil, is_sort: true},
+      %{name: "Commission", title: "comm", sort_by: nil, is_sort: false},
       %{name: "Shipment", title: "shipment", sort_by: nil, is_sort: false},
       %{name: "complete", title: "Complete", sort_by: nil, is_sort: true}
     ]
@@ -95,6 +97,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         sort_columns: sort_columns,
         all_open: false,
         is_commission_init: false,
+        commission_changeset: Commissions.new_commission(),
+        parent_id: nil,
         form_step: 1,
         commissions: [],
         purchase_id: nil,
@@ -136,21 +140,19 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     assign(socket, purchases: purchases)
   end
 
-  @impl true
-  def handle_params(%{} , _, socket) do
-
-    {:noreply, socket}
-  end
 
   @impl true
   def handle_params(params \\ %{"submit_type" => nil}, _, socket) do
-    %{"submit_type" => submit_type} = params
+    has_submit_type = Map.has_key?(params, "submit_type")
 
     socket =
-      if(submit_type == "Next") do
-        assign(socket, form_step: socket.assigns.form_step + 1, modal: :change_purchase)
+      with true <- has_submit_type,
+      %{"submit_type" => submit_type} <- params,
+      true <- submit_type == "Next" do
+        assign(socket, form_step: socket.assigns.form_step + 1, modal: :change_purchase, parent_id: params["purchase_id"])
       else
-        socket
+        _ ->
+          assign(socket, modal: nil)
       end
 
     {:noreply, socket}
@@ -175,6 +177,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
        purchases: Purchases.list_purchases() |> Enum.map(&Map.put(&1, :open_shipments, false))
      )}
   end
+
+
 
   @impl true
   def handle_event("new", _, socket) do
@@ -293,6 +297,15 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         destinations: destination_groups
       )
 
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("edit_commission", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+
+  commission_changeset = Commissions.get_commission_from_purchase(id) |> Commissions.change_commission()
+    socket = assign(socket, modal: :change_purchase, form_step: 2, commission_changeset: commission_changeset, parent_id: id)
     {:noreply, socket}
   end
 

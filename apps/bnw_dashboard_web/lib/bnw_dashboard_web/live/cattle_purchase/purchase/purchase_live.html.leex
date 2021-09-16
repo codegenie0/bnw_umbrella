@@ -141,6 +141,15 @@
             <% end %>
             <td class="uk-text-nowrap"><%= "$#{purchase.projected_break_even}"%></td>
             <td class="uk-text-nowrap">
+            <%= if purchase.commissions != [] do %>
+              <%= link "", to: "#", class: "uk-padding-remove-vertical uk-preserve-width uk-margin-small-right",
+              uk_icon: "icon: pencil",
+              phx_hook: "uk_icon",
+              phx_click: "edit_commission",
+              phx_value_id: purchase.id %>
+              <% end %>
+            </td>
+            <td class="uk-text-nowrap">
               <%= live_redirect "Shipments", to: Routes.live_path(@socket, PurchaseShipmentLive, id: purchase.id), class: "uk-button uk-button-primary uk-width-1-1"  %>
             </td>
             <td class="uk-text-nowrap">
@@ -230,6 +239,8 @@
       PurchaseCommissionComponent,
       id: "#{@current_user.id}",
       purchase_id: @purchase_id,
-      commission_payees: @commission_payees
+      commission_payees: @commission_payees,
+      commission_changeset: @commission_changeset,
+      parent_id: @parent_id
       )
   end %>
