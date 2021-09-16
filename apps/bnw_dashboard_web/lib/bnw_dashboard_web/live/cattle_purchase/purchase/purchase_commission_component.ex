@@ -16,7 +16,16 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
     if commission_changeset.valid? do
       case Commissions.create_or_update_commission(commission_changeset.data, commission) do
         {:ok, _commission} ->
-          {:noreply, push_patch(socket, to: Routes.live_path(socket, PurchaseLive))}
+          send(socket.assigns.parent_pid, {:commission_created, true})
+          {:noreply,
+           push_patch(socket,
+             to:
+               Routes.live_path(socket, PurchaseLive,
+                 submit_type: "",
+                 purchase_id: ""
+               )
+           )}
+
         {:error, %Ecto.Changeset{} = changest} ->
           {:noreply, assign(socket, commission_changeset: changest)}
       end
