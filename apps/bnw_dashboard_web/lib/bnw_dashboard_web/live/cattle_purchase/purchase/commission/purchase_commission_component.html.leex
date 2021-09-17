@@ -13,7 +13,7 @@
             </div>
             <div class="uk-modal-body uk-background-secondary uk-light uk-overflow-auto uk-height-max-large">
          <%= hidden_input f, :purchase_id,  class: "uk-input", value: @parent_id %>
-
+         <%= hidden_input f, :button,  class: "uk-input", id: "button-clicked", value: "" %>
         <div class="uk-margin-small">
           <h3>Commissions</h3>
           <div class="uk-margin-small">

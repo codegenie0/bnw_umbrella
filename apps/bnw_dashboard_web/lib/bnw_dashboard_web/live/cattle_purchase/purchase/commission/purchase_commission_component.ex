@@ -13,20 +13,11 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
   def handle_event("save", %{"commission" => commission}, socket) do
     %{commission_changeset: commission_changeset} = socket.assigns
     commission_changeset = Commissions.validate(commission_changeset.data, commission)
-
+    %{"button" => button} = commission
     if commission_changeset.valid? do
       case Commissions.create_or_update_commission(commission_changeset.data, commission) do
         {:ok, _commission} ->
-          send(socket.assigns.parent_pid, {:commission_created, true})
-
-          {:noreply,
-           push_patch(socket,
-             to:
-               Routes.live_path(socket, PurchaseLive,
-                 submit_type: "",
-                 purchase_id: ""
-               )
-           )}
+          send(socket.assigns.parent_pid, {:commission_created, %{button: button}, })
 
         {:error, %Ecto.Changeset{} = changest} ->
           {:noreply, assign(socket, commission_changeset: changest)}

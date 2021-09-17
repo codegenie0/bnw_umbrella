@@ -12,10 +12,12 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     DestinationGroups,
     Commissions,
     Sexes,
+    DownPayments,
     Repo
   }
 
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent
+  alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent
   alias BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent
   alias BnwDashboardWeb.CattlePurchase.Purchase.CompletePurchaseComponent
   alias BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive
@@ -79,6 +81,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       %{name: "projected_out_date", title: "Kill Date", sort_by: nil, is_sort: true},
       %{name: "projected_break_even", title: "Proj BE", sort_by: nil, is_sort: true},
       %{name: "Commission", title: "comm", sort_by: nil, is_sort: false},
+      %{name: "down_payment", title: "Down Pay", sort_by: nil, is_sort: false},
       %{name: "Shipment", title: "shipment", sort_by: nil, is_sort: false},
       %{name: "complete", title: "Complete", sort_by: nil, is_sort: true}
     ]
@@ -210,7 +213,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
           pcc_sort_category: pcc_sort_category,
           purchase_flags: Enum.map(purchase_flags, &%{id: &1.id, name: &1.name, checked: false}),
           purchase_buyers: Enum.map(purchase_buyers, &%{id: &1.id, name: &1.name}),
-          destinations: destination_groups
+          destinations: destination_groups,
+          down_payment_changeset: DownPayments.new_down_payment()
         )
 
       {:noreply, socket}
@@ -249,8 +253,28 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
      )}
   end
 
-  def handle_info({:commission_created, true}, socket) do
+  def handle_info({:commission_created, data}, socket) do
+    %{button: button} = data
+
+    if(button == "Next") do
+      socket =
+        assign(socket,
+          form_step: 3,
+          model: :change_purchase,
+          down_payment_changeset: DownPayments.new_down_payment()
+        )
+
+      {:noreply, socket}
+    else
+      socket = assign(socket, form_step: 1, model: nil)
+      socket = fetch_purchase(socket)
+      {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
+    end
+  end
+
+  def handle_info({:down_payment_created, data}, socket) do
     socket = assign(socket, form_step: 1, model: nil)
+    socket = fetch_purchase(socket)
     {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
   end
 
@@ -318,6 +342,24 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         modal: :change_purchase,
         form_step: 2,
         commission_changeset: commission_changeset,
+        parent_id: id
+      )
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("edit_down_payment", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+
+    down_payment_changeset =
+      DownPayments.get_down_payment_from_purchase(id) |> DownPayments.change_down_payment()
+
+    socket =
+      assign(socket,
+        modal: :change_purchase,
+        form_step: 3,
+        down_payment_changeset: down_payment_changeset,
         parent_id: id
       )
 
