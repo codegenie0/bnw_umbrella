@@ -9,6 +9,7 @@ defmodule CattlePurchase.Application do
     children = [
       # Start the Ecto repository
       CattlePurchase.Repo,
+      CattlePurchase.Repo.Turnkey,
       # Start the PubSub system
       {Phoenix.PubSub, name: CattlePurchase.PubSub}
       # Start a worker by calling: CattlePurchase.Worker.start_link(arg)

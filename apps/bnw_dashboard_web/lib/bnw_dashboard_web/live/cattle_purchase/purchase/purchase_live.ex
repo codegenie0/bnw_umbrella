@@ -140,16 +140,19 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     assign(socket, purchases: purchases)
   end
 
-
   @impl true
-  def handle_params(params \\ %{"submit_type" => nil}, _, socket) do
+  def handle_params(params \\ %{"submit_type" => nil}, url, socket) do
     has_submit_type = Map.has_key?(params, "submit_type")
 
     socket =
       with true <- has_submit_type,
-      %{"submit_type" => submit_type} <- params,
-      true <- submit_type == "Next" do
-        assign(socket, form_step: socket.assigns.form_step + 1, modal: :change_purchase, parent_id: params["purchase_id"])
+           %{"submit_type" => submit_type} <- params,
+           true <- submit_type == "Next" do
+        assign(socket,
+          form_step: socket.assigns.form_step + 1,
+          modal: :change_purchase,
+          parent_id: params["purchase_id"]
+        )
       else
         _ ->
           assign(socket, modal: nil)
@@ -177,8 +180,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
        purchases: Purchases.list_purchases() |> Enum.map(&Map.put(&1, :open_shipments, false))
      )}
   end
-
-
 
   @impl true
   def handle_event("new", _, socket) do
@@ -248,6 +249,11 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
      )}
   end
 
+  def handle_info({:commission_created, true}, socket) do
+    socket = assign(socket, form_step: 1, model: nil)
+    {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
+  end
+
   @impl true
   def handle_event("edit", params, socket) do
     {id, ""} = Integer.parse(params["id"])
@@ -304,8 +310,17 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   def handle_event("edit_commission", params, socket) do
     {id, ""} = Integer.parse(params["id"])
 
-  commission_changeset = Commissions.get_commission_from_purchase(id) |> Commissions.change_commission()
-    socket = assign(socket, modal: :change_purchase, form_step: 2, commission_changeset: commission_changeset, parent_id: id)
+    commission_changeset =
+      Commissions.get_commission_from_purchase(id) |> Commissions.change_commission()
+
+    socket =
+      assign(socket,
+        modal: :change_purchase,
+        form_step: 2,
+        commission_changeset: commission_changeset,
+        parent_id: id
+      )
+
     {:noreply, socket}
   end
 
@@ -342,7 +357,9 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
           sort_by = if sort_column.sort_by == nil, do: true, else: !sort_column.sort_by
           Map.put(sort_column, :sort_by, sort_by)
         else
-          if sort_column.sort_by != nil, do:  Map.put(sort_column, :sort_by, nil), else: sort_column
+          if sort_column.sort_by != nil,
+            do: Map.put(sort_column, :sort_by, nil),
+            else: sort_column
         end
       end)
 
@@ -352,7 +369,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     purchases =
       Purchases.sort_by(Purchase, sortOrder, selected_column.name)
       |> Repo.all()
-      |> Repo.preload([:sex, :purchase_buyer, :destination_group])
+      |> Repo.preload([:sex, :purchase_buyer, :destination_group, commissions: :commission_payee])
       |> Enum.map(&Map.put(&1, :open_shipments, false))
 
     {:noreply, assign(socket, purchases: purchases, sort_columns: sort_columns)}
@@ -492,7 +509,13 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       |> Purchases.ship_date_range(purchase_filters.start_date, purchase_filters.end_date)
       |> Purchases.search(purchase_filters.column_name, purchase_filters.search_value)
       |> Repo.all()
-      |> Repo.preload([:sex, :purchase_buyer, :destination_group, :shipments])
+      |> Repo.preload([
+        :sex,
+        :purchase_buyer,
+        :destination_group,
+        :shipments,
+        commissions: :commission_payee
+      ])
       |> Enum.map(&Map.put(&1, :open_shipments, false))
 
     {:noreply, assign(socket, purchases: purchases, update_action: "replace")}

@@ -14,6 +14,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
     %{"purchase" => purchase} = params
     %{"button" => button} = purchase
     socket = assign(socket, submit_type: button)
+
     purchase =
       Map.put(purchase, "purchase_flag_ids", get_purchase_flags(socket.assigns.purchase_flags))
 
@@ -61,7 +62,14 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
     if changeset.valid? do
       case Purchases.create_or_update_purchase(changeset.data, purchase) do
         {:ok, purchase} ->
-          {:noreply, push_patch(socket, to: Routes.live_path(socket, PurchaseLive, submit_type: button, purchase_id: purchase.id))}
+          {:noreply,
+           push_patch(socket,
+             to:
+               Routes.live_path(socket, PurchaseLive,
+                 submit_type: button,
+                 purchase_id: purchase.id
+               )
+           )}
 
         {:error, %Ecto.Changeset{} = changest} ->
           result = if name == "", do: id, else: "#{id}|#{name}"

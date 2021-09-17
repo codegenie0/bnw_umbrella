@@ -31,7 +31,7 @@
             <%= error_tag f, :commission_per_hundred %>
           <% end %>
           <div class="uk-form-controls">
-            <%= number_input f, :commission_per_hundred, class: "uk-input", placeholder: "Head Count" %>
+            <%= number_input f, :commission_per_hundred, class: "uk-input"%>
           </div>
         </div>
         </div>
@@ -40,8 +40,15 @@
         <button class="uk-button uk-button-default"
                 type="button"
                 phx-click="cancel">Cancel</button>
-        <%= submit "Save", [id: "Save",
+        <%= if Ecto.get_meta(@commission_changeset.data, :state) == :built do %>
+          <%= submit "Save&Close", [id: "Save&Close",
+                          class: "uk-button uk-button-primary", phx_hook: "set_save"] %>
+          <%= submit "Next", [id: "Next",
+                          class: "uk-button uk-button-primary", phx_hook: "set_save"] %>
+        <% else %>
+          <%= submit "Save", [phx_disable_with: "Saving...",
                           class: "uk-button uk-button-primary"] %>
+        <% end %>
       </div>
   </div>
   </div>

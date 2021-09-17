@@ -9,16 +9,16 @@ defmodule CattlePurchase.Commissions do
   @doc """
   Get commission from purchase
   """
- def get_commission_from_purchase(purchase_id) do
-  from(commission in Commission, where: commission.purchase_id == ^purchase_id) |> Repo.one()
- end
+  def get_commission_from_purchase(purchase_id) do
+    from(commission in Commission, where: commission.purchase_id == ^purchase_id) |> Repo.one()
+  end
+
   @doc """
   Create a new commission
   """
   def new_commission() do
     Commission.new_changeset(%Commission{}, %{})
   end
-
 
   def change_commission(%Commission{} = commission, attrs \\ %{}) do
     Commission.changeset(commission, attrs)

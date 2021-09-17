@@ -66,6 +66,7 @@ defmodule CattlePurchase.Purchase do
     has_many(:purchase_purchase_flags, PurchasePurchaseFlag, on_replace: :delete)
     has_many(:shipments, Shipment, on_replace: :delete)
     has_many(:commissions, CattlePurchase.Commission)
+    has_many(:down_payments, CattlePurchase.DownPayment)
 
     many_to_many(:purchase_flags, PurchaseFlag,
       join_through: "purchase_purchase_flags",

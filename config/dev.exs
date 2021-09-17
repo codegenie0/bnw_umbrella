@@ -9,6 +9,14 @@ config :cattle_purchase, CattlePurchase.Repo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
+config :cattle_purchase, CattlePurchase.Repo.Turnkey,
+  username: "root",
+  password: "sxkjad94",
+  database: "turnkey",
+  hostname: "bnw-dashboard-db",
+  show_sensitive_data_on_connection_error: true,
+  pool_size: 10
+
 # Configure your database
 config :plugs_app, PlugsApp.Repo,
   username: "root",

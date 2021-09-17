@@ -146,6 +146,7 @@
               uk_icon: "icon: pencil",
               phx_hook: "uk_icon",
               phx_click: "edit_commission",
+              uk_tooltip: "Payee #{Enum.at(purchase.commissions, 0).commission_payee.name} -- Commission $#{Enum.at(purchase.commissions, 0).commission_per_hundred}",
               phx_value_id: purchase.id %>
               <% end %>
             </td>
@@ -241,6 +242,7 @@
       purchase_id: @purchase_id,
       commission_payees: @commission_payees,
       commission_changeset: @commission_changeset,
-      parent_id: @parent_id
+      parent_id: @parent_id,
+      parent_pid: self()
       )
   end %>
