@@ -24,7 +24,7 @@ defmodule CattlePurchase.Commissions do
     Commission.changeset(commission, attrs)
   end
 
-  def validate(%Commission{} = commission, attrs \\ %{}) do
+  def validate(commission, attrs \\ %{}) do
     commission
     |> change_commission(attrs)
     |> Map.put(:action, :insert)
@@ -37,6 +37,12 @@ defmodule CattlePurchase.Commissions do
     commission
     |> Commission.changeset(attrs)
     |> Repo.insert_or_update()
+  end
+
+  def create_multiple_commissions(cs_list) do
+    Repo.transaction(fn ->
+      Enum.each(cs_list, &Repo.insert!(&1, []))
+    end)
   end
 
   @doc """

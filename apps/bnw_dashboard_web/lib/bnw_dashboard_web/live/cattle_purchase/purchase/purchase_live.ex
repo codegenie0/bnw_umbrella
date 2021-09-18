@@ -98,6 +98,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         all_open: false,
         is_commission_init: false,
         commission_changeset: Commissions.new_commission(),
+        commissions_in_form: [%{commission_payee_id: "", commission_per_hundred: 0, valid: true}],
         parent_id: nil,
         form_step: 1,
         commissions: [],
