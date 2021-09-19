@@ -33,7 +33,6 @@ defmodule CattlePurchase.DownPayment do
     |> cast(attrs, @allowed)
     |> validate_required(@required)
     |> foreign_key_constraint(:purchase_id)
-
   end
 
   def new_changeset(%__MODULE__{} = model, attrs \\ %{}) do

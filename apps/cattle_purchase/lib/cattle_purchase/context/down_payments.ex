@@ -10,7 +10,8 @@ defmodule CattlePurchase.DownPayments do
   Get down_payment from purchase
   """
   def get_down_payment_from_purchase(purchase_id) do
-    from(down_payment in DownPayment, where: down_payment.purchase_id == ^purchase_id) |> Repo.one()
+    from(down_payment in DownPayment, where: down_payment.purchase_id == ^purchase_id)
+    |> Repo.one()
   end
 
   @doc """
