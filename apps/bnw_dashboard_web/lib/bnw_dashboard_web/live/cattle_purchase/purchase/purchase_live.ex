@@ -97,6 +97,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         sort_columns: sort_columns,
         all_open: false,
         is_commission_init: false,
+        commission_edit_phase: false,
+        commissions_from_db: nil,
         commission_changeset: Commissions.new_commission(),
         commissions_in_form: [%{commission_payee_id: "", commission_per_hundred: 0, valid: true}],
         parent_id: nil,
@@ -251,7 +253,17 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   end
 
   def handle_info({:commission_created, true}, socket) do
-    socket = assign(socket, form_step: 1, model: nil)
+    socket =
+      assign(socket,
+        form_step: 1,
+        model: nil,
+        commission_edit_phase: false,
+        commissions_from_db: nil,
+        commissions_in_form: nil
+      )
+
+    socket = fetch_purchase(socket)
+
     {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
   end
 
@@ -311,15 +323,18 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   def handle_event("edit_commission", params, socket) do
     {id, ""} = Integer.parse(params["id"])
 
-    commission_changeset =
-      Commissions.get_commission_from_purchase(id) |> Commissions.change_commission()
+    commissions_in_form =
+      Commissions.get_commission_from_purchase(id) |> Enum.map(&Map.put(&1, :valid, true))
 
     socket =
       assign(socket,
         modal: :change_purchase,
         form_step: 2,
-        commission_changeset: commission_changeset,
-        parent_id: id
+        commissions_in_form: commissions_in_form,
+        commissions_from_db: commissions_in_form,
+        commission_changeset: Commissions.new_commission(),
+        parent_id: id,
+        commission_edit_phase: true
       )
 
     {:noreply, socket}

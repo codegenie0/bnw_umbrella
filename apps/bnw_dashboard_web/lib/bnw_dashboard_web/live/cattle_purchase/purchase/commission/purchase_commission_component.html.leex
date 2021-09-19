@@ -30,15 +30,15 @@
               <%= number_input :commission, "#{i}_commission_per_hundred",class: "uk-input" , value: c.commission_per_hundred %>
             </div>
           </div>
-
-           <%= link "", to: "#", class: "uk-preserve-width uk-padding-small uk-padding-remove-vertical",
+          <%= if !@commission_edit_phase do %>
+              <%= link "", to: "#", class: "uk-preserve-width uk-padding-small uk-padding-remove-vertical",
                         uk_icon: "trash",
                         phx_hook: "uk_icon",
                         phx_click: "delete_commission",
                         phx_value_id: i,
                         phx_target: @myself,
                         data: [confirm: "Are you sure?"]  %>
-
+          <% end %>
          </div>
          <%= if !c.valid do %>
            <span class="invalid-feedback">
@@ -46,12 +46,14 @@
            </span>
          <% end %>
        <% end %>
+       <%= if !@commission_edit_phase do %>
        <div class="uk-padding uk-padding-remove-horizontal uk-padding-remove-top">
         <button class="uk-button uk-button-default uk-border-pill uk-width-3-4 uk-align-center"
                 type="button"
                 phx-target="<%= @myself %>"
                 phx-click="add_commission">Add Commission</button>
       </div>
+      <% end %>
       </div>
       <div class="uk-modal-footer uk-text-right">
         <button class="uk-button uk-button-default"
@@ -60,8 +62,10 @@
         <%= if Ecto.get_meta(@commission_changeset.data, :state) == :built do %>
           <%= submit "Save&Close", [id: "Save&Close",
                           class: "uk-button uk-button-primary", phx_hook: "set_save"] %>
-          <%= submit "Next", [id: "Next",
+              <%= if !@commission_edit_phase do %>
+                    <%= submit "Next", [id: "Next",
                           class: "uk-button uk-button-primary", phx_hook: "set_save"] %>
+              <% end %>
         <% else %>
           <%= submit "Save", [phx_disable_with: "Saving...",
                           class: "uk-button uk-button-primary"] %>

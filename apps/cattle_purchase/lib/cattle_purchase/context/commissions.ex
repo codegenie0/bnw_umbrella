@@ -10,7 +10,7 @@ defmodule CattlePurchase.Commissions do
   Get commission from purchase
   """
   def get_commission_from_purchase(purchase_id) do
-    from(commission in Commission, where: commission.purchase_id == ^purchase_id) |> Repo.one()
+    from(commission in Commission, where: commission.purchase_id == ^purchase_id) |> Repo.all()
   end
 
   @doc """
@@ -30,10 +30,21 @@ defmodule CattlePurchase.Commissions do
     |> Map.put(:action, :insert)
   end
 
-  def create_multiple_commissions(cs_list) do
-    Repo.transaction(fn ->
-      Enum.each(cs_list, &Repo.insert!(&1, []))
-    end)
+  def update_validate(%Commission{} = commission, attrs \\ %{}) do
+    commission
+    |> change_commission(attrs)
+  end
+
+  def create_or_update_multiple_commissions(cs_list, is_edit) do
+    if(is_edit) do
+      Repo.transaction(fn ->
+        Enum.each(cs_list, &Repo.update!(&1, []))
+      end)
+    else
+      Repo.transaction(fn ->
+        Enum.each(cs_list, &Repo.insert!(&1, []))
+      end)
+    end
   end
 
   @doc """
