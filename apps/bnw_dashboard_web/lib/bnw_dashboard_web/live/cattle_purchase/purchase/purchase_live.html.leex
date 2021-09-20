@@ -247,3 +247,16 @@
       parent_pid: self()
       )
   end %>
+
+  <%= if @modal == :change_purchase and @form_step == 3 do
+  live_component(
+    @socket,
+    PurchaseDownPaymentComponent,
+    id: "#{@current_user.id}",
+    purchase_id: @purchase_id,
+    down_payment_changeset: @down_payment_changeset,
+    parent_id: @parent_id,
+    down_payments_in_form: @down_payments_in_form,
+    parent_pid: self()
+    )
+end %>

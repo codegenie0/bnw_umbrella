@@ -11,11 +11,13 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     PurchaseTypeFilters,
     DestinationGroups,
     Commissions,
+    DownPayments,
     Sexes,
     Repo
   }
 
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent
+  alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent
   alias BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent
   alias BnwDashboardWeb.CattlePurchase.Purchase.CompletePurchaseComponent
   alias BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive
@@ -99,6 +101,16 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         is_commission_init: false,
         commission_changeset: Commissions.new_commission(),
         commissions_in_form: [%{commission_payee_id: "", commission_per_hundred: 0, valid: true}],
+        down_payment_changeset: DownPayments.new_down_payment(),
+        down_payments_in_form: [
+          %{
+            description: "",
+            amount: 0,
+            date_paid: "",
+            locked: "",
+            valid: true
+          }
+        ],
         parent_id: nil,
         form_step: 1,
         commissions: [],
@@ -252,6 +264,12 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
   def handle_info({:commission_created, true}, socket) do
     socket = assign(socket, form_step: 1, model: nil)
+    {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
+  end
+
+  def handle_info({:down_payments_created, true}, socket) do
+    socket = assign(socket, form_step: 1, model: nil)
+    socket = fetch_purchase(socket)
     {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
   end
 
