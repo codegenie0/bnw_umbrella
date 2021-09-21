@@ -43,7 +43,7 @@
       </tr>
       <tr>
        <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default">Date</th>
-      <%= for weight_category <- @weight_categories do %>
+      <%= for _weight_category <- @weight_categories do %>
         <%= for sex <- @sexes do %>
           <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default"><%= sex  %></th>
         <% end %>

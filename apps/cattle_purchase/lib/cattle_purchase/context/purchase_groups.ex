@@ -4,7 +4,6 @@ defmodule CattlePurchase.PurchaseGroups do
     Repo
   }
 
-  import Ecto.Query, only: [from: 2]
   @topic "cattle_purchase:purchase_groups"
   def subscribe(), do: Phoenix.PubSub.subscribe(CattlePurchase.PubSub, @topic)
   def subscribe(id), do: Phoenix.PubSub.subscribe(CattlePurchase.PubSub, "#{@topic}:#{id}")

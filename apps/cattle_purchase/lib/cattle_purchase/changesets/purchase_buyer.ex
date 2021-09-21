@@ -17,7 +17,7 @@ defmodule CattlePurchase.PurchaseBuyer do
 
   schema "purchase_buyers" do
     field :name, :string
-    has_many(:purchases, Purchase)
+    has_many(:purchases, Purchase, foreign_key: :buyer_id)
 
 
     timestamps()

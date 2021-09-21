@@ -87,7 +87,6 @@ defmodule BnwDashboardWeb.CattlePurchase.AnimalOrdering.AnimalOrderingLive do
   @impl true
   def handle_event("delete", params, socket) do
     {id, ""} = Integer.parse(params["id"])
-    changeset =
       Enum.find(socket.assigns.sexes, fn pt -> pt.id == id end)
       |> Sexes.delete_sex()
     {:noreply, socket}
@@ -103,14 +102,12 @@ defmodule BnwDashboardWeb.CattlePurchase.AnimalOrdering.AnimalOrderingLive do
   @impl true
   def handle_info({[:sexes, :created_or_updated], _}, socket) do
     socket = assign(socket, modal: nil, changeset: nil)
-    sexes = socket.assigns.sexes
     data = fetch_by_type(socket.assigns.sex)
     {:noreply, assign(socket, sexes: data)}
   end
 
   @impl true
   def handle_info({[:sexes, :deleted], _}, socket) do
-    sexes = socket.assigns.sexes
     data = fetch_by_type(socket.assigns.sex)
     {:noreply, assign(socket, sexes: data)}
   end

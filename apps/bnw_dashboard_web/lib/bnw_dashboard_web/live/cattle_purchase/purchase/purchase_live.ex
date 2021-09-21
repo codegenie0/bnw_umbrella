@@ -9,7 +9,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     PurchaseGroups,
     PurchaseFlags,
     PurchaseTypeFilters,
-    DestinationGroups,
     Commissions,
     DownPayments,
     Sexes,
@@ -81,11 +80,10 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       %{name: "projected_out_date", title: "Kill Date", sort_by: nil, is_sort: true},
       %{name: "projected_break_even", title: "Proj BE", sort_by: nil, is_sort: true},
       %{name: "Commission", title: "comm", sort_by: nil, is_sort: false},
+      %{name: "Down Payment", title: "DP", sort_by: nil, is_sort: false},
       %{name: "Shipment", title: "shipment", sort_by: nil, is_sort: false},
       %{name: "complete", title: "Complete", sort_by: nil, is_sort: true}
     ]
-
-    total_pages = Purchases.total_pages(1)
 
     socket =
       assign_defaults(session, socket)
@@ -99,6 +97,9 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         sort_columns: sort_columns,
         all_open: false,
         is_commission_init: false,
+        commission_edit_phase: false,
+        down_payment_edit_phase: false,
+        commissions_from_db: nil,
         commission_changeset: Commissions.new_commission(),
         commissions_in_form: [%{commission_payee_id: "", commission_per_hundred: 0, valid: true}],
         down_payment_changeset: DownPayments.new_down_payment(),
@@ -154,7 +155,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   end
 
   @impl true
-  def handle_params(params \\ %{"submit_type" => nil}, url, socket) do
+  def handle_params(params \\ %{"submit_type" => nil}, _url, socket) do
     has_submit_type = Map.has_key?(params, "submit_type")
 
     socket =
@@ -192,6 +193,46 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
      assign(socket,
        purchases: Purchases.list_purchases() |> Enum.map(&Map.put(&1, :open_shipments, false))
      )}
+  end
+
+  def handle_info({:commission_created, button: button}, socket) do
+
+    if button == "Next" do
+      socket =
+        assign(socket,
+          form_step: 3,
+          model: :change_purchase,
+          commission_edit_phase: false,
+          commissions_from_db: nil,
+          commissions_in_form: nil,
+          down_payments_in_form: [
+            %{
+              description: "",
+              amount: 0,
+              date_paid: "",
+              locked: "",
+              valid: true
+            }
+          ],
+          down_payments_from_db: nil,
+          down_payment_changeset: DownPayments.new_down_payment(),
+          down_payment_edit_phase: false
+        )
+
+      {:noreply, socket}
+    else
+      socket =
+        assign(socket,
+          form_step: 1,
+          model: nil,
+          commission_edit_phase: false,
+          commissions_from_db: nil,
+          commissions_in_form: nil
+        )
+
+      socket = fetch_purchase(socket)
+      {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
+    end
   end
 
   @impl true
@@ -262,13 +303,16 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
      )}
   end
 
-  def handle_info({:commission_created, true}, socket) do
-    socket = assign(socket, form_step: 1, model: nil)
-    {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
-  end
-
   def handle_info({:down_payments_created, true}, socket) do
-    socket = assign(socket, form_step: 1, model: nil)
+    socket =
+      assign(socket,
+        form_step: 1,
+        model: nil,
+        down_payment_edit_phase: false,
+        down_payments_from_db: nil,
+        down_payments_in_form: nil
+      )
+
     socket = fetch_purchase(socket)
     {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
   end
@@ -329,15 +373,40 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   def handle_event("edit_commission", params, socket) do
     {id, ""} = Integer.parse(params["id"])
 
-    commission_changeset =
-      Commissions.get_commission_from_purchase(id) |> Commissions.change_commission()
+    commissions_in_form =
+      Commissions.get_commission_from_purchase(id) |> Enum.map(&Map.put(&1, :valid, true))
 
     socket =
       assign(socket,
         modal: :change_purchase,
         form_step: 2,
-        commission_changeset: commission_changeset,
-        parent_id: id
+        commissions_in_form: commissions_in_form,
+        commissions_from_db: commissions_in_form,
+        commission_changeset: Commissions.new_commission(),
+        parent_id: id,
+        commission_edit_phase: true
+      )
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("edit_down_payment", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+
+    down_payments_in_form =
+      DownPayments.get_down_payment_from_purchase(id) |> Enum.map(&Map.put(&1, :valid, true))
+
+
+    socket =
+      assign(socket,
+        modal: :change_purchase,
+        form_step: 3,
+        down_payments_in_form: down_payments_in_form,
+        down_payments_from_db: down_payments_in_form,
+        down_payment_changeset: DownPayments.new_down_payment(),
+        parent_id: id,
+        down_payment_edit_phase: true
       )
 
     {:noreply, socket}
@@ -355,7 +424,22 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
   @impl true
   def handle_event("cancel", _, socket) do
-    socket = assign(socket, modal: nil, form_step: 1)
+    socket =
+      assign(socket,
+        modal: nil,
+        form_step: 1
+        # down_payments_in_form: %{
+        #   description: "",
+        #   amount: 0,
+        #   date_paid: "",
+        #   locked: "",
+        #   valid: true
+        # },
+        # down_payments_from_db: nil,
+        # down_payment_changeset: DownPayments.new_down_payment(),
+        # down_payment_edit_phase: false
+      )
+
     {:noreply, socket}
   end
 
@@ -436,7 +520,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
   def handle_event(
         "handle_toggle_completed",
-        params,
+        _params,
         socket
       ) do
     toggle_complete =
@@ -546,72 +630,16 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         socket
       ) do
     case params do
-      %{"id" => id, "value" => value} ->
+      %{"id" => _id, "value" => _value} ->
         change_purchase_complete(socket, params, true)
         {:noreply, socket}
 
-      %{"id" => id} ->
+      %{"id" => _id} ->
         change_purchase_complete(socket, params, false)
         {:noreply, socket}
 
       _ ->
         {:noreply, socket}
-    end
-  end
-
-  defp format_destination_group(destination_groups) do
-    Enum.reduce(destination_groups, [], fn destination_group, acc ->
-      acc = acc ++ [%{id: destination_group.id, name: destination_group.name, child: false}]
-
-      small =
-        Enum.map(destination_group.destinations, fn item ->
-          %{name: item.name, id: destination_group.id, child: true}
-        end)
-
-      acc = acc ++ small
-    end)
-  end
-
-  defp change_purchase_complete(socket, params, value) do
-    {id, ""} = Integer.parse(params["id"])
-    purchase = Enum.find(socket.assigns.purchases, fn pg -> pg.id == id end)
-
-    changeset =
-      purchase
-      |> Purchases.create_or_update_purchase(%{complete: value})
-  end
-
-  defp format_destination_group(destination_groups) do
-    Enum.reduce(destination_groups, [], fn destination_group, acc ->
-      acc = acc ++ [%{id: destination_group.id, name: destination_group.name, child: false}]
-
-      small =
-        Enum.map(destination_group.destinations, fn item ->
-          %{name: item.name, id: destination_group.id, child: true}
-        end)
-
-      acc = acc ++ small
-    end)
-  end
-
-  defp modify_destination_group_for_select(purchase) do
-    cond do
-      !purchase.destination_group_name ->
-        ""
-
-      String.contains?(purchase.destination_group_name, ">") ->
-        [parent_name, child_name] =
-          String.split(purchase.destination_group_name, ">")
-          |> Enum.map(fn item -> String.trim(item) end)
-
-        Integer.to_string(purchase.destination_group_id) <>
-          "|" <> child_name
-
-      purchase.destination_group_name == "" ->
-        Integer.to_string(purchase.destination_group_id)
-
-      true ->
-        Integer.to_string(purchase.destination_group_id)
     end
   end
 
@@ -650,12 +678,54 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   @impl true
   def handle_event("load_more", _params, socket) do
     %{
-      current_user: current_user
+      current_user: _current_user
     } = socket.assigns
 
     socket = assign_total_pages(socket)
     socket = load_more(socket)
     {:noreply, socket}
+  end
+
+  defp format_destination_group(destination_groups) do
+    Enum.reduce(destination_groups, [], fn destination_group, acc ->
+      acc = acc ++ [%{id: destination_group.id, name: destination_group.name, child: false}]
+
+      small =
+        Enum.map(destination_group.destinations, fn item ->
+          %{name: item.name, id: destination_group.id, child: true}
+        end)
+
+      acc ++ small
+    end)
+  end
+
+  defp change_purchase_complete(socket, params, value) do
+    {id, ""} = Integer.parse(params["id"])
+    purchase = Enum.find(socket.assigns.purchases, fn pg -> pg.id == id end)
+
+    purchase
+    |> Purchases.create_or_update_purchase(%{complete: value})
+  end
+
+  defp modify_destination_group_for_select(purchase) do
+    cond do
+      !purchase.destination_group_name ->
+        ""
+
+      String.contains?(purchase.destination_group_name, ">") ->
+        [_parent_name, child_name] =
+          String.split(purchase.destination_group_name, ">")
+          |> Enum.map(fn item -> String.trim(item) end)
+
+        Integer.to_string(purchase.destination_group_id) <>
+          "|" <> child_name
+
+      purchase.destination_group_name == "" ->
+        Integer.to_string(purchase.destination_group_id)
+
+      true ->
+        Integer.to_string(purchase.destination_group_id)
+    end
   end
 
   defp load_more(socket) do
@@ -680,7 +750,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     %{
       page: page,
       per_page: per_page,
-      search: search,
+      search: _search,
       update_action: update_action,
       all_open: all_open
     } = socket.assigns

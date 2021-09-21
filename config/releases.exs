@@ -9,24 +9,28 @@ config :cattle_purchase, CattlePurchase.Repo,
   username: System.get_env("AWS_DATABASES_USERNAME"),
   password: System.get_env("AWS_DATABASES_PASSWORD"),
   database: "bnw_dashboard_cattle_purchase",
-  hostname: System.get_env("AWS_DATABASES_URL"),
-  show_sensitive_data_on_connection_error: true
+  hostname: System.get_env("AWS_DATABASES_URL")
+
+config :cattle_purchase, CattlePurchase.Repo.Turnkey,
+  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+  username: System.get_env("AWS_DATABASES_USERNAME"),
+  password: System.get_env("AWS_DATABASES_PASSWORD"),
+  database: "turnkey",
+  hostname: System.get_env("AWS_DATABASES_URL")
 
 config :plugs_app, PlugsApp.Repo,
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
   username: System.get_env("AWS_DATABASES_USERNAME"),
   password: System.get_env("AWS_DATABASES_PASSWORD"),
   database: "bnw_dashboard_plugs_app",
-  hostname: System.get_env("AWS_DATABASES_URL"),
-  show_sensitive_data_on_connection_error: true
+  hostname: System.get_env("AWS_DATABASES_URL")
 
 config :reimbursement, Reimbursement.Repo,
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
   username: System.get_env("AWS_DATABASES_USERNAME"),
   password: System.get_env("AWS_DATABASES_PASSWORD"),
   database: "bnw_dashboard_reimbursement",
-  hostname: System.get_env("AWS_DATABASES_URL"),
-  show_sensitive_data_on_connection_error: true
+  hostname: System.get_env("AWS_DATABASES_URL")
 
 config :ocb_report_plugs, OcbReportPlugs.Repo,
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),

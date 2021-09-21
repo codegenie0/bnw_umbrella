@@ -186,27 +186,6 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
     {:noreply, socket}
   end
 
-  defp modify_destination_group_for_select(shipment) do
-    cond do
-      !shipment.destination_group_name ->
-        ""
-
-      String.contains?(shipment.destination_group_name, ">") ->
-        [parent_name, child_name] =
-          String.split(shipment.destination_group_name, ">")
-          |> Enum.map(fn item -> String.trim(item) end)
-
-        Integer.to_string(shipment.destination_group_id) <>
-          "|" <> child_name
-
-      shipment.destination_group_name == "" ->
-        Integer.to_string(shipment.destination_group_id)
-
-      true ->
-        Integer.to_string(shipment.destination_group_id)
-    end
-  end
-
   @impl true
   def handle_event("delete", params, socket) do
     {id, ""} = Integer.parse(params["id"])
@@ -215,19 +194,6 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
     |> Shipments.delete_shipment()
 
     {:noreply, socket}
-  end
-
-  defp format_destination_group(destination_groups) do
-    Enum.reduce(destination_groups, [], fn destination_group, acc ->
-      acc = acc ++ [%{id: destination_group.id, name: destination_group.name, child: false}]
-
-      small =
-        Enum.map(destination_group.destinations, fn item ->
-          %{name: item.name, id: destination_group.id, child: true}
-        end)
-
-      acc = acc ++ small
-    end)
   end
 
   @impl true
@@ -247,11 +213,11 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
         socket
       ) do
     case params do
-      %{"id" => id, "value" => value} ->
+      %{"id" => _id, "value" => _value} ->
         change_shipment_complete(socket, params, true)
         {:noreply, socket}
 
-      %{"id" => id} ->
+      %{"id" => _id} ->
         change_shipment_complete(socket, params, false)
         {:noreply, socket}
 
@@ -260,11 +226,47 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
     end
   end
 
+
+  defp modify_destination_group_for_select(shipment) do
+    cond do
+      !shipment.destination_group_name ->
+        ""
+
+      String.contains?(shipment.destination_group_name, ">") ->
+        [_parent_name, child_name] =
+          String.split(shipment.destination_group_name, ">")
+          |> Enum.map(fn item -> String.trim(item) end)
+
+        Integer.to_string(shipment.destination_group_id) <>
+          "|" <> child_name
+
+      shipment.destination_group_name == "" ->
+        Integer.to_string(shipment.destination_group_id)
+
+      true ->
+        Integer.to_string(shipment.destination_group_id)
+    end
+  end
+
+
+
+  defp format_destination_group(destination_groups) do
+    Enum.reduce(destination_groups, [], fn destination_group, acc ->
+      acc = acc ++ [%{id: destination_group.id, name: destination_group.name, child: false}]
+
+      small =
+        Enum.map(destination_group.destinations, fn item ->
+          %{name: item.name, id: destination_group.id, child: true}
+        end)
+
+        acc ++ small
+    end)
+  end
+
   defp change_shipment_complete(socket, params, value) do
     {id, ""} = Integer.parse(params["id"])
     shipment = Enum.find(socket.assigns.shipments, fn pg -> pg.id == id end)
 
-    changeset =
       shipment
       |> Shipments.create_or_update_shipment(%{complete: value})
   end

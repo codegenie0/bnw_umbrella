@@ -3,7 +3,6 @@ defmodule CattlePurchase.PurchaseFlags do
     PurchaseFlag,
     Repo
   }
-  import Ecto.Query, only: [from: 2]
 
   @topic "cattle_purchase:purchase_flags"
   def subscribe(), do: Phoenix.PubSub.subscribe(CattlePurchase.PubSub, @topic)

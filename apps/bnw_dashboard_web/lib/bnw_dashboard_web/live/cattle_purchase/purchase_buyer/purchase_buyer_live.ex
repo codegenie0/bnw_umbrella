@@ -72,17 +72,6 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseBuyer.PurchaseBuyerLive do
     {:noreply, socket}
   end
 
-  @impl true
-  def handle_info({[:purchase_buyers, :created_or_updated], _}, socket) do
-    socket = assign(socket, modal: nil, changeset: nil)
-    {:noreply, assign(socket, purchase_buyers: PurchaseBuyers.list_purchase_buyers() )}
-  end
-
-  @impl true
-  def handle_info({[:purchase_buyers, :deleted], _}, socket) do
-    socket = assign(socket, modal: nil, changeset: nil)
-    {:noreply, assign(socket, purchase_buyers: PurchaseBuyers.list_purchase_buyers() )}
-  end
 
   @impl true
   def handle_event("toggle-name-sort", _params, socket) do
@@ -104,4 +93,17 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseBuyer.PurchaseBuyerLive do
   def handle_event("search", %{"search_buyer" => %{"query" => query}}, socket) do
     {:noreply, assign(socket, purchase_buyers: PurchaseBuyers.search_query(query))}
   end
+
+  @impl true
+  def handle_info({[:purchase_buyers, :created_or_updated], _}, socket) do
+    socket = assign(socket, modal: nil, changeset: nil)
+    {:noreply, assign(socket, purchase_buyers: PurchaseBuyers.list_purchase_buyers() )}
+  end
+
+  @impl true
+  def handle_info({[:purchase_buyers, :deleted], _}, socket) do
+    socket = assign(socket, modal: nil, changeset: nil)
+    {:noreply, assign(socket, purchase_buyers: PurchaseBuyers.list_purchase_buyers() )}
+  end
+
 end

@@ -3,10 +3,8 @@ defmodule BnwDashboardWeb.CattlePurchase.CattleReceive.CattleReceiveLive do
 
   alias CattlePurchase.{
     Authorize,
-    Purchases,
     Purchase,
     Shipment,
-    CattleReceive,
     CattleReceivings,
     Sexes,
     Repo

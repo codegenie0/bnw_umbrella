@@ -13,20 +13,36 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent d
   def handle_event("save", %{"down_payment" => down_payment}, socket) do
     %{
       down_payment_changeset: down_payment_changeset,
-      down_payments_in_form: down_payments_in_form
+      down_payments_in_form: down_payments_in_form,
+      down_payment_edit_phase: down_payment_edit_phase,
+      down_payments_from_db: down_payments_from_db
     } = socket.assigns
 
+    %{"button" => button} = down_payment
     {purchase_id, ""} = Integer.parse(down_payment["purchase_id"] || 1)
+
     down_payment_changeset = DownPayments.validate(down_payment_changeset.data, down_payment)
     down_payments_in_form = format_down_payments(down_payment, down_payments_in_form)
 
     if is_all_down_payment_valid(down_payments_in_form) do
       down_payments_to_save =
-        down_payments_in_form
-        |> remove_valid_key_add_purchase_id(purchase_id)
-        |> Enum.map(fn down_payment -> DownPayments.validate(%DownPayment{}, down_payment) end)
+        if down_payment_edit_phase do
+          down_payments_in_form
+          |> remove_valid_key_add_purchase_id(purchase_id)
+          |> Enum.with_index()
+          |> Enum.map(fn {c, i} ->
+            DownPayments.update_validate(Enum.at(down_payments_from_db, i), c)
+          end)
+        else
+          down_payments_in_form
+          |> remove_valid_key_add_purchase_id(purchase_id)
+          |> Enum.map(fn down_payment -> DownPayments.validate(%DownPayment{}, down_payment) end)
+        end
 
-      case DownPayments.create_multiple_down_payment(down_payments_to_save) do
+      case DownPayments.create_or_update_multiple_commissions(
+             down_payments_to_save,
+             down_payment_edit_phase
+           ) do
         {:ok, _commission} ->
           send(socket.assigns.parent_pid, {:down_payments_created, true})
 
@@ -135,10 +151,10 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent d
             else: ""
 
         result = %{
-          down_payment_description: down_payment_description,
-          down_payment_amount: down_payment_amount,
-          down_payment_date_paid: down_payment_date_paid,
-          down_payment_locked: down_payment_locked
+          description: down_payment_description,
+          amount: down_payment_amount,
+          date_paid: down_payment_date_paid,
+          locked: down_payment_locked
         }
 
         valid = check_valid_down_payment(result)
@@ -149,11 +165,10 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent d
   end
 
   defp check_valid_down_payment(down_payment) do
-
     if(
-      down_payment.down_payment_description != "" && down_payment.down_payment_amount != "" &&
-        down_payment.down_payment_amount >= 1 &&
-        down_payment.down_payment_date_paid != ""
+      down_payment.description != "" && down_payment.amount != "" &&
+        down_payment.amount >= 1 &&
+        down_payment.date_paid != ""
     ) do
       true
     else

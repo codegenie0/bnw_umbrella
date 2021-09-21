@@ -5,11 +5,7 @@ defmodule BnwDashboardWeb.CattlePurchase.CattleReceive.ChangeCattleReceiveCompon
   use BnwDashboardWeb, :live_component
 
   alias CattlePurchase.{
-    Purchases,
-    CattleReceivings,
-    CattleReceive,
-    Sexes,
-    Repo
+    CattleReceivings
   }
 
   alias BnwDashboardWeb.CattlePurchase.CattleReceive.CattleReceiveLive
@@ -32,7 +28,7 @@ defmodule BnwDashboardWeb.CattlePurchase.CattleReceive.ChangeCattleReceiveCompon
              to: Routes.live_path(socket, CattleReceiveLive, id: socket.assigns.shipment.id)
            )}
 
-        {:error, %Ecto.Changeset{} = changest} ->
+        {:error, %Ecto.Changeset{} = _changest} ->
           {:noreply, assign(socket, changeset: changeset)}
       end
     else
