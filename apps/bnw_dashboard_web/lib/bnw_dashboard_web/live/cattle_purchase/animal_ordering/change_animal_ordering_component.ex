@@ -5,7 +5,6 @@ defmodule BnwDashboardWeb.CattlePurchase.AnimalOrdering.ChangeAnimalOrderingComp
   use BnwDashboardWeb, :live_component
   alias BnwDashboardWeb.CattlePurchase.AnimalOrdering.AnimalOrderingLive
   alias CattlePurchase.{
-    Authorize,
     Sexes
   }
   def mount(socket) do

@@ -11,7 +11,6 @@ defmodule CattlePurchase.Purchase do
     PurchaseFlag,
     PurchasePurchaseFlag,
     Shipment,
-    Commission,
     Repo
   }
 

@@ -3,7 +3,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
   ### Live view component for the add/update purchase modal.
   """
   use BnwDashboardWeb, :live_component
-  alias CattlePurchase.{Purchases, Commissions, Commission}
+  alias CattlePurchase.{Commissions, Commission}
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive
 
   def mount(socket) do
@@ -14,7 +14,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
     %{commission_changeset: commission_changeset, commissions_in_form: commissions_in_form} =
       socket.assigns
 
-    # {purchase_id, ""} = Integer.parse(commission["purchase_id"] || 1)
     commission_changeset = Commissions.validate(commission_changeset.data, commission)
     commissions_in_form = format_commissions(commission, commissions_in_form)
 
@@ -101,7 +100,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
     commissions_in_form =
       commissions_in_form
       |> Enum.with_index()
-      |> Enum.map(fn {c, i} ->
+      |> Enum.map(fn {_c, i} ->
         key_id = Integer.to_string(i) <> "_id"
         key_commission_per_hundred = Integer.to_string(i) <> "_commission_per_hundred"
 

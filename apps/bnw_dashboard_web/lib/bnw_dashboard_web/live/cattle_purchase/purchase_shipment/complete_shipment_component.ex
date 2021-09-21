@@ -4,7 +4,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.CompleteShipmentComponent do
   """
   use BnwDashboardWeb, :live_component
   alias CattlePurchase.Shipments
-  alias BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive
 
   def mount(socket) do
     {:ok, socket}
@@ -14,7 +13,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.CompleteShipmentComponent do
     {id, ""} = Integer.parse(params["id"])
     shipment = Enum.find(socket.assigns.shipments, fn pg -> pg.id == id end)
 
-    changeset =
       shipment
       |> Shipments.create_or_update_shipment(%{complete: value})
   end

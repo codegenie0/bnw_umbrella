@@ -9,7 +9,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     PurchaseGroups,
     PurchaseFlags,
     PurchaseTypeFilters,
-    DestinationGroups,
     Commissions,
     Sexes,
     Repo
@@ -83,7 +82,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       %{name: "complete", title: "Complete", sort_by: nil, is_sort: true}
     ]
 
-    total_pages = Purchases.total_pages(1)
 
     socket =
       assign_defaults(session, socket)
@@ -142,7 +140,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   end
 
   @impl true
-  def handle_params(params \\ %{"submit_type" => nil}, url, socket) do
+  def handle_params(params \\ %{"submit_type" => nil}, _url, socket) do
     has_submit_type = Map.has_key?(params, "submit_type")
 
     socket =
@@ -180,6 +178,11 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
      assign(socket,
        purchases: Purchases.list_purchases() |> Enum.map(&Map.put(&1, :open_shipments, false))
      )}
+  end
+
+  def handle_info({:commission_created, true}, socket) do
+    socket = assign(socket, form_step: 1, model: nil)
+    {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
   end
 
   @impl true
@@ -248,11 +251,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
          end_date: ""
        }
      )}
-  end
-
-  def handle_info({:commission_created, true}, socket) do
-    socket = assign(socket, form_step: 1, model: nil)
-    {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
   end
 
   @impl true
@@ -418,7 +416,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
   def handle_event(
         "handle_toggle_completed",
-        params,
+        _params,
         socket
       ) do
     toggle_complete =
@@ -528,72 +526,16 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         socket
       ) do
     case params do
-      %{"id" => id, "value" => value} ->
+      %{"id" => _id, "value" => _value} ->
         change_purchase_complete(socket, params, true)
         {:noreply, socket}
 
-      %{"id" => id} ->
+      %{"id" => _id} ->
         change_purchase_complete(socket, params, false)
         {:noreply, socket}
 
       _ ->
         {:noreply, socket}
-    end
-  end
-
-  defp format_destination_group(destination_groups) do
-    Enum.reduce(destination_groups, [], fn destination_group, acc ->
-      acc = acc ++ [%{id: destination_group.id, name: destination_group.name, child: false}]
-
-      small =
-        Enum.map(destination_group.destinations, fn item ->
-          %{name: item.name, id: destination_group.id, child: true}
-        end)
-
-      acc = acc ++ small
-    end)
-  end
-
-  defp change_purchase_complete(socket, params, value) do
-    {id, ""} = Integer.parse(params["id"])
-    purchase = Enum.find(socket.assigns.purchases, fn pg -> pg.id == id end)
-
-    changeset =
-      purchase
-      |> Purchases.create_or_update_purchase(%{complete: value})
-  end
-
-  defp format_destination_group(destination_groups) do
-    Enum.reduce(destination_groups, [], fn destination_group, acc ->
-      acc = acc ++ [%{id: destination_group.id, name: destination_group.name, child: false}]
-
-      small =
-        Enum.map(destination_group.destinations, fn item ->
-          %{name: item.name, id: destination_group.id, child: true}
-        end)
-
-      acc = acc ++ small
-    end)
-  end
-
-  defp modify_destination_group_for_select(purchase) do
-    cond do
-      !purchase.destination_group_name ->
-        ""
-
-      String.contains?(purchase.destination_group_name, ">") ->
-        [parent_name, child_name] =
-          String.split(purchase.destination_group_name, ">")
-          |> Enum.map(fn item -> String.trim(item) end)
-
-        Integer.to_string(purchase.destination_group_id) <>
-          "|" <> child_name
-
-      purchase.destination_group_name == "" ->
-        Integer.to_string(purchase.destination_group_id)
-
-      true ->
-        Integer.to_string(purchase.destination_group_id)
     end
   end
 
@@ -632,12 +574,54 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   @impl true
   def handle_event("load_more", _params, socket) do
     %{
-      current_user: current_user
+      current_user: _current_user
     } = socket.assigns
 
     socket = assign_total_pages(socket)
     socket = load_more(socket)
     {:noreply, socket}
+  end
+
+  defp format_destination_group(destination_groups) do
+    Enum.reduce(destination_groups, [], fn destination_group, acc ->
+      acc = acc ++ [%{id: destination_group.id, name: destination_group.name, child: false}]
+
+      small =
+        Enum.map(destination_group.destinations, fn item ->
+          %{name: item.name, id: destination_group.id, child: true}
+        end)
+
+        acc ++ small
+    end)
+  end
+
+  defp change_purchase_complete(socket, params, value) do
+    {id, ""} = Integer.parse(params["id"])
+    purchase = Enum.find(socket.assigns.purchases, fn pg -> pg.id == id end)
+
+      purchase
+      |> Purchases.create_or_update_purchase(%{complete: value})
+  end
+
+  defp modify_destination_group_for_select(purchase) do
+    cond do
+      !purchase.destination_group_name ->
+        ""
+
+      String.contains?(purchase.destination_group_name, ">") ->
+        [_parent_name, child_name] =
+          String.split(purchase.destination_group_name, ">")
+          |> Enum.map(fn item -> String.trim(item) end)
+
+        Integer.to_string(purchase.destination_group_id) <>
+          "|" <> child_name
+
+      purchase.destination_group_name == "" ->
+        Integer.to_string(purchase.destination_group_id)
+
+      true ->
+        Integer.to_string(purchase.destination_group_id)
+    end
   end
 
   defp load_more(socket) do
@@ -662,7 +646,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     %{
       page: page,
       per_page: per_page,
-      search: search,
+      search: _search,
       update_action: update_action,
       all_open: all_open
     } = socket.assigns

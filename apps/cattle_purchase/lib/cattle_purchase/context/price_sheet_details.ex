@@ -1,7 +1,6 @@
 defmodule CattlePurchase.PurchaseSheetDetails do
   alias CattlePurchase.{
     PriceSheetDetail,
-    PriceSheet,
     Repo
   }
 

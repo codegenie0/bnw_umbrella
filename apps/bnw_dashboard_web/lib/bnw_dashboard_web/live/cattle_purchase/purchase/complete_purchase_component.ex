@@ -4,7 +4,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.CompletePurchaseComponent do
   """
   use BnwDashboardWeb, :live_component
   alias CattlePurchase.Purchases
-  alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive
 
   def mount(socket) do
     {:ok, socket}
@@ -14,7 +13,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.CompletePurchaseComponent do
     {id, ""} = Integer.parse(params["id"])
     purchase = Enum.find(socket.assigns.purchases, fn pg -> pg.id == id end)
 
-    changeset =
       purchase
       |> Purchases.create_or_update_purchase(%{complete: value})
   end

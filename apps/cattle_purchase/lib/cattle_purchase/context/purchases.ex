@@ -12,7 +12,6 @@ defmodule CattlePurchase.Purchases do
     Shipment,
     Sex,
     CommissionPayee,
-    Commission,
     Repo
   }
 
@@ -325,7 +324,7 @@ defmodule CattlePurchase.Purchases do
     |> Decimal.to_integer()
   end
 
-  def get_purchases_data_total_pages(per_page \\ 10, search \\ "") do
+  def get_purchases_data_total_pages(per_page \\ 10, _search \\ "") do
     purchase_count =
       Purchase
       |> Repo.all()

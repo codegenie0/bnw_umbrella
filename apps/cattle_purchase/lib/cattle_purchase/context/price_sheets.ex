@@ -95,7 +95,7 @@ defmodule CattlePurchase.PriceSheets do
 
   def price_date_range(_query, nil, _end_date), do: list_price_sheets()
 
-  def price_date_range(query, start_date, nil) do
+  def price_date_range(_query, start_date, nil) do
     sex_query = from(sex in CattlePurchase.Sex, order_by: [asc: sex.order])
     wc_query = from(wc in CattlePurchase.WeightCategory, order_by: [asc: wc.start_weight])
 
@@ -136,7 +136,7 @@ defmodule CattlePurchase.PriceSheets do
     end)
   end
 
-  def price_date_range(query, start_date, end_date) do
+  def price_date_range(_query, start_date, end_date) do
     sex_query = from(sex in CattlePurchase.Sex, order_by: [asc: sex.order])
     wc_query = from(wc in CattlePurchase.WeightCategory, order_by: [asc: wc.start_weight])
 
@@ -266,7 +266,7 @@ defmodule CattlePurchase.PriceSheets do
     |> Decimal.to_integer()
   end
 
-  def get_price_sheet_data_total_pages(per_page \\ 10, search \\ "") do
+  def get_price_sheet_data_total_pages(per_page \\ 10, _search \\ "") do
     price_sheet_count =
       PriceSheet
       |> Repo.all()

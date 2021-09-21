@@ -138,7 +138,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
                    Routes.live_path(socket, PurchaseShipmentLive, id: socket.assigns.purchase.id)
                )}
 
-            {:error, %Ecto.Changeset{} = changest} ->
+            {:error, %Ecto.Changeset{} = _changest} ->
               result = if name == "", do: id, else: "#{id}|#{name}"
               changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
               changesets = List.replace_at(changesets, length(changesets) - 1, changeset)

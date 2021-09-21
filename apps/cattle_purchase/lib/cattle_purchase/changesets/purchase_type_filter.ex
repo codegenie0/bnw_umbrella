@@ -1,7 +1,7 @@
 defmodule CattlePurchase.PurchaseTypeFilter do
   use Ecto.Schema
   import Ecto.Changeset
-  alias CattlePurchase.{PurchaseTypePurchaseTypeFilter, PurchaseTypeFilters, Repo}
+  alias CattlePurchase.{PurchaseTypePurchaseTypeFilter, Repo}
 
   prefix = "bnw_dashboard_cattle_purchase"
 

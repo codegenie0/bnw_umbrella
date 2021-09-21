@@ -41,7 +41,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseTypeFilters.ChangePurchaseTypeF
 
   def handle_event(
         "handle_toggle_purchase_type",
-        %{"id" => _, "value" => value} = params,
+        %{"id" => _, "value" => _value} = params,
         socket
       ) do
     {id, ""} = Integer.parse(params["id"])
@@ -66,6 +66,20 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseTypeFilters.ChangePurchaseTypeF
 
   def handle_event("confirm_default_dialog", _params, socket) do
     save_purchase_type_filter(socket, socket.assigns.purchase_type_filter)
+  end
+
+  def handle_event("handle_toggle_purchase_type", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+    active_purchase_types =
+      socket.assigns.active_purchase_types
+      |> Enum.map(fn item ->
+        if(item.id == id) do
+          Map.put(item, :checked, false)
+        else
+          item
+        end
+      end)
+    {:noreply, assign(socket, active_purchase_types: active_purchase_types)}
   end
 
   defp save_purchase_type_filter(socket, purchase_type_filter) do
@@ -99,20 +113,6 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseTypeFilters.ChangePurchaseTypeF
          purchase_type_error: "Please choose at least one Purchase Type"
        )}
     end
-  end
-
-  def handle_event("handle_toggle_purchase_type", params, socket) do
-    {id, ""} = Integer.parse(params["id"])
-    active_purchase_types =
-      socket.assigns.active_purchase_types
-      |> Enum.map(fn item ->
-        if(item.id == id) do
-          Map.put(item, :checked, false)
-        else
-          item
-        end
-      end)
-    {:noreply, assign(socket, active_purchase_types: active_purchase_types)}
   end
   defp validate_purchase_type(active_purchase_types) do
     Enum.find(active_purchase_types, false, fn item -> item.checked end)

@@ -30,12 +30,6 @@ defmodule CattlePurchase.Commissions do
     |> Map.put(:action, :insert)
   end
 
-  def create_multiple_commissions(cs_list) do
-    Repo.transaction(fn ->
-      Enum.each(cs_list, &Repo.insert!(&1, []))
-    end)
-  end
-
   @doc """
   Create or update a commission
   """
@@ -43,6 +37,12 @@ defmodule CattlePurchase.Commissions do
     commission
     |> Commission.changeset(attrs)
     |> Repo.insert_or_update()
+  end
+
+  def create_multiple_commissions(cs_list) do
+    Repo.transaction(fn ->
+      Enum.each(cs_list, &Repo.insert!(&1, []))
+    end)
   end
 
   @doc """

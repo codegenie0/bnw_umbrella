@@ -71,7 +71,6 @@ defmodule CattlePurchase.WeightCategories do
         %{weight_category_id: wc.id, sex_id: as}
       end)
 
-    weight_category_id = wc.id
     price_sheets = CattlePurchase.Repo.all(CattlePurchase.PriceSheet)
 
     if price_sheets != [] do

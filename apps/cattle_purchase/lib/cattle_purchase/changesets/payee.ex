@@ -14,11 +14,32 @@ defmodule CattlePurchase.Payee do
     field :name, :string
     field :vendor_number, :string
     field :lienholder, :string
+    field :address1, :string
+    field :address2, :string
+    field :city, :string
+    field :state, :string
+    field :zip, :string
+    field :phone, :string
+    field :contact_name, :string
+    field :comments, :string
   end
 
   def changeset(payee, params \\ %{}) do
     payee
-    |> cast(params, [:id, :name, :vendor_number, :lienholder])
+    |> cast(params, [
+      :id,
+      :name,
+      :vendor_number,
+      :lienholder,
+      :address1,
+      :address2,
+      :city,
+      :state,
+      :zip,
+      :phone,
+      :contact_name,
+      :comments,
+    ])
     |> validate_required([:name, :vendor_number])
     |> unique_constraint(:vendor_number, name: :payee_number_unique_index)
   end
