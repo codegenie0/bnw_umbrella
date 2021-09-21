@@ -6,10 +6,8 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
   import Ecto.Changeset
 
   alias CattlePurchase.{
-    Purchases,
     Purchase,
     Shipments,
-    Sexes,
     Repo
   }
 
@@ -19,7 +17,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
     {:ok, socket}
   end
 
-  def handle_event("save", %{"shipment" => shipment} = params, socket) do
+  def handle_event("save", %{"shipment" => shipment} = _params, socket) do
     purchase_id = shipment["purchase_id"] |> String.to_integer()
     purchase = Repo.get(Purchase, purchase_id)
     socket = assign(socket, :shipment_form_data, shipment)
@@ -32,7 +30,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
 
           if is_integer(shipment.destination_group_id) do
             changeset = Map.put(changeset, :changes, shipment)
-            changeset = Map.put(changeset, :action, :insert)
+              Map.put(changeset, :action, :insert)
           else
             %{id: id, name: name} = extract_data_from_destination(shipment.destination_group_id)
 
@@ -55,11 +53,11 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
               )
 
             changeset = Map.put(changeset, :changes, shipment)
-            changeset = Map.put(changeset, :action, :insert)
+              Map.put(changeset, :action, :insert)
           end
         end)
 
-      shipments = Shipments.create_multiple_shipments(cs_list)
+        Shipments.create_multiple_shipments(cs_list)
 
       {:noreply,
        push_patch(socket,
@@ -156,10 +154,8 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
 
   def handle_event("validate", %{"shipment" => shipment}, socket) do
     %{id: id, name: name} = extract_data_from_destination(shipment["destination_group_id"])
-    %{changesets: changesets} = socket.assigns
     socket = assign(socket, :shipment_form_data, shipment)
 
-    parent_destination =
       Enum.find(socket.assigns.destinations, %{id: "", name: ""}, fn item ->
         if(String.trim(id) == "") do
           item.id == id && !item.child
@@ -189,7 +185,6 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
     shipment = socket.assigns.shipment_form_data
     %{changesets: changesets} = socket.assigns
     changeset = List.last(changesets)
-    purchase = socket.assigns.purchase
 
     %{id: id, name: name} = extract_data_from_destination(shipment["destination_group_id"])
 

@@ -187,6 +187,16 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
   end
 
   @impl true
+  def handle_event("delete", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+
+    Enum.find(socket.assigns.shipments, fn sh -> sh.id == id end)
+    |> Shipments.delete_shipment()
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("cancel", _, socket) do
     socket = assign(socket, modal: nil)
     {:noreply, socket}
@@ -216,15 +226,6 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
     end
   end
 
-  @impl true
-  def handle_event("delete", params, socket) do
-    {id, ""} = Integer.parse(params["id"])
-
-    Enum.find(socket.assigns.shipments, fn sh -> sh.id == id end)
-    |> Shipments.delete_shipment()
-
-    {:noreply, socket}
-  end
 
   defp modify_destination_group_for_select(shipment) do
     cond do
@@ -246,6 +247,8 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
         Integer.to_string(shipment.destination_group_id)
     end
   end
+
+
 
   defp format_destination_group(destination_groups) do
     Enum.reduce(destination_groups, [], fn destination_group, acc ->

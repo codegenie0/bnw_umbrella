@@ -1,9 +1,10 @@
+
 defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
   @moduledoc """
   ### Live view component for the add/update purchase modal.
   """
   use BnwDashboardWeb, :live_component
-  alias CattlePurchase.{Commissions, Commission}
+  alias CattlePurchase.{Purchases, Commissions, Commission}
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive
 
   def mount(socket) do
@@ -11,19 +12,36 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
   end
 
   def handle_event("save", %{"commission" => commission}, socket) do
-    %{commission_changeset: commission_changeset, commissions_in_form: commissions_in_form} =
-      socket.assigns
+    %{
+      commission_changeset: commission_changeset,
+      commissions_in_form: commissions_in_form,
+      commission_edit_phase: commission_edit_phase,
+      commissions_from_db: commissions_from_db
+    } = socket.assigns
 
+    {purchase_id, ""} = Integer.parse(commission["purchase_id"] || 1)
     commission_changeset = Commissions.validate(commission_changeset.data, commission)
     commissions_in_form = format_commissions(commission, commissions_in_form)
 
     if is_all_commissions_valid(commissions_in_form) do
       commissions_to_save =
-        commissions_in_form
-        |> remove_valid_key_add_purchase_id(1)
-        |> Enum.map(fn commission -> Commissions.validate(%Commission{}, commission) end)
+        if commission_edit_phase do
+          commissions_in_form
+          |> remove_valid_key_add_purchase_id(purchase_id)
+          |> Enum.with_index()
+          |> Enum.map(fn {c, i} ->
+            Commissions.update_validate(Enum.at(commissions_from_db, i), c)
+          end)
+        else
+          commissions_in_form
+          |> remove_valid_key_add_purchase_id(purchase_id)
+          |> Enum.map(fn commission -> Commissions.validate(%Commission{}, commission) end)
+        end
 
-      case Commissions.create_multiple_commissions(commissions_to_save) do
+      case Commissions.create_or_update_multiple_commissions(
+             commissions_to_save,
+             commission_edit_phase
+           ) do
         {:ok, _commission} ->
           send(socket.assigns.parent_pid, {:commission_created, true})
 
@@ -100,7 +118,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
     commissions_in_form =
       commissions_in_form
       |> Enum.with_index()
-      |> Enum.map(fn {_c, i} ->
+      |> Enum.map(fn {c, i} ->
         key_id = Integer.to_string(i) <> "_id"
         key_commission_per_hundred = Integer.to_string(i) <> "_commission_per_hundred"
 
