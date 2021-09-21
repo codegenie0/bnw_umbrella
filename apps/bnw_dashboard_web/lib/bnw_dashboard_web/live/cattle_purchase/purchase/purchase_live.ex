@@ -82,7 +82,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       %{name: "complete", title: "Complete", sort_by: nil, is_sort: true}
     ]
 
-
     socket =
       assign_defaults(session, socket)
       |> assign(
@@ -349,7 +348,16 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
   @impl true
   def handle_event("cancel", _, socket) do
-    socket = assign(socket, modal: nil, form_step: 1)
+    socket =
+      assign(socket,
+        modal: nil,
+        form_step: 1,
+        commissions_from_db: nil,
+        commission_edit_phase: false,
+        commission_changeset: Commissions.new_commission(),
+        commissions_in_form: [%{commission_payee_id: "", commission_per_hundred: 0, valid: true}]
+      )
+
     {:noreply, socket}
   end
 
@@ -605,7 +613,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
           %{name: item.name, id: destination_group.id, child: true}
         end)
 
-        acc ++ small
+      acc ++ small
     end)
   end
 
@@ -613,8 +621,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     {id, ""} = Integer.parse(params["id"])
     purchase = Enum.find(socket.assigns.purchases, fn pg -> pg.id == id end)
 
-      purchase
-      |> Purchases.create_or_update_purchase(%{complete: value})
+    purchase
+    |> Purchases.create_or_update_purchase(%{complete: value})
   end
 
   defp modify_destination_group_for_select(purchase) do
