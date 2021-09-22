@@ -1,4 +1,3 @@
-
 defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
   @moduledoc """
   ### Live view component for the add/update purchase modal.
@@ -19,6 +18,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
       commissions_from_db: commissions_from_db
     } = socket.assigns
 
+    %{"button" => button} = commission
     {purchase_id, ""} = Integer.parse(commission["purchase_id"] || 1)
     commission_changeset = Commissions.validate(commission_changeset.data, commission)
     commissions_in_form = format_commissions(commission, commissions_in_form)
@@ -43,15 +43,11 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
              commission_edit_phase
            ) do
         {:ok, _commission} ->
-          send(socket.assigns.parent_pid, {:commission_created, true})
+          send(socket.assigns.parent_pid, {:commission_created, button: button})
 
           {:noreply,
            push_patch(socket,
-             to:
-               Routes.live_path(socket, PurchaseLive,
-                 submit_type: "",
-                 purchase_id: ""
-               )
+             to: Routes.live_path(socket, PurchaseLive)
            )}
 
         {:error, %Ecto.Changeset{} = changest} ->
@@ -111,6 +107,11 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
       end
 
     socket = assign(socket, commissions_in_form: commissions_in_form)
+    {:noreply, socket}
+  end
+
+  def handle_event("delete_commission_in_db", params, socket) do
+
     {:noreply, socket}
   end
 
