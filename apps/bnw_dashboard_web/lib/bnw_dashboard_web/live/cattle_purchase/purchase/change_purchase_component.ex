@@ -62,13 +62,13 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
     if changeset.valid? do
       case Purchases.create_or_update_purchase(changeset.data, purchase) do
         {:ok, purchase} ->
+          send(
+            socket.assigns.parent_pid,
+            {:purchase_created, button: button, purchase_id: purchase.id}
+          )
           {:noreply,
            push_patch(socket,
-             to:
-               Routes.live_path(socket, PurchaseLive,
-                 submit_type: button,
-                 purchase_id: purchase.id
-               )
+             to: Routes.live_path(socket, PurchaseLive)
            )}
 
         {:error, %Ecto.Changeset{} = _changest} ->
@@ -88,7 +88,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
       Map.put(purchase, "purchase_flag_ids", get_purchase_flags(socket.assigns.purchase_flags))
 
     %{id: id, name: name} = extract_data_from_destination(purchase["destination_group_id"])
-
 
     purchase = Map.put(purchase, "destination_group_id", id)
 

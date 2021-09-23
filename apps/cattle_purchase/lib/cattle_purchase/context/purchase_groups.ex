@@ -43,7 +43,6 @@ defmodule CattlePurchase.PurchaseGroups do
     |> PurchaseGroup.changeset(attrs)
     |> Repo.insert_or_update()
     |> notify_subscribers([:purchase_groups, :created_or_updated])
-
   end
 
   @doc """

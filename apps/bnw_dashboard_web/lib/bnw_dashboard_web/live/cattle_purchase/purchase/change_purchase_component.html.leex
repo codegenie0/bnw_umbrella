@@ -1,3 +1,4 @@
+<%= if @changeset do %>
 <%= f = form_for @changeset, "#",
     [ phx_change: :validate, phx_submit: :save, phx_target: @myself, class: "uk-form-stacked"] %>
   <div style="display: block;" class="uk-modal uk-open">
@@ -221,3 +222,4 @@
       </div>
   </div>
 </form>
+<% end %>

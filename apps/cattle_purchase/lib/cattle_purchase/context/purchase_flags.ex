@@ -51,7 +51,6 @@ defmodule CattlePurchase.PurchaseFlags do
   def delete_purchase_flag(%PurchaseFlag{} = purchase_flag) do
     Repo.delete(purchase_flag)
     |> notify_subscribers([:purchase_flags, :deleted])
-
   end
 
   def notify_subscribers({:ok, result}, event) do
@@ -59,5 +58,6 @@ defmodule CattlePurchase.PurchaseFlags do
     Phoenix.PubSub.broadcast(CattlePurchase.PubSub, "#{@topic}:#{result.id}", {event, result})
     {:ok, result}
   end
+
   def notify_subscribers({:error, reason}, _event), do: {:error, reason}
 end

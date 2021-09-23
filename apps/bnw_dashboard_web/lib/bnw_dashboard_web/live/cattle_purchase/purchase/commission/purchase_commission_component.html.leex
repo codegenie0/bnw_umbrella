@@ -12,6 +12,7 @@
             </div>
             <div class="uk-modal-body uk-background-secondary uk-light uk-overflow-auto uk-height-max-large">
          <%= hidden_input f, :purchase_id,  class: "uk-input", value: @parent_id %>
+         <%= hidden_input f, :button,  class: "uk-input", id: "button-clicked", value: "" %>
          <%= for {c, i} <- Enum.with_index(@commissions_in_form)  do %>
          <div class="uk-margin-small uk-form-controls uk-flex	uk-flex-middle">
             <div class="uk-margin-small uk-margin-right">
@@ -30,15 +31,14 @@
               <%= number_input :commission, "#{i}_commission_per_hundred",class: "uk-input" , value: c.commission_per_hundred %>
             </div>
           </div>
-          <%= if !@commission_edit_phase do %>
+
               <%= link "", to: "#", class: "uk-preserve-width uk-padding-small uk-padding-remove-vertical",
                         uk_icon: "trash",
                         phx_hook: "uk_icon",
-                        phx_click: "delete_commission",
+                        phx_click: (if @commission_edit_phase , do: "delete_commission_in_db"  , else: "delete_commission"),
                         phx_value_id: i,
                         phx_target: @myself,
                         data: [confirm: "Are you sure?"]  %>
-          <% end %>
          </div>
          <%= if !c.valid do %>
            <span class="invalid-feedback">

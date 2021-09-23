@@ -226,7 +226,6 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
     end
   end
 
-
   defp modify_destination_group_for_select(shipment) do
     cond do
       !shipment.destination_group_name ->
@@ -248,8 +247,6 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
     end
   end
 
-
-
   defp format_destination_group(destination_groups) do
     Enum.reduce(destination_groups, [], fn destination_group, acc ->
       acc = acc ++ [%{id: destination_group.id, name: destination_group.name, child: false}]
@@ -259,7 +256,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
           %{name: item.name, id: destination_group.id, child: true}
         end)
 
-        acc ++ small
+      acc ++ small
     end)
   end
 
@@ -267,8 +264,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
     {id, ""} = Integer.parse(params["id"])
     shipment = Enum.find(socket.assigns.shipments, fn pg -> pg.id == id end)
 
-      shipment
-      |> Shipments.create_or_update_shipment(%{complete: value})
+    shipment
+    |> Shipments.create_or_update_shipment(%{complete: value})
   end
-
 end

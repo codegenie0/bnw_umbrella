@@ -1,10 +1,9 @@
-
 defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
   @moduledoc """
   ### Live view component for the add/update purchase modal.
   """
   use BnwDashboardWeb, :live_component
-  alias CattlePurchase.{Purchases, Commissions, Commission}
+  alias CattlePurchase.{Commissions, Commission}
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive
 
   def mount(socket) do
@@ -18,7 +17,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
       commission_edit_phase: commission_edit_phase,
       commissions_from_db: commissions_from_db
     } = socket.assigns
-
+    %{"button" => button} = commission
     {purchase_id, ""} = Integer.parse(commission["purchase_id"] || 1)
     commission_changeset = Commissions.validate(commission_changeset.data, commission)
     commissions_in_form = format_commissions(commission, commissions_in_form)
@@ -43,15 +42,11 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
              commission_edit_phase
            ) do
         {:ok, _commission} ->
-          send(socket.assigns.parent_pid, {:commission_created, true})
+          send(socket.assigns.parent_pid, {:commission_created, button: button})
 
           {:noreply,
            push_patch(socket,
-             to:
-               Routes.live_path(socket, PurchaseLive,
-                 submit_type: "",
-                 purchase_id: ""
-               )
+           to: Routes.live_path(socket, PurchaseLive)
            )}
 
         {:error, %Ecto.Changeset{} = changest} ->
@@ -67,6 +62,10 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
          commissions_in_form: commissions_in_form
        )}
     end
+  end
+
+  def handle_event("delete_commission_in_db", params, socket) do
+    {:noreply, socket}
   end
 
   def handle_event("validate", %{"commission" => params}, socket) do
@@ -118,7 +117,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
     commissions_in_form =
       commissions_in_form
       |> Enum.with_index()
-      |> Enum.map(fn {c, i} ->
+      |> Enum.map(fn {_c, i} ->
         key_id = Integer.to_string(i) <> "_id"
         key_commission_per_hundred = Integer.to_string(i) <> "_commission_per_hundred"
 

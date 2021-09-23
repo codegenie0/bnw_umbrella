@@ -30,7 +30,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
 
           if is_integer(shipment.destination_group_id) do
             changeset = Map.put(changeset, :changes, shipment)
-              Map.put(changeset, :action, :insert)
+            Map.put(changeset, :action, :insert)
           else
             %{id: id, name: name} = extract_data_from_destination(shipment.destination_group_id)
 
@@ -53,11 +53,11 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
               )
 
             changeset = Map.put(changeset, :changes, shipment)
-              Map.put(changeset, :action, :insert)
+            Map.put(changeset, :action, :insert)
           end
         end)
 
-        Shipments.create_multiple_shipments(cs_list)
+      Shipments.create_multiple_shipments(cs_list)
 
       {:noreply,
        push_patch(socket,
@@ -156,13 +156,13 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
     %{id: id, name: name} = extract_data_from_destination(shipment["destination_group_id"])
     socket = assign(socket, :shipment_form_data, shipment)
 
-      Enum.find(socket.assigns.destinations, %{id: "", name: ""}, fn item ->
-        if(String.trim(id) == "") do
-          item.id == id && !item.child
-        else
-          item.id == String.to_integer(id) && !item.child
-        end
-      end)
+    Enum.find(socket.assigns.destinations, %{id: "", name: ""}, fn item ->
+      if(String.trim(id) == "") do
+        item.id == id && !item.child
+      else
+        item.id == String.to_integer(id) && !item.child
+      end
+    end)
 
     shipment = Map.put(shipment, "destination_group_id", id)
 

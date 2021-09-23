@@ -14,7 +14,7 @@ defmodule CattlePurchase.DownPayment do
 
   @schema_prefix prefix
 
-  schema "down payments" do
+  schema "down_payments" do
     field :description, :string
     field :amount, :decimal
     field :date_paid, :date

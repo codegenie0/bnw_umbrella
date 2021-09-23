@@ -23,7 +23,6 @@ defmodule BnwDashboardWeb.CattlePurchase.PriceSheet.PriceSheetLive do
 
   @impl true
   def mount(_, session, socket) do
-
     socket =
       assign_defaults(session, socket)
       |> assign(
@@ -266,7 +265,6 @@ defmodule BnwDashboardWeb.CattlePurchase.PriceSheet.PriceSheetLive do
     {:noreply, socket}
   end
 
-
   defp load_more(socket) do
     %{
       page: page,
@@ -312,7 +310,6 @@ defmodule BnwDashboardWeb.CattlePurchase.PriceSheet.PriceSheetLive do
     assign(socket, :total_pages, total_pages)
   end
 
-
   @impl true
   def handle_info({[:price_sheets, :created_or_updated], _}, socket) do
     socket = assign(socket, modal: nil, changeset: nil)
@@ -322,7 +319,6 @@ defmodule BnwDashboardWeb.CattlePurchase.PriceSheet.PriceSheetLive do
        price_sheets: PriceSheets.list_price_sheets() |> Enum.map(&Map.put(&1, :editable, false))
      )}
   end
-
 
   @impl true
   def handle_info({[:price_sheets, :deleted], _}, socket) do
@@ -353,7 +349,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PriceSheet.PriceSheetLive do
             %{weight_category_id: item.id, sex_id: sex.sex_id, value: sex.value}
           end)
 
-          acc ++ result
+        acc ++ result
       end)
 
     Map.put(data, :price_sheet_details, result)

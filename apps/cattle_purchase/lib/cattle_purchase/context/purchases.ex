@@ -29,7 +29,13 @@ defmodule CattlePurchase.Purchases do
 
   def list_purchases() do
     Repo.all(Purchase)
-    |> Repo.preload([:sex, :purchase_buyer, :destination_group, commissions: :commission_payee])
+    |> Repo.preload([
+      :sex,
+      :purchase_buyer,
+      :destination_group,
+      :down_payments,
+      commissions: :commission_payee
+    ])
   end
 
   @doc """
@@ -302,6 +308,7 @@ defmodule CattlePurchase.Purchases do
       :purchase_buyer,
       :destination_group,
       :shipments,
+      :down_payments,
       commissions: :commission_payee
     ])
   end

@@ -28,7 +28,7 @@ defmodule BnwDashboardWeb.CattlePurchase.AnimalOrdering.AnimalOrderingLive do
         page_title: "Active Sexes",
         app: "Cattle Purchase",
         sex: "active",
-        sexes: Sexes.get_active_sexes,
+        sexes: Sexes.get_active_sexes(),
         modal: nil
       )
 
@@ -77,9 +77,11 @@ defmodule BnwDashboardWeb.CattlePurchase.AnimalOrdering.AnimalOrderingLive do
   @impl true
   def handle_event("edit", params, socket) do
     {id, ""} = Integer.parse(params["id"])
+
     changeset =
       Enum.find(socket.assigns.sexes, fn pt -> pt.id == id end)
       |> Sexes.change_sex()
+
     socket = assign(socket, changeset: changeset, modal: :change_animal_ordering)
     {:noreply, socket}
   end
@@ -87,11 +89,12 @@ defmodule BnwDashboardWeb.CattlePurchase.AnimalOrdering.AnimalOrderingLive do
   @impl true
   def handle_event("delete", params, socket) do
     {id, ""} = Integer.parse(params["id"])
-      Enum.find(socket.assigns.sexes, fn pt -> pt.id == id end)
-      |> Sexes.delete_sex()
+
+    Enum.find(socket.assigns.sexes, fn pt -> pt.id == id end)
+    |> Sexes.delete_sex()
+
     {:noreply, socket}
   end
-
 
   @impl true
   def handle_event("cancel", _params, socket) do
