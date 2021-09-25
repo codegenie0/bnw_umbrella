@@ -229,7 +229,7 @@
     </table>
 
   </div>
-  <%= if @modal == :change_purchase and @form_step == 1 do
+  <%= if @modal == :change_purchase and @form_step == 1 and @changeset do
     live_component(
       @socket,
       ChangePurchaseComponent,
@@ -257,7 +257,8 @@
       parent_id: @parent_id,
       parent_pid: self(),
       commission_edit_phase: @commission_edit_phase,
-      commissions_from_db: @commissions_from_db
+      commissions_from_db: @commissions_from_db,
+      form_step: @form_step
       )
   end %>
   <%= if @modal == :change_purchase and @form_step == 3 do
@@ -271,6 +272,7 @@
     down_payments_in_form: @down_payments_in_form,
     down_payment_edit_phase: @down_payment_edit_phase,
     down_payments_from_db: @down_payments_from_db,
-    parent_pid: self()
+    parent_pid: self(),
+    form_step: @form_step
     )
 end %>

@@ -45,7 +45,6 @@ defmodule CattlePurchase.DownPayments do
     |> Repo.insert_or_update()
   end
 
-
   def create_or_update_multiple_commissions(cs_list, is_edit) do
     if(is_edit) do
       Repo.transaction(fn ->
@@ -58,16 +57,12 @@ defmodule CattlePurchase.DownPayments do
     end
   end
 
-
   def create_multiple_down_payment(dp_list) do
     Repo.transaction(fn ->
       Enum.each(dp_list, &Repo.insert!(&1, []))
     end)
   end
 
-  @doc """
-  Delete a purchase type
-  """
   def delete_down_payment(%DownPayment{} = down_payment) do
     Repo.delete(down_payment)
   end

@@ -3,7 +3,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
   ### Live view component for the add/update purchase modal.
   """
   use BnwDashboardWeb, :live_component
-  alias CattlePurchase.{Commissions, Commission}
+  alias CattlePurchase.{Commissions, Commission, Repo}
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive
 
   def mount(socket) do
@@ -17,36 +17,43 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
       commission_edit_phase: commission_edit_phase,
       commissions_from_db: commissions_from_db
     } = socket.assigns
+
     %{"button" => button} = commission
     {purchase_id, ""} = Integer.parse(commission["purchase_id"] || 1)
     commission_changeset = Commissions.validate(commission_changeset.data, commission)
     commissions_in_form = format_commissions(commission, commissions_in_form)
+    purchase = CattlePurchase.Repo.get(CattlePurchase.Purchase, purchase_id)
 
     if is_all_commissions_valid(commissions_in_form) do
       commissions_to_save =
         if commission_edit_phase do
-          commissions_in_form
-          |> remove_valid_key_add_purchase_id(purchase_id)
-          |> Enum.with_index()
-          |> Enum.map(fn {c, i} ->
-            Commissions.update_validate(Enum.at(commissions_from_db, i), c)
-          end)
+          CattlePurchase.Purchase.changeset(purchase, %{commissions: commissions_in_form})
         else
           commissions_in_form
           |> remove_valid_key_add_purchase_id(purchase_id)
           |> Enum.map(fn commission -> Commissions.validate(%Commission{}, commission) end)
         end
 
-      case Commissions.create_or_update_multiple_commissions(
-             commissions_to_save,
-             commission_edit_phase
-           ) do
+
+      result =
+        case commission_edit_phase do
+          true ->
+            CattlePurchase.Repo.update(commissions_to_save)
+
+          false ->
+            Commissions.create_or_update_multiple_commissions(
+              commissions_to_save,
+              commission_edit_phase
+            )
+        end
+
+      case result do
         {:ok, _commission} ->
           send(socket.assigns.parent_pid, {:commission_created, button: button})
 
           {:noreply,
            push_patch(socket,
-           to: Routes.live_path(socket, PurchaseLive)
+             to: Routes.live_path(socket, PurchaseLive)
            )}
 
         {:error, %Ecto.Changeset{} = changest} ->
@@ -62,10 +69,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
          commissions_in_form: commissions_in_form
        )}
     end
-  end
-
-  def handle_event("delete_commission_in_db", params, socket) do
-    {:noreply, socket}
   end
 
   def handle_event("validate", %{"commission" => params}, socket) do
@@ -97,19 +100,50 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
   end
 
   def handle_event("delete_commission", params, socket) do
-    {id, ""} = Integer.parse(params["id"])
+    {index, ""} = Integer.parse(params["index"])
     %{commissions_in_form: commissions_in_form} = socket.assigns
 
     commissions_in_form =
       cond do
         length(commissions_in_form) > 1 ->
-          List.delete_at(commissions_in_form, id)
+          List.delete_at(commissions_in_form, index)
 
         true ->
           commissions_in_form
       end
 
     socket = assign(socket, commissions_in_form: commissions_in_form)
+    {:noreply, socket}
+  end
+
+  def handle_event("delete_commission_in_db", params, socket) do
+    {index, ""} = Integer.parse(params["index"])
+    %{commissions_in_form: commissions_in_form} = socket.assigns
+
+    commission = Enum.at(commissions_in_form, index)
+
+    Commissions.delete_commission(Repo.get(Commission, commission.id))
+
+    commissions_in_form =
+      cond do
+        length(commissions_in_form) > 1 ->
+          List.delete_at(commissions_in_form, index)
+
+        true ->
+          []
+      end
+
+    send(
+      socket.assigns.parent_pid,
+      {:delete_commission_in_db, length(commissions_in_form), socket.assigns.parent_id}
+    )
+
+    socket =
+      assign(socket,
+        commissions_in_form: commissions_in_form,
+        commissions_from_db: commissions_in_form
+      )
+
     {:noreply, socket}
   end
 
@@ -128,7 +162,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
 
         commission_per_hundred =
           if commissions_params[key_commission_per_hundred] != "",
-            do: elem(Integer.parse(commissions_params[key_commission_per_hundred]), 0),
+            do: elem(Float.parse(commissions_params[key_commission_per_hundred]), 0),
             else: ""
 
         %{

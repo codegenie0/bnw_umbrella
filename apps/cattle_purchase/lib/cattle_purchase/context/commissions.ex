@@ -56,9 +56,6 @@ defmodule CattlePurchase.Commissions do
     end
   end
 
-  @doc """
-  Delete a purchase type
-  """
   def delete_commission(%Commission{} = commission) do
     Repo.delete(commission)
   end

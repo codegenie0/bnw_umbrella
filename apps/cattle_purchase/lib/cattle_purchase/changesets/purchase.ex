@@ -11,6 +11,8 @@ defmodule CattlePurchase.Purchase do
     PurchaseFlag,
     PurchasePurchaseFlag,
     Shipment,
+    Commission,
+    DownPayment,
     Repo
   }
 
@@ -64,8 +66,8 @@ defmodule CattlePurchase.Purchase do
     belongs_to :purchase_group, PurchaseGroup
     has_many(:purchase_purchase_flags, PurchasePurchaseFlag, on_replace: :delete)
     has_many(:shipments, Shipment, on_replace: :delete)
-    has_many(:commissions, CattlePurchase.Commission)
-    has_many(:down_payments, CattlePurchase.DownPayment)
+    has_many(:commissions, CattlePurchase.Commission, on_replace: :delete)
+    has_many(:down_payments, CattlePurchase.DownPayment, on_replace: :delete)
 
     many_to_many(:purchase_flags, PurchaseFlag,
       join_through: "purchase_purchase_flags",
@@ -92,7 +94,7 @@ defmodule CattlePurchase.Purchase do
   def changeset(%__MODULE__{} = model, attrs \\ %{}) do
     model =
       if(model.id != nil,
-        do: model |> Repo.preload([:purchase_purchase_flags, :commissions]),
+        do: model |> Repo.preload([:purchase_purchase_flags, :commissions, :down_payments]),
         else: model
       )
 
@@ -106,6 +108,8 @@ defmodule CattlePurchase.Purchase do
       |> foreign_key_constraint(:purchase_type_id)
       |> foreign_key_constraint(:buyer_id)
       |> foreign_key_constraint(:purchase_group_id)
+      |> cast_assoc(:commissions, with: &Commission.new_changeset/2)
+      |> cast_assoc(:down_payments, with: &DownPayment.new_changeset/2)
 
     if changeset.valid? && attrs["purchase_flag_ids"] && attrs["purchase_flag_ids"] != [] do
       purchase_purchase_flag_params =

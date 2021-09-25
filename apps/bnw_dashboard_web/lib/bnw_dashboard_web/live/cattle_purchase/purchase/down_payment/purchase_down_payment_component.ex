@@ -3,7 +3,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent d
   ### Live view component for the add/update purchase modal.
   """
   use BnwDashboardWeb, :live_component
-  alias CattlePurchase.{Purchases, DownPayments, DownPayment}
+  alias CattlePurchase.{Purchases, DownPayments, DownPayment, Repo}
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive
 
   def mount(socket) do
@@ -20,6 +20,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent d
 
     %{"button" => button} = down_payment
     {purchase_id, ""} = Integer.parse(down_payment["purchase_id"] || 1)
+    purchase = CattlePurchase.Repo.get(CattlePurchase.Purchase, purchase_id)
 
     down_payment_changeset = DownPayments.validate(down_payment_changeset.data, down_payment)
     down_payments_in_form = format_down_payments(down_payment, down_payments_in_form)
@@ -27,22 +28,32 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent d
     if is_all_down_payment_valid(down_payments_in_form) do
       down_payments_to_save =
         if down_payment_edit_phase do
-          down_payments_in_form
-          |> remove_valid_key_add_purchase_id(purchase_id)
-          |> Enum.with_index()
-          |> Enum.map(fn {c, i} ->
-            DownPayments.update_validate(Enum.at(down_payments_from_db, i), c)
-          end)
+          CattlePurchase.Purchase.changeset(purchase, %{down_payments: down_payments_in_form})
+
+          # |> remove_valid_key_add_purchase_id(purchase_id)
+          # |> Enum.with_index()
+          # |> Enum.map(fn {c, i} ->
+          #   DownPayments.update_validate(Enum.at(down_payments_from_db, i), c)
+          # end)
         else
           down_payments_in_form
           |> remove_valid_key_add_purchase_id(purchase_id)
           |> Enum.map(fn down_payment -> DownPayments.validate(%DownPayment{}, down_payment) end)
         end
 
-      case DownPayments.create_or_update_multiple_commissions(
-             down_payments_to_save,
-             down_payment_edit_phase
-           ) do
+      result =
+        case down_payment_edit_phase do
+          true ->
+            CattlePurchase.Repo.update(down_payments_to_save)
+
+          false ->
+            DownPayments.create_or_update_multiple_commissions(
+              down_payments_to_save,
+              down_payment_edit_phase
+            )
+        end
+
+      case result do
         {:ok, _commission} ->
           send(socket.assigns.parent_pid, {:down_payments_created, true})
 
@@ -100,13 +111,13 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent d
   end
 
   def handle_event("delete_down_payment", params, socket) do
-    {id, ""} = Integer.parse(params["id"])
+    {index, ""} = Integer.parse(params["index"])
     %{down_payments_in_form: down_payments_in_form} = socket.assigns
 
     down_payments_in_form =
       cond do
         length(down_payments_in_form) > 1 ->
-          List.delete_at(down_payments_in_form, id)
+          List.delete_at(down_payments_in_form, index)
 
         true ->
           down_payments_in_form
@@ -117,6 +128,33 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent d
   end
 
   def handle_event("delete_down_payment_in_db", params, socket) do
+    {index, ""} = Integer.parse(params["index"])
+    %{down_payments_in_form: down_payments_in_form} = socket.assigns
+
+    down_payment = Enum.at(down_payments_in_form, index)
+
+    DownPayments.delete_down_payment(Repo.get(DownPayment, down_payment.id))
+
+    down_payments_in_form =
+      cond do
+        length(down_payments_in_form) > 1 ->
+          List.delete_at(down_payments_in_form, index)
+
+        true ->
+          []
+      end
+
+    send(
+      socket.assigns.parent_pid,
+      {:delete_down_payment_in_db, length(down_payments_in_form), socket.assigns.parent_id}
+    )
+
+    socket =
+      assign(socket,
+        down_payments_in_form: down_payments_in_form,
+        down_payments_from_db: down_payments_in_form
+      )
+
     {:noreply, socket}
   end
 
