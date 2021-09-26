@@ -29,14 +29,7 @@ defmodule BnwDashboardWeb.CattlePurchase.CattleReceive.CattleReceiveLive do
   def mount(params, session, socket) do
     sort_columns = [
       "Purchase Date",
-      "Seller",
-      "Purchase Location",
       "Purchase Order",
-      "Head Count",
-      "Sex",
-      "Weight",
-      "Price",
-      "Delivered Price",
       "Delivered",
       "Buyer",
       "Destination",
@@ -49,7 +42,7 @@ defmodule BnwDashboardWeb.CattlePurchase.CattleReceive.CattleReceiveLive do
 
     purchase =
       Repo.get(Purchase, shipment.purchase_id)
-      |> Repo.preload([:sex, :purchase_buyer, :destination_group])
+      |> Repo.preload([:purchase_buyer, :destination_group])
 
     cattle_receives = CattleReceivings.get_cattle_receivings(shipment.id)
 

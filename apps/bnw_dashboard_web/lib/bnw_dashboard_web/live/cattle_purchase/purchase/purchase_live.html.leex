@@ -110,18 +110,8 @@
                 uk_icon: (if purchase.open_shipments, do: "minus", else: "plus") %>
           </td>
             <td class="uk-text-nowrap"><%= "#{CattlePurchase.Purchases.parse_date(purchase.purchase_date)}" %></td>
-            <td class="uk-text-nowrap"><%= purchase.seller %></td>
-            <td class="uk-text-nowrap"><%= purchase.origin %></td>
             <td class="uk-text-nowrap"><%= purchase.purchase_order %></td>
-            <td class="uk-text-nowrap"><%= purchase.head_count %></td>
-            <td class="uk-text-nowrap"><%= if purchase.sex do %>
-              <%= purchase.sex.name %>
-              <% end %>
-            </td>
             <td class="uk-text-nowrap"><%= "#{CattlePurchase.Purchases.check_cattle_received_count(purchase.id)}" %></td>
-            <td class="uk-text-nowrap"><%= purchase.weight %></td>
-            <td class="uk-text-nowrap"><%= "$#{purchase.price}" %></td>
-            <td class="uk-text-nowrap"><%= "$#{CattlePurchase.Purchases.price_and_delivery(purchase)}" %></td>
             <td class="uk-text-nowrap"><%= if purchase.price_delivered do %>
             <span class="uk-preserve-width check-color" uk-icon="icon: check; ratio: 2.5" phx-hook="uk_icon"></span>
             <% end %></td>
@@ -134,12 +124,6 @@
             <td class="uk-text-nowrap"><%= if purchase.firm do %>
               <span class="uk-preserve-width check-color" uk-icon="icon: check; ratio: 2.5" phx-hook="uk_icon"></span>
             <% end %></td>
-            <%= if CattlePurchase.Purchases.check_days_diff_gt(purchase.id) do %>
-              <td class="uk-text-nowrap projected-date-check-color"><%= "#{CattlePurchase.Purchases.parse_date(purchase.projected_out_date)}"%></td>
-            <% else %>
-              <td class="uk-text-nowrap"><%= "#{CattlePurchase.Purchases.parse_date(purchase.projected_out_date)}"%></td>
-            <% end %>
-            <td class="uk-text-nowrap"><%= "$#{purchase.projected_break_even}"%></td>
             <td class="uk-text-nowrap">
             <%= if purchase.commissions != [] do %>
               <%= link "", to: "#", class: "uk-padding-remove-vertical uk-preserve-width uk-margin-small-right",

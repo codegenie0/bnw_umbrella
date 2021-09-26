@@ -56,24 +56,6 @@
           </label>
         </div>
         <div class="uk-margin-small">
-          <%= label f, :seller, class: "uk-form-label" do %>
-            Seller
-            <%= error_tag f, :seller %>
-          <% end %>
-          <div class="uk-form-controls">
-            <%= text_input f, :seller, class: "uk-input", placeholder: "Seller" %>
-          </div>
-        </div>
-        <div class="uk-margin-small">
-          <%= label f, :origin, class: "uk-form-label" do %>
-            Purchase Location
-            <%= error_tag f, :origin %>
-          <% end %>
-          <div class="uk-form-controls">
-            <%= text_input f, :origin, class: "uk-input", placeholder: "Purchase Location", autofocus: true %>
-          </div>
-        </div>
-        <div class="uk-margin-small">
           <%= label f, :pcc_sort_category, class: "uk-form-label" do %>
             Pcc Sort Category
             <%= error_tag f, :pcc_sort_category %>
@@ -89,42 +71,6 @@
           <% end %>
           <div class="uk-form-controls" id="buyer_id" phx-hook="select2" phx-update="ignore">
             <%= select f, :buyer_id, Enum.map(@purchase_buyers, &{&1.name, &1.id}), [ prompt: "Select Purchase Buyer", selected: "", value: @changeset.data.buyer_id, class: "uk-select select2"] %>
-          </div>
-        </div>
-        <div class="uk-margin-small">
-          <%= label f, :sex, class: "uk-form-label" do %>
-            Sex
-            <%= error_tag f, :sex_id %>
-          <% end %>
-          <div class="uk-form-controls" id="sex_id" phx-hook="select2" phx-update="ignore">
-            <%= select f, :sex_id, Enum.map(@sexes, &{&1.name, &1.id}), [ prompt: "Select Sex", selected: "", value: @changeset.data.sex_id, class: "uk-select select2"] %>
-          </div>
-        </div>
-        <div class="uk-margin-small">
-          <%= label f, :head_count, class: "uk-form-label" do %>
-            Head Count
-            <%= error_tag f, :head_count %>
-          <% end %>
-          <div class="uk-form-controls">
-            <%= number_input f, :head_count, class: "uk-input", placeholder: "Head Count" %>
-          </div>
-        </div>
-        <div class="uk-margin-small">
-          <%= label f, :weight, class: "uk-form-label" do %>
-            Weight
-            <%= error_tag f, :weight %>
-          <% end %>
-          <div class="uk-form-controls">
-            <%= number_input f, :weight, class: "uk-input", placeholder: "Weight" %>
-          </div>
-        </div>
-        <div class="uk-margin-small">
-          <%= label f, :price, class: "uk-form-label" do %>
-            Price
-            <%= error_tag f, :price %>
-          <% end %>
-          <div class="uk-form-controls">
-            <%= number_input f, :price, step: "0.01" , class: "uk-input", placeholder: "Price" %>
           </div>
         </div>
         <div class="uk-margin-small">
@@ -151,39 +97,12 @@
           </div>
         </div>
         <div class="uk-margin-small">
-          <%= label f, :projected_break_even, class: "uk-form-label" do %>
-            Projected Break Even
-            <%= error_tag f, :projected_break_even %>
-          <% end %>
-          <div class="uk-form-controls">
-            <%= number_input f, :projected_break_even, class: "uk-input", placeholder: "Projected Break Even" %>
-          </div>
-        </div>
-        <div class="uk-margin-small">
-          <%= label f, :projected_out_date, class: "uk-form-label" do %>
-            Projected out
-            <%= error_tag f, :projected_out_date %>
-          <% end %>
-          <div class="uk-form-controls">
-            <%= date_input f, :projected_out_date, class: "uk-input", placeholder: "Projected out" %>
-          </div>
-        </div>
-        <div class="uk-margin-small">
           <%= label f, :purchase_order, class: "uk-form-label" do %>
             Purchase Order
             <%= error_tag f, :purchase_order %>
           <% end %>
           <div class="uk-form-controls">
             <%= text_input f, :purchase_order, class: "uk-input", placeholder: "Purchase Order" %>
-          </div>
-        </div>
-        <div class="uk-margin-small">
-          <%= label f, :purchase_basis, class: "uk-form-label" do %>
-            Purchase Basis
-            <%= error_tag f, :purchase_basis %>
-          <% end %>
-          <div class="uk-form-controls">
-            <%= text_input f, :purchase_basis, class: "uk-input", placeholder: "Purchase Basis" %>
           </div>
         </div>
         <div class="uk-margin-small">

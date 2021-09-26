@@ -31,39 +31,31 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
   def mount(params, session, socket) do
     sort_columns = [
       "Purchase Date",
-      "Seller",
-      "Purchase Location",
       "Purchase Order",
-      "Head Count",
-      "Sex",
-      "Weight",
-      "Price",
-      "Delivered Price",
       "Delivered",
       "Buyer",
       "Destination",
       "Ship Date",
       "Firm",
-      "Kill Date"
     ]
 
     {id, ""} = Integer.parse(params["id"])
 
     purchase =
       Repo.get(Purchase, id)
-      |> Repo.preload([:sex, :purchase_buyer, :destination_group, :shipments])
+      |> Repo.preload([:purchase_buyer, :destination_group, :shipments])
 
-    max_head_count =
-      if purchase.shipments == [] do
-        purchase.head_count
-      else
-        shipments_head_count =
-          Enum.reduce(purchase.shipments, 0, fn shipment, acc ->
-            acc + shipment.head_count
-          end)
+    # max_head_count =
+    #   if purchase.shipments == [] do
+    #     purchase.head_count
+    #   else
+    #     shipments_head_count =
+    #       Enum.reduce(purchase.shipments, 0, fn shipment, acc ->
+    #         acc + shipment.head_count
+    #       end)
 
-        purchase.head_count - shipments_head_count
-      end
+    #     purchase.head_count - shipments_head_count
+    #   end
 
     socket =
       assign_defaults(session, socket)
@@ -72,7 +64,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
         app: "Cattle Purchase",
         purchase: purchase,
         shipments: Shipments.get_shipments(id),
-        max_head_count: max_head_count,
+        max_head_count: 50,
         shipment_form_data: %{
           "destination_group_id" => "",
           "estimated_ship_date" => "",
@@ -123,25 +115,25 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
       Repo.get(Purchase, purchase_id |> String.to_integer())
       |> Repo.preload([:shipments])
 
-    max_head_count =
-      if purchase.shipments == [] do
-        purchase.head_count
-      else
-        shipments_head_count =
-          Enum.reduce(purchase.shipments, 0, fn shipment, acc ->
-            acc + shipment.head_count
-          end)
+    # max_head_count =
+    #   if purchase.shipments == [] do
+    #     purchase.head_count
+    #   else
+    #     shipments_head_count =
+    #       Enum.reduce(purchase.shipments, 0, fn shipment, acc ->
+    #         acc + shipment.head_count
+    #       end)
 
-        purchase.head_count - shipments_head_count
-      end
+    #     purchase.head_count - shipments_head_count
+    #   end
 
     changeset = Shipments.new_shipment() |> Map.put(:action, :insert)
 
     changeset =
       Ecto.Changeset.put_change(changeset, :estimated_ship_date, purchase.estimated_ship_date)
 
-    changeset =
-      Ecto.Changeset.put_change(changeset, :projected_out_date, purchase.projected_out_date)
+    # changeset =
+    #   Ecto.Changeset.put_change(changeset, :projected_out_date, purchase.projected_out_date)
 
     changesets = socket.assigns.changesets
 
@@ -151,7 +143,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
         modal: :change_purchase_shipment,
         destinations: Purchases.get_destination("") |> format_destination_group(),
         sexes: Sexes.get_active_sexes(),
-        max_head_count: max_head_count
+        max_head_count: 50
       )
 
     {:noreply, socket}

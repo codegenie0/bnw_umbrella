@@ -30,7 +30,6 @@ defmodule CattlePurchase.Purchases do
   def list_purchases() do
     Repo.all(Purchase)
     |> Repo.preload([
-      :sex,
       :purchase_buyer,
       :destination_group,
       :down_payments,
@@ -304,7 +303,6 @@ defmodule CattlePurchase.Purchases do
     |> limit(^per_page)
     |> Repo.all()
     |> Repo.preload([
-      :sex,
       :purchase_buyer,
       :destination_group,
       :shipments,

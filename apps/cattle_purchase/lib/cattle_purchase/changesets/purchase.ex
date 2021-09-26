@@ -3,7 +3,6 @@ defmodule CattlePurchase.Purchase do
   import Ecto.Changeset
 
   alias CattlePurchase.{
-    Sex,
     DestinationGroup,
     PurchaseType,
     PurchaseBuyer,
@@ -28,22 +27,14 @@ defmodule CattlePurchase.Purchase do
   @schema_prefix prefix
 
   schema "purchases" do
-    field :seller, :string
-    field :origin, :string
     field :comment, :string
     field :pasture, :string
-    field :purchase_basis, :string
     field :purchase_order, :string
     field :pcc_sort, :string
     field :destination_group_name, :string
-    field :head_count, :integer
     field :projected_out_month, :integer
     field :projected_out_year, :integer
-    field :price, :decimal
-    field :weight, :integer
     field :freight, :decimal
-    field :projected_break_even, :decimal
-    field :projected_out_date, :date
     field :purchase_date, :date
     field :estimated_ship_date, :date
     field :projected_placement_date, :date
@@ -54,7 +45,6 @@ defmodule CattlePurchase.Purchase do
     field :price_delivered, :boolean, default: false
     field :verify, :boolean, default: false
     field :complete, :boolean, default: false
-    belongs_to :sex, Sex
     belongs_to :destination_group, DestinationGroup
 
     belongs_to :future_destination_group, DestinationGroup,
@@ -77,16 +67,15 @@ defmodule CattlePurchase.Purchase do
     timestamps()
   end
 
-  @required ~w(purchase_date estimated_ship_date head_count price freight
-                projected_break_even projected_out_date
-                weight destination_group_id
+  @required ~w(purchase_date estimated_ship_date freight
+                destination_group_id
                 purchase_type_id purchase_group_id
               )a
-  @optional ~w(seller origin firm projected_out_month projected_out_year
+  @optional ~w(firm projected_out_month projected_out_year
                   price_delivered verify complete projected_placement_date
                   comment pasture purchase_order pricing_order_date
-                  customer_fill_date wcc_fill_date pcc_sort purchase_basis
-                  future_destination_group_id  destination_group_name sex_id
+                  customer_fill_date wcc_fill_date pcc_sort
+                  future_destination_group_id  destination_group_name
                   buyer_id
               )a
   @allowed @required ++ @optional
@@ -102,7 +91,6 @@ defmodule CattlePurchase.Purchase do
       model
       |> cast(attrs, @allowed)
       |> validate_required(@required)
-      |> foreign_key_constraint(:sex_id)
       |> foreign_key_constraint(:destination_group_id)
       |> foreign_key_constraint(:future_destination_group_id)
       |> foreign_key_constraint(:purchase_type_id)

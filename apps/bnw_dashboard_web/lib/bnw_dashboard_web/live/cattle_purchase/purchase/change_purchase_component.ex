@@ -33,22 +33,22 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
 
     purchase = Map.put(purchase, "destination_group_id", id)
 
-    purchase_adjustment =
-      if changeset.data.id != nil && changeset.data.estimated_ship_date &&
-           purchase["estimated_ship_date"] !=
-             changeset.data.estimated_ship_date |> Date.to_string() &&
-           changeset.data.projected_out_date &&
-           purchase["projected_out_date"] == changeset.data.projected_out_date |> Date.to_string() do
-        days =
-          Date.diff(
-            purchase["estimated_ship_date"] |> Date.from_iso8601!(),
-            changeset.data.estimated_ship_date
-          )
+    # purchase_adjustment =
+    #   if changeset.data.id != nil && changeset.data.estimated_ship_date &&
+    #        purchase["estimated_ship_date"] !=
+    #          changeset.data.estimated_ship_date |> Date.to_string() &&
+    #        changeset.data.projected_out_date &&
+    #        purchase["projected_out_date"] == changeset.data.projected_out_date |> Date.to_string() do
+    #     days =
+    #       Date.diff(
+    #         purchase["estimated_ship_date"] |> Date.from_iso8601!(),
+    #         changeset.data.estimated_ship_date
+    #       )
 
-        Map.put(purchase, "projected_out_date", Date.add(changeset.data.projected_out_date, days))
-      end
+    #     Map.put(purchase, "projected_out_date", Date.add(changeset.data.projected_out_date, days))
+    #   end
 
-    purchase = if purchase_adjustment, do: purchase_adjustment, else: purchase
+    # purchase = if purchase_adjustment, do: purchase_adjustment, else: purchase
 
     purchase =
       Map.put(

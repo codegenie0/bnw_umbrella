@@ -49,13 +49,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
     search_columns = [
       purchase_date: :purchase_date,
-      seller: :seller,
-      purchase_location: :origin,
       purchase_order: :purchase_order,
-      head_count: :head_count,
-      sex: :sex,
-      weight: :weight,
-      price: :price,
       buyer: :buyer,
       destination: :destination,
       ship_date: :estimated_ship_date,
@@ -64,22 +58,13 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
     sort_columns = [
       %{name: "purchase_date", title: "Purchase Date", sort_by: nil, is_sort: true},
-      %{name: "seller", title: "Seller", sort_by: nil, is_sort: true},
-      %{name: "origin", title: "Purchase Location", sort_by: nil, is_sort: true},
       %{name: "purchase_order", title: "Purchase Order", sort_by: nil, is_sort: true},
-      %{name: "head_count", title: "Head Count", sort_by: nil, is_sort: true},
-      %{name: "sex", title: "Sex", sort_by: nil, is_sort: false},
       %{name: "received", title: "Received", sort_by: nil, is_sort: false},
-      %{name: "weight", title: "Weight", sort_by: nil, is_sort: true},
-      %{name: "price", title: "Price", sort_by: nil, is_sort: true},
-      %{name: "price_and_delivery", title: "Delivered Price", sort_by: nil, is_sort: true},
       %{name: "delivered", title: "Delivered", sort_by: nil, is_sort: true},
       %{name: "buyer", title: "Buyer", sort_by: nil, is_sort: false},
       %{name: "destination", title: "Destination", sort_by: nil, is_sort: false},
       %{name: "estimated_ship_date", title: "Ship Date", sort_by: nil, is_sort: true},
       %{name: "firm", title: "Firm", sort_by: nil, is_sort: true},
-      %{name: "projected_out_date", title: "Kill Date", sort_by: nil, is_sort: true},
-      %{name: "projected_break_even", title: "Proj BE", sort_by: nil, is_sort: true},
       %{name: "Commission", title: "comm", sort_by: nil, is_sort: false},
       %{name: "Down Payment", title: "DP", sort_by: nil, is_sort: false},
       %{name: "Shipment", title: "shipment", sort_by: nil, is_sort: false},
@@ -485,7 +470,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     purchases =
       Purchases.sort_by(Purchase, sortOrder, selected_column.name)
       |> Repo.all()
-      |> Repo.preload([:sex, :purchase_buyer, :destination_group, commissions: :commission_payee])
+      |> Repo.preload([:purchase_buyer, :destination_group, commissions: :commission_payee])
       |> Enum.map(&Map.put(&1, :open_shipments, false))
 
     {:noreply, assign(socket, purchases: purchases, sort_columns: sort_columns)}
@@ -626,7 +611,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       |> Purchases.search(purchase_filters.column_name, purchase_filters.search_value)
       |> Repo.all()
       |> Repo.preload([
-        :sex,
         :purchase_buyer,
         :destination_group,
         :shipments,
