@@ -14,6 +14,7 @@
          <%= hidden_input f, :purchase_id,  class: "uk-input", value: @parent_id %>
          <%= hidden_input f, :button,  class: "uk-input", id: "button-clicked", value: "" %>
          <%= for {c, i} <- Enum.with_index(@commissions_in_form)  do %>
+         <div id="<%= i%>">
          <div class="uk-margin-small uk-form-controls uk-flex	uk-flex-middle">
             <div class="uk-margin-small uk-margin-right">
             <%= label :commission, :commission_payee, class: "uk-form-label" do %>
@@ -28,15 +29,15 @@
                 $/cwt Rate
             <% end %>
             <div class="uk-form-controls">
-              <%= number_input :commission, "#{i}_commission_per_hundred",class: "uk-input" , value: c.commission_per_hundred %>
+              <%= number_input :commission, "#{i}_commission_per_hundred",class: "uk-input" , value: c.commission_per_hundred, step: "any" %>
             </div>
           </div>
 
               <%= link "", to: "#", class: "uk-preserve-width uk-padding-small uk-padding-remove-vertical",
                         uk_icon: "trash",
                         phx_hook: "uk_icon",
-                        phx_click: (if @commission_edit_phase , do: "delete_commission_in_db"  , else: "delete_commission"),
-                        phx_value_id: i,
+                        phx_click: (if @commission_edit_phase, do: "delete_commission_in_db", else: "delete_commission"),
+                        phx_value_index: i,
                         phx_target: @myself,
                         data: [confirm: "Are you sure?"]  %>
          </div>
@@ -45,15 +46,15 @@
               Invalid Commission
            </span>
          <% end %>
+        </div>
        <% end %>
-       <%= if !@commission_edit_phase do %>
+
        <div class="uk-padding uk-padding-remove-horizontal uk-padding-remove-top">
         <button class="uk-button uk-button-default uk-border-pill uk-width-3-4 uk-align-center"
                 type="button"
                 phx-target="<%= @myself %>"
                 phx-click="add_commission">Add Commission</button>
       </div>
-      <% end %>
       </div>
       <div class="uk-modal-footer uk-text-right">
         <button class="uk-button uk-button-default"
@@ -65,6 +66,10 @@
               <%= if !@commission_edit_phase do %>
                     <%= submit "Next", [id: "Next",
                           class: "uk-button uk-button-primary", phx_hook: "set_save"] %>
+                          <button class="uk-button uk-button-default"
+                          type="button"
+                          phx-value-step="<%= @form_step %>"
+                          phx-click="skip_step">Skip</button>
               <% end %>
         <% else %>
           <%= submit "Save", [phx_disable_with: "Saving...",

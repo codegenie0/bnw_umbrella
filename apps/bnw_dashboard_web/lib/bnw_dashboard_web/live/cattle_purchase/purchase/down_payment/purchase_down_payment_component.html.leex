@@ -13,9 +13,10 @@
         <div class="uk-modal-body uk-background-secondary uk-light uk-overflow-auto uk-height-max-large">
      <%= hidden_input f, :purchase_id,  class: "uk-input", value: @parent_id %>
      <%= hidden_input f, :button,  class: "uk-input", id: "button-clicked", value: "" %>
-    <div class="uk-margin-small">
-      <h3>Down Payment</h3>
+    <div class="uk-margin-small" id="down-payments" phx-update="replace">
+      <h3>Down Payment </h3>
       <%= for {c, i} <- Enum.with_index(@down_payments_in_form)  do %>
+      <div id="<%= i%>">
       <div class="uk-margin-small" id="commission_description" phx-update="ignore">
       <%= label :down_payment, :description, class: "uk-form-label" do %>
             Description
@@ -50,7 +51,7 @@
       uk_icon: "trash",
       phx_hook: "uk_icon",
       phx_click: (if @down_payment_edit_phase, do: "delete_down_payment_in_db", else: "delete_down_payment"),
-      phx_value_id: i,
+      phx_value_index: i,
       phx_target: @myself,
       data: [confirm: "Are you sure?"]  %>
 
@@ -59,15 +60,16 @@
                 Invalid Down Payment
             </span>
         <% end %>
+      </div>
       <% end %>
 
     </div>
-    <%= if !@down_payment_edit_phase do %>
+    <%#= if !@down_payment_edit_phase do %>
         <button class="uk-button uk-button-default uk-border-pill uk-width-3-4 uk-align-center"
                 type="button"
                 phx-target="<%= @myself %>"
                 phx-click="add_down_payment">Add Down Payment</button>
-    <% end %>
+    <%# end %>
   </div>
   <div class="uk-modal-footer uk-text-right">
     <button class="uk-button uk-button-default"
@@ -76,7 +78,12 @@
     <%= if Ecto.get_meta(@down_payment_changeset.data, :state) == :built do %>
       <%= submit "Save&Close", [id: "Save&Close",
                       class: "uk-button uk-button-primary", phx_hook: "set_save"] %>
-
+                      <%= if !@down_payment_edit_phase do %>
+                        <button class="uk-button uk-button-default"
+                          type="button"
+                          phx-value-step="<%= @form_step %>"
+                          phx-click="skip_step">Skip</button>
+                <% end %>
     <% else %>
       <%= submit "Save", [phx_disable_with: "Saving...",
                       class: "uk-button uk-button-primary"] %>

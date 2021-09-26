@@ -2,7 +2,7 @@
 <%= f = form_for @changeset, "#",
     [ phx_change: :validate, phx_submit: :save, phx_target: @myself, class: "uk-form-stacked"] %>
   <div style="display: block;" class="uk-modal uk-open">
-    <div class="uk-modal-dialog uk-overflow-auto" phx-hook="close_modal">
+    <div class="uk-modal-dialog uk-overflow-hide" phx-hook="close_modal">
       <button class="uk-modal-close-default"
               type="button"
               phx-click="cancel"

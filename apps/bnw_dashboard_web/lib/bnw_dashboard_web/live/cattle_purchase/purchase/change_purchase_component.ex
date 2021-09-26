@@ -66,6 +66,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
             socket.assigns.parent_pid,
             {:purchase_created, button: button, purchase_id: purchase.id}
           )
+
           {:noreply,
            push_patch(socket,
              to: Routes.live_path(socket, PurchaseLive)

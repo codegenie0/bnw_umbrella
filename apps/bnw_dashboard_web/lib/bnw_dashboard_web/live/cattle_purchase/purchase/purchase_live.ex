@@ -11,6 +11,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     PurchaseTypeFilters,
     Commissions,
     DownPayments,
+    DownPayment,
     Sexes,
     Repo
   }
@@ -156,7 +157,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
   @impl true
   def handle_params(params, _url, socket) do
-
     {:noreply, socket}
   end
 
@@ -205,8 +205,10 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
           form_step: 3,
           model: :change_purchase,
           commission_edit_phase: false,
-          commissions_from_db: nil,
-          commissions_in_form: nil,
+          commissions_from_db: [],
+          commissions_in_form: [
+            %{commission_payee_id: "", commission_per_hundred: 0, valid: true}
+          ],
           down_payments_in_form: [
             %{
               description: "",
@@ -226,10 +228,12 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       socket =
         assign(socket,
           form_step: 1,
-          model: nil,
+          modal: nil,
           commission_edit_phase: false,
           commissions_from_db: nil,
-          commissions_in_form: nil
+          commissions_in_form: [
+            %{commission_payee_id: "", commission_per_hundred: 0, valid: true}
+          ]
         )
 
       socket = fetch_purchase(socket)
@@ -309,14 +313,22 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     socket =
       assign(socket,
         form_step: 1,
-        model: nil,
+        modal: nil,
         down_payment_edit_phase: false,
-        down_payments_from_db: nil,
-        down_payments_in_form: nil
+        down_payments_from_db: [],
+        down_payments_in_form: [
+          %{
+            description: "",
+            amount: 0,
+            date_paid: "",
+            locked: "",
+            valid: true
+          }
+        ]
       )
 
     socket = fetch_purchase(socket)
-    {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
+    {:noreply, socket}
   end
 
   @impl true
@@ -684,6 +696,91 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
     socket = assign_total_pages(socket)
     socket = load_more(socket)
+    {:noreply, socket}
+  end
+
+  def handle_info({:delete_down_payment_in_db, length, purchase_id}, socket) do
+    down_payments_in_form =
+      DownPayments.get_down_payment_from_purchase(purchase_id)
+      |> Enum.map(&Map.put(&1, :valid, true))
+
+    socket = assign(socket, modal: if(length < 1, do: nil, else: :change_purchase))
+
+    socket =
+      assign(socket,
+        down_payments_in_form: down_payments_in_form,
+        down_payments_from_db: down_payments_in_form
+      )
+
+    socket = fetch_purchase(socket)
+    {:noreply, socket}
+  end
+
+  def handle_info({:delete_commission_in_db, length, purchase_id}, socket) do
+    commissions_in_form =
+      Commissions.get_commission_from_purchase(purchase_id)
+      |> Enum.map(&Map.put(&1, :valid, true))
+
+    socket = assign(socket, modal: if(length < 1, do: nil, else: :change_purchase))
+
+    socket =
+      assign(socket,
+        commissions_in_form: commissions_in_form,
+        commissions_from_db: commissions_in_form
+      )
+
+    socket = fetch_purchase(socket)
+    {:noreply, socket}
+  end
+
+  def handle_event("skip_step", params, socket) do
+    {step, ""} = Integer.parse(params["step"])
+
+    socket =
+      case step do
+        2 ->
+          assign(socket,
+            form_step: 3,
+            commission_edit_phase: false,
+            commissions_from_db: nil,
+            commission_changeset: Commissions.new_commission(),
+            commissions_in_form: [
+              %{commission_payee_id: "", commission_per_hundred: 0, valid: true}
+            ],
+            modal: :change_purchase,
+            down_payments_in_form: [
+              %{
+                description: "",
+                amount: 0,
+                date_paid: "",
+                locked: "",
+                valid: true
+              }
+            ],
+            down_payments_from_db: [],
+            down_payment_changeset: DownPayments.new_down_payment(),
+            down_payment_edit_phase: false
+          )
+
+        3 ->
+          assign(socket,
+            form_step: 1,
+            modal: nil,
+            down_payment_edit_phase: false,
+            down_payment_from_db: [],
+            down_payment_changeset: DownPayments.new_down_payment(),
+            down_payments_in_form: [
+              %{
+                description: "",
+                amount: 0,
+                date_paid: "",
+                locked: "",
+                valid: true
+              }
+            ]
+          )
+      end
+
     {:noreply, socket}
   end
 
