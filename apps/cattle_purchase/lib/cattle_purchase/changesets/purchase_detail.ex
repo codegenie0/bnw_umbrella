@@ -29,7 +29,7 @@ defmodule CattlePurchase.PurchaseDetail do
     timestamps()
   end
 
-  @required ~w(head_count average_weight price projected_break_even projected_basis)a
+  @required ~w(head_count average_weight price projected_break_even purchase_basis)a
   @optional ~w(futures_order_price cash_price projected_out_date order_date fill_date)a
   @allowed @required ++ @optional
 

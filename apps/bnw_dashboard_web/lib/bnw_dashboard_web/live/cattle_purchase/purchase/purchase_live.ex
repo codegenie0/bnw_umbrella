@@ -11,11 +11,13 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     PurchaseTypeFilters,
     Commissions,
     DownPayments,
+    PurchaseDetails,
     Sexes,
     Repo
   }
 
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent
+  alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDetailComponent
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent
   alias BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent
   alias BnwDashboardWeb.CattlePurchase.Purchase.CompletePurchaseComponent
@@ -170,6 +172,51 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         assign(socket,
           form_step: 2,
           modal: :change_purchase,
+          parent_id: purchase_id,
+          sexes: Sexes.get_active_sexes(),
+          purchase_detail_edit_phase: false,
+          purchase_detail_changeset: PurchaseDetails.new_purchase_detail(),
+          purchase_details_in_form: [
+            %{
+              sex_id: "",
+              head_count: 0,
+              average_weight: 0,
+              price: 0,
+              projected_break_even: 0,
+              projected_out_date: "",
+              purchase_basis: "",
+              valid: true
+            }
+          ],
+          purchase_details_from_db: [
+            %{
+              sex_id: "",
+              head_count: 0,
+              average_weight: 0,
+              price: 0,
+              projected_break_even: 0,
+              projected_out_date: "",
+              purchase_basis: "",
+              valid: true
+            }
+          ]
+        )
+
+      {:noreply, socket}
+    else
+      socket = assign(socket, form_step: 1, model: nil)
+
+      socket = fetch_purchase(socket)
+      {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
+    end
+  end
+
+  def handle_info({:purchase_detail_created, button: button, purchase_id: purchase_id}, socket) do
+    if button == "Next" do
+      socket =
+        assign(socket,
+          form_step: 3,
+          modal: :change_purchase,
           parent_id: purchase_id
         )
 
@@ -186,7 +233,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     if button == "Next" do
       socket =
         assign(socket,
-          form_step: 3,
+          form_step: 4,
           model: :change_purchase,
           commission_edit_phase: false,
           commissions_from_db: [],
@@ -411,7 +458,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     socket =
       assign(socket,
         modal: :change_purchase,
-        form_step: 2,
+        form_step: 3,
         commissions_in_form: commissions_in_form,
         commissions_from_db: commissions_in_form,
         commission_changeset: Commissions.new_commission(),
@@ -432,7 +479,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     socket =
       assign(socket,
         modal: :change_purchase,
-        form_step: 3,
+        form_step: 4,
         down_payments_in_form: down_payments_in_form,
         down_payments_from_db: down_payments_in_form,
         down_payment_changeset: DownPayments.new_down_payment(),
