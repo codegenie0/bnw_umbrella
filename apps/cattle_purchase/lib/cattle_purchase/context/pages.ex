@@ -4,6 +4,7 @@ defmodule CattlePurchase.Pages do
       %{name: "Animal Ordering", url: "/cattle_purchase/animal_ordering"},
       %{name: "Background", url: "/cattle_purchase/background"},
       %{name: "Commission Payee", url: "/cattle_purchase/commission_payee"},
+      %{name: "Contract Terms", url: "/cattle_purchase/contract_terms"},
       %{name: "Destination Groups", url: "/cattle_purchase/destination_groups"},
       %{name: "Page", url: "/cattle_purchase/page"},
       %{name: "Payees", url: "/cattle_purchase/payees"},

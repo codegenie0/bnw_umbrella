@@ -112,6 +112,7 @@ defmodule BnwDashboardWeb.Router do
       live "/animal_ordering", CattlePurchase.AnimalOrdering.AnimalOrderingLive
       live "/background", CattlePurchase.Background.BackgroundLive
       live "/commission_payee", CattlePurchase.CommissionPayee.CommissionPayeeLive
+      live "/contract_terms", CattlePurchase.ContractTerm.ContractTermLive
       live "/destination_groups", CattlePurchase.DestinationGroup.DestinationGroupLive
       live "/destination_groups/:id/destinations", CattlePurchase.Destination.DestinationLive
       live "/page", CattlePurchase.Page.PageLive

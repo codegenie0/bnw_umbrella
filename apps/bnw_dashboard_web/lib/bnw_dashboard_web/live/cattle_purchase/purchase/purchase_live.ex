@@ -11,7 +11,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     PurchaseTypeFilters,
     Commissions,
     DownPayments,
-    DownPayment,
     Sexes,
     Repo
   }
@@ -141,7 +140,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   end
 
   @impl true
-  def handle_params(params, _url, socket) do
+  def handle_params(_params, _url, socket) do
     {:noreply, socket}
   end
 
@@ -226,6 +225,62 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     end
   end
 
+  def handle_info({:down_payments_created, true}, socket) do
+    socket =
+      assign(socket,
+        form_step: 1,
+        modal: nil,
+        down_payment_edit_phase: false,
+        down_payments_from_db: [],
+        down_payments_in_form: [
+          %{
+            description: "",
+            amount: 0,
+            date_paid: "",
+            locked: "",
+            valid: true
+          }
+        ]
+      )
+
+    socket = fetch_purchase(socket)
+    {:noreply, socket}
+  end
+
+  def handle_info({:delete_down_payment_in_db, length, purchase_id}, socket) do
+    down_payments_in_form =
+      DownPayments.get_down_payment_from_purchase(purchase_id)
+      |> Enum.map(&Map.put(&1, :valid, true))
+
+    socket = assign(socket, modal: if(length < 1, do: nil, else: :change_purchase))
+
+    socket =
+      assign(socket,
+        down_payments_in_form: down_payments_in_form,
+        down_payments_from_db: down_payments_in_form
+      )
+
+    socket = fetch_purchase(socket)
+    {:noreply, socket}
+  end
+
+  def handle_info({:delete_commission_in_db, length, purchase_id}, socket) do
+    commissions_in_form =
+      Commissions.get_commission_from_purchase(purchase_id)
+      |> Enum.map(&Map.put(&1, :valid, true))
+
+    socket = assign(socket, modal: if(length < 1, do: nil, else: :change_purchase))
+
+    socket =
+      assign(socket,
+        commissions_in_form: commissions_in_form,
+        commissions_from_db: commissions_in_form
+      )
+
+    socket = fetch_purchase(socket)
+    {:noreply, socket}
+  end
+
   @impl true
   def handle_event("new", _, socket) do
     changeset = Purchases.new_purchase()
@@ -292,28 +347,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
          end_date: ""
        }
      )}
-  end
-
-  def handle_info({:down_payments_created, true}, socket) do
-    socket =
-      assign(socket,
-        form_step: 1,
-        modal: nil,
-        down_payment_edit_phase: false,
-        down_payments_from_db: [],
-        down_payments_in_form: [
-          %{
-            description: "",
-            amount: 0,
-            date_paid: "",
-            locked: "",
-            valid: true
-          }
-        ]
-      )
-
-    socket = fetch_purchase(socket)
-    {:noreply, socket}
   end
 
   @impl true
@@ -680,40 +713,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
     socket = assign_total_pages(socket)
     socket = load_more(socket)
-    {:noreply, socket}
-  end
-
-  def handle_info({:delete_down_payment_in_db, length, purchase_id}, socket) do
-    down_payments_in_form =
-      DownPayments.get_down_payment_from_purchase(purchase_id)
-      |> Enum.map(&Map.put(&1, :valid, true))
-
-    socket = assign(socket, modal: if(length < 1, do: nil, else: :change_purchase))
-
-    socket =
-      assign(socket,
-        down_payments_in_form: down_payments_in_form,
-        down_payments_from_db: down_payments_in_form
-      )
-
-    socket = fetch_purchase(socket)
-    {:noreply, socket}
-  end
-
-  def handle_info({:delete_commission_in_db, length, purchase_id}, socket) do
-    commissions_in_form =
-      Commissions.get_commission_from_purchase(purchase_id)
-      |> Enum.map(&Map.put(&1, :valid, true))
-
-    socket = assign(socket, modal: if(length < 1, do: nil, else: :change_purchase))
-
-    socket =
-      assign(socket,
-        commissions_in_form: commissions_in_form,
-        commissions_from_db: commissions_in_form
-      )
-
-    socket = fetch_purchase(socket)
     {:noreply, socket}
   end
 
