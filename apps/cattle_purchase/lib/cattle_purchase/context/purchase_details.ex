@@ -10,7 +10,8 @@ defmodule CattlePurchase.PurchaseDetails do
   Get purchase_detail from purchase
   """
   def get_purchase_detail_from_purchase(purchase_id) do
-    from(purchase_detail in PurchaseDetail, where: purchase_detail.purchase_id == ^purchase_id) |> Repo.all()
+    from(purchase_detail in PurchaseDetail, where: purchase_detail.purchase_id == ^purchase_id)
+    |> Repo.all()
   end
 
   @doc """
@@ -47,7 +48,7 @@ defmodule CattlePurchase.PurchaseDetails do
   def create_or_update_multiple_purchase_details(cs_list, is_edit) do
     if(is_edit) do
       Repo.transaction(fn ->
-         Enum.each(cs_list, &Repo.update!(&1, []))
+        Enum.each(cs_list, &Repo.update!(&1, []))
       end)
     else
       Repo.transaction(fn ->

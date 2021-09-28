@@ -67,7 +67,7 @@
           <%= label :purchase_detail, :purchase_basis, class: "uk-form-label" do %>
             Purchase Basis
           <% end %>
-          <div class="uk-form-controls">            
+          <div class="uk-form-controls">
             <%= number_input :purchase_detail, "#{i}_purchase_basis", value: p.purchase_basis, class: "uk-input", placeholder: "Purchase Basis" %>
           </div>
         </div>
@@ -90,17 +90,22 @@
                   phx-target="<%= @myself %>"
                   phx-click="add_purchase_detail">Add Purchase Detail</button>
         </div>
-        
+
        <% end %>
       </div>
-    
-      <div class="uk-modal-footer uk-text-right">      
+
+      <div class="uk-modal-footer uk-text-right">
+      <%= if @purchase_detail_edit_phase || @from_purchase_detail_page do%>
+       <button class="uk-button uk-button-default"
+                type="button"
+                phx-click="cancel">Cancel</button>
+      <% end %>
         <%= if Ecto.get_meta(@purchase_detail_changeset.data, :state) == :built do %>
           <%= submit "Save&Close", [id: "Save&Close",
                           class: "uk-button uk-button-primary", phx_hook: "set_save"] %>
-              <%= if !@purchase_detail_edit_phase do %>
+              <%= if !@purchase_detail_edit_phase and !@from_purchase_detail_page do %>
                     <%= submit "Next", [id: "Next",
-                          class: "uk-button uk-button-primary", phx_hook: "set_save"] %>                        
+                          class: "uk-button uk-button-primary", phx_hook: "set_save"] %>
               <% end %>
         <% else %>
           <%= submit "Save", [phx_disable_with: "Saving...",

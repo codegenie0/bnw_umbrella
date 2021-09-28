@@ -22,6 +22,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   alias BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent
   alias BnwDashboardWeb.CattlePurchase.Purchase.CompletePurchaseComponent
   alias BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive
+  alias BnwDashboardWeb.CattlePurchase.PurchaseDetail.PurchaseDetailLive
   alias BnwDashboardWeb.CattlePurchase.CattleReceive.CattleReceiveLive
 
   defp authenticate(socket) do
@@ -69,6 +70,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       %{name: "Commission", title: "comm", sort_by: nil, is_sort: false},
       %{name: "Down Payment", title: "DP", sort_by: nil, is_sort: false},
       %{name: "Shipment", title: "shipment", sort_by: nil, is_sort: false},
+      %{name: "Detail", title: "Details", sort_by: nil, is_sort: false},
       %{name: "complete", title: "Complete", sort_by: nil, is_sort: true}
     ]
 

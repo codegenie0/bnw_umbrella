@@ -1,0 +1,98 @@
+<div>
+  <h3><%= @page_title %></h3>
+  <div class="uk-overflow-auto uk-height-max-large">
+    <%= live_patch "Go Back To Purchases", to: Routes.live_path(@socket, PurchaseLive), class: "uk-button uk-button-primary"  %>
+    <h3>Purchase</h3>
+    <table class="uk-table uk-table-striped uk-table-middle uk-table-hover">
+      <thead>
+        <tr>
+          <%= for sort_column <- @sort_columns do %>
+          <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default">
+            <span><%= sort_column %></span>
+          </th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+          <%= if @purchase.complete do %>
+            <tr class="uk-alert-success  complete-check-color">
+          <% else %>
+            <tr>
+          <% end %>
+            <td class="uk-text-nowrap"><%= "#{CattlePurchase.Purchases.parse_date(@purchase.purchase_date)}" %></td>
+            <td class="uk-text-nowrap"><%= @purchase.purchase_order %></td>
+            <td class="uk-text-nowrap"><%= if @purchase.price_delivered do %>
+            <span class="uk-preserve-width check-color" uk-icon="icon: check; ratio: 2.5" phx-hook="uk_icon"></span>
+            <% end %></td>
+            <td class="uk-text-nowrap"><%= if @purchase.purchase_buyer do %>
+              <%= @purchase.purchase_buyer.name %>
+              <% end %>
+            </td>
+            <td class="uk-text-nowrap"><%= @purchase.destination_group_name%></td>
+            <td class="uk-text-nowrap"><%= "#{CattlePurchase.Purchases.parse_date(@purchase.estimated_ship_date)}"%></td>
+            <td class="uk-text-nowrap"><%= if @purchase.firm do %>
+              <span class="uk-preserve-width check-color" uk-icon="icon: check; ratio: 2.5" phx-hook="uk_icon"></span>
+            <% end %></td>
+          </tr>
+      </tbody>
+    </table>
+</div>
+<div class="uk-overflow-auto uk-height-max-large uk-margin-medium-top">
+  <h3>Purchase Details</h3>
+    <%= link "New Purchase Detail", to: "#", class: "uk-button uk-button-primary uk-border-pill uk-margin-remove  uk-margin-remove-bottom uk-align-center uk-width-1-3@l uk-width-2-3@m",
+            phx_value_id: @purchase.id,
+            phx_click: "new" %>
+  <table class="uk-table uk-table-striped uk-table-middle uk-table-hover">
+    <thead>
+      <tr>
+       <th class="uk-width-1-3 uk-table-shrink uk-text-nowrap uk-background-default">Sex</th>
+       <th class="uk-width-1-3 uk-table-shrink uk-text-nowrap uk-background-default">Head Count</th>
+       <th class="uk-width-1-3 uk-table-shrink uk-text-nowrap uk-background-default">Average Weight</th>
+       <th class="uk-width-1-3 uk-table-shrink uk-text-nowrap uk-background-default">Price</th>
+       <th class="uk-width-1-3 uk-table-shrink uk-text-nowrap uk-background-default">Projected Break Even</th>
+       <th class="uk-width-1-3 uk-table-expand uk-text-nowrap uk-background-default">Projected Out Date</th>
+       <th class="uk-width-1-3 uk-table-expand uk-text-nowrap uk-background-default">Purchase Basis</th>
+       <th class="uk-width-1-3 uk-table-shrink uk-text-nowrap uk-background-default">edit | delete</th>
+      </tr>
+    </thead>
+    </tbody>
+      <%= for purchase_detail <- @purchase_details do %>
+      <td><%= purchase_detail.sex_id%></td>
+      <td><%= purchase_detail.head_count%></td>
+      <td><%= purchase_detail.average_weight%></td>
+      <td><%= purchase_detail.price%></td>
+      <td><%= purchase_detail.projected_break_even%></td>
+      <td><%= "#{CattlePurchase.Purchases.parse_date(purchase_detail.projected_out_date)}" %></td>
+      <td><%= purchase_detail.purchase_basis%></td>
+      <td>
+          <%= link "", to: "#", class: "uk-padding-remove-vertical uk-margin-small-right",
+          uk_icon: "pencil",
+          phx_hook: "uk_icon",
+          phx_click: "edit",
+          phx_value_id: purchase_detail.id %>
+          <%= link "", to: "#", class: "uk-padding-remove-vertical",
+          uk_icon: "trash",
+          phx_hook: "uk_icon",
+          phx_click: "delete",
+          phx_value_id: purchase_detail.id %>
+        </td>
+    </tr>
+      <% end %>
+    </tbody>
+  </table>
+  </div>
+  <%= if @modal == :change_purchase_detail do
+    live_component(@socket, PurchaseDetailComponent,
+      id: "#{@current_user.id}",
+      purchase_id: @purchase.id,
+      purchase_detail_changeset: @purchase_detail_changeset,
+      purchase_details_in_form: @purchase_details_in_form,
+      sexes: @sexes,
+      parent_id: @purchase.id,
+      parent_pid: self(),
+      purchase_detail_edit_phase: @purchase_detail_edit_phase,
+      purchase_details_from_db: @purchase_details_from_db,
+      from_purchase_detail_page: true,
+      form_step: 1)
+  end%>
+</div>
