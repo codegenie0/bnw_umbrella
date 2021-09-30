@@ -197,6 +197,21 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent d
 
         valid = check_valid_down_payment(result)
         result = Map.put(result, :valid, valid)
+
+        if Map.has_key?(c, :read_only) do
+          Map.merge(
+            %{
+              description: c.description,
+              amount: c.amount,
+              date_paid: c.date_paid,
+              locked: c.locked,
+              read_only: c.read_only
+            },
+            result
+          )
+        else
+          result
+        end
       end)
 
     down_payments_in_form

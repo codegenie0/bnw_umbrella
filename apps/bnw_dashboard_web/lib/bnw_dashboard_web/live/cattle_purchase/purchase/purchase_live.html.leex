@@ -252,6 +252,17 @@
   <%= if @modal == :change_purchase and @form_step == 3 do
     live_component(
       @socket,
+      PurchaseSellerComponent,
+      id: "#{@current_user.id}",
+      parent_pid: self(),
+      sellers: Sellers.get_active_sellers(),
+      selected_seller: nil,
+      form_step: @form_step
+      )
+  end %>
+  <%= if @modal == :change_purchase and @form_step == 4 do
+    live_component(
+      @socket,
       PurchaseCommissionComponent,
       id: "#{@current_user.id}",
       purchase_id: @purchase_id,
@@ -265,7 +276,7 @@
       form_step: @form_step
       )
   end %>
-  <%= if @modal == :change_purchase and @form_step == 4 do
+  <%= if @modal == :change_purchase and @form_step == 5 do
   live_component(
     @socket,
     PurchaseDownPaymentComponent,

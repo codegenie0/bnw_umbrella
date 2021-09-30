@@ -25,28 +25,40 @@
         <%= text_input :down_payment, "#{i}_description", class: "uk-input", placeholder: "Description", value: c.description %>
       </div>
     </div>
-    <div class="uk-margin-small" id="commission_amount" phx-update="ignore">
+    <div class="uk-margin-small" >
         <%= label f, :amount, class: "uk-form-label" do %>
               Amount
         <% end %>
        <div class="uk-form-controls" >
-        <%= number_input :down_payment, "#{i}_amount", class: "uk-input", placeholder: "Amount", value: c.amount %>
+        <%= number_input :down_payment, "#{i}_amount", class: "uk-input", placeholder: "Amount", value: c.amount,
+            readonly: if @down_payment_edit_phase && Map.has_key?(c, :read_only) && c.read_only, do: true, else: false
+        %>
         </div>
       </div>
-      <div class="uk-margin-small" id="commission_date_paid" phx-update="ignore">
+      <div class="uk-margin-small" >
         <%= label f, :date_paid, class: "uk-form-label" do %>
               Date Paid
           <%= error_tag f, :date_paid %>
         <% end %>
        <div class="uk-form-controls" >
-        <%= date_input :down_payment, "#{i}_date_paid", class: "uk-input", placeholder: "Date Paid", value: c.date_paid %>
+        <%= date_input :down_payment, "#{i}_date_paid", class: "uk-input", placeholder: "Date Paid", value: c.date_paid,
+            readonly: if @down_payment_edit_phase && Map.has_key?(c, :read_only) && c.read_only, do: true, else: false
+        %>
         </div>
       </div>
-      <div class="uk-margin-small" id="commission_locked" phx-update="ignore">
+      <%= if @down_payment_edit_phase && Map.has_key?(c, :read_only) && c.read_only do %>
+      <div class="uk-margin-small" >
         <label class="uk-padding-small uk-padding-remove-left">
-          <%= checkbox(:down_payment, "#{i}_locked", class: "uk-checkbox", value: c.locked)  %> Locked
+          <%= checkbox(:down_payment, "#{i}_locked", class: "uk-checkbox", value: c.locked, onclick: "return false;")  %> Locked
         </label>
       </div>
+      <% else %>
+      <div class="uk-margin-small" >
+        <label class="uk-padding-small uk-padding-remove-left">
+          <%= checkbox(:down_payment, "#{i}_locked", class: "uk-checkbox", value: c.locked )  %> Locked
+        </label>
+      </div>
+      <% end %>
       <%= link "", to: "#", class: "uk-preserve-width uk-padding-small uk-padding-remove-vertical",
       uk_icon: "trash",
       phx_hook: "uk_icon",

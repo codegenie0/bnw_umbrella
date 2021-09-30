@@ -13,7 +13,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     DownPayments,
     PurchaseDetails,
     Sexes,
-    Repo
+    Repo,
+    Sellers
   }
 
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent
@@ -24,6 +25,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   alias BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive
   alias BnwDashboardWeb.CattlePurchase.PurchaseDetail.PurchaseDetailLive
   alias BnwDashboardWeb.CattlePurchase.CattleReceive.CattleReceiveLive
+  alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseSellerComponent
 
   defp authenticate(socket) do
     current_user = Map.get(socket.assigns, :current_user)
@@ -219,7 +221,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         assign(socket,
           form_step: 3,
           modal: :change_purchase,
-          parent_id: purchase_id
+          parent_id: purchase_id,
+          sellers: Sellers.get_active_sellers()
         )
 
       {:noreply, socket}
@@ -460,7 +463,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     socket =
       assign(socket,
         modal: :change_purchase,
-        form_step: 3,
+        form_step: 4,
         commissions_in_form: commissions_in_form,
         commissions_from_db: commissions_in_form,
         commission_changeset: Commissions.new_commission(),
@@ -476,12 +479,17 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     {id, ""} = Integer.parse(params["id"])
 
     down_payments_in_form =
-      DownPayments.get_down_payment_from_purchase(id) |> Enum.map(&Map.put(&1, :valid, true))
+      DownPayments.get_down_payment_from_purchase(id)
+      |> Enum.map(fn item ->
+        item
+        |> Map.put(:read_only, item.locked)
+        |> Map.put(:valid, true)
+      end)
 
     socket =
       assign(socket,
         modal: :change_purchase,
-        form_step: 4,
+        form_step: 5,
         down_payments_in_form: down_payments_in_form,
         down_payments_from_db: down_payments_in_form,
         down_payment_changeset: DownPayments.new_down_payment(),

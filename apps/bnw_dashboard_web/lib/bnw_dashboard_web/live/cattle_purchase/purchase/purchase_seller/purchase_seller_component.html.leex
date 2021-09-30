@@ -1,0 +1,60 @@
+ <div style="display: block;" class="uk-modal uk-open">
+    <div class="uk-modal-dialog uk-overflow-hide" phx-hook="close_modal">
+      <button class="uk-modal-close-default"
+              type="button"
+              phx-click="cancel"
+              uk-close phx-hook="uk_close"></button>
+      <div class="uk-modal-header">
+        <h2 class="uk-modal-title">
+          Seller
+        </h2>
+      </div>
+      <div class="uk-modal-body uk-background-secondary uk-light uk-overflow-auto uk-height-max-large">
+      <h3>Search Seller</h3>
+      <input type="text"  phx-target="<%= @myself %>" phx-keyup="on_input_search" >
+      <h3>Active Seller<h3>
+      <h4><%= if @selected_seller , do: @selected_seller.producer, else: "" %></h4>
+        <button class="uk-button uk-button-default"
+                type="button"
+                phx-target="<%= @myself %>"
+                phx-click="clear_selected_seller">Clear</button>
+      <table class="uk-table uk-table-middle uk-table-hover modal-seller-table">
+    <thead>
+      <tr>
+       <th>ID</th>
+       <th>Producer</th>
+       <th>Seller Location</th>
+       <th>States</th>
+       <th>Origin Code</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for seller <- @sellers do %>
+    <tr phx-click="on_row_selected" phx-value-id="<%= seller.id %>" phx-target="<%= @myself %>">
+    <td><%= seller.id %></td>
+    <td><%= seller.producer %></td>
+    <td><%= seller.seller_location %></td>
+    <td><%= seller.state.name %></td>
+    <td><%= seller.origin_code %></td>
+    </tr>
+    <% end  %>
+    </tbody>
+</table>
+
+    </div>
+       <div class="uk-modal-footer uk-text-right">
+       <button class="uk-button uk-button-default"
+                type="button"
+                phx-click="cancel">Cancel</button>
+
+
+              <%= if true do %>
+                    <%= submit "Next", [id: "Next",
+                          class: "uk-button uk-button-primary", phx_hook: "set_save"] %>
+              <% end %>
+
+          <%= submit "Save", [phx_disable_with: "Saving...",
+                          class: "uk-button uk-button-primary"] %>
+
+      </div>
+  </div>
