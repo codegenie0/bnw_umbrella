@@ -1,7 +1,7 @@
 defmodule CattlePurchase.PurchaseDetail do
   use Ecto.Schema
   import Ecto.Changeset
-  alias CattlePurchase.Sex
+  alias CattlePurchase.{Sex, Purchase}
 
   prefix = "bnw_dashboard_cattle_purchase"
 
@@ -26,17 +26,20 @@ defmodule CattlePurchase.PurchaseDetail do
     field :order_date, :date
     field :fill_date, :date
     belongs_to :sex, Sex
+    belongs_to :purchase, Purchase
     timestamps()
   end
 
-  @required ~w(head_count average_weight price projected_break_even projected_basis)a
-  @optional ~w(futures_order_price cash_price projected_out_date order_date fill_date)a
+  @required ~w(head_count average_weight price projected_break_even  sex_id purchase_id)a
+  @optional ~w(futures_order_price cash_price projected_out_date order_date fill_date purchase_basis)a
   @allowed @required ++ @optional
 
   def changeset(%__MODULE__{} = model, attrs \\ %{}) do
     model
     |> cast(attrs, @allowed)
     |> validate_required(@required)
+    |> foreign_key_constraint(:sex_id)
+    |> foreign_key_constraint(:purchase_id)
   end
 
   def new_changeset(%__MODULE__{} = model, attrs \\ %{}) do

@@ -34,7 +34,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
           |> Enum.map(fn commission -> Commissions.validate(%Commission{}, commission) end)
         end
 
-
       result =
         case commission_edit_phase do
           true ->

@@ -36,7 +36,7 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
       "Buyer",
       "Destination",
       "Ship Date",
-      "Firm",
+      "Firm"
     ]
 
     {id, ""} = Integer.parse(params["id"])

@@ -28,7 +28,8 @@
           uk_icon: "trash",
           phx_hook: "uk_icon",
           phx_click: "delete",
-          phx_value_id: weight_category.id %>
+          phx_value_id: weight_category.id,
+          data: [confirm: "Are you sure?"] %>
         </td>
     </tr>
       <% end %>

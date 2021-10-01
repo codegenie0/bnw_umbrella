@@ -30,6 +30,33 @@
             <%= checkbox(f, :exclude, class: "uk-checkbox") %> Exclude From Reporting
           </label>
         </div>
+        <div class="uk-margin-small">
+          <label class="uk-padding-small uk-padding-remove-left">
+            <%= checkbox(f, :purchase_detail, class: "uk-checkbox") %> Purchase Detail
+          </label>
+          <label class="uk-padding-small uk-padding-remove-left">
+            <%= checkbox(f, :seller, class: "uk-checkbox") %> Seller
+          </label>
+           <label class="uk-padding-small uk-padding-remove-left">
+            <%= checkbox(f, :payee, class: "uk-checkbox") %> Payee
+          </label>
+          </div>
+          <div class="uk-margin-small">
+           <label class="uk-padding-small uk-padding-remove-left">
+            <%= checkbox(f, :commission, class: "uk-checkbox") %> Commission
+          </label>
+          <label class="uk-padding-small uk-padding-remove-left">
+            <%= checkbox(f, :down_payments, class: "uk-checkbox") %> Down Payments
+          </label>
+          <label class="uk-padding-small uk-padding-remove-left">
+            <%= checkbox(f, :contracts, class: "uk-checkbox") %> Contracts
+          </label>
+          </div>
+          <div class="uk-margin-small">
+           <label class="uk-padding-small uk-padding-remove-left">
+            <%= checkbox(f, :futures_pricing, class: "uk-checkbox") %> Futures Pricing
+          </label>
+        </div>
       </div>
       <div class="uk-modal-footer uk-text-right">
         <button class="uk-button uk-button-default"

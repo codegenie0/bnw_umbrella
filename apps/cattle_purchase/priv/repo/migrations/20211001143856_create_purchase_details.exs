@@ -4,6 +4,8 @@ defmodule CattlePurchase.Repo.Migrations.CreatePurchaseDetails do
   def change do
     create table(:purchase_details) do
       add :sex_id, references(:sexes, null: false)
+      add :purchase_id, references(:purchases, null: false)
+      add :purchase_page, :boolean, default: false, null: false
       add :head_count, :integer, null: false
       add :average_weight, :integer, null: false
       add :price, :decimal, precision: 10, scale: 2, null: false

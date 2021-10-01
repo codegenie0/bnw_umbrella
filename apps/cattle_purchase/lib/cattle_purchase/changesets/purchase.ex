@@ -12,6 +12,7 @@ defmodule CattlePurchase.Purchase do
     Shipment,
     Commission,
     DownPayment,
+    PurchaseDetail,
     Repo
   }
 
@@ -58,6 +59,7 @@ defmodule CattlePurchase.Purchase do
     has_many(:shipments, Shipment, on_replace: :delete)
     has_many(:commissions, CattlePurchase.Commission, on_replace: :delete)
     has_many(:down_payments, CattlePurchase.DownPayment, on_replace: :delete)
+    has_many(:purchase_details, PurchaseDetail)
 
     many_to_many(:purchase_flags, PurchaseFlag,
       join_through: "purchase_purchase_flags",

@@ -51,6 +51,7 @@ defmodule CattlePurchase.Shipment do
       |> foreign_key_constraint(:sex_id)
       |> foreign_key_constraint(:destination_group_id)
       |> foreign_key_constraint(:purchase_id)
+
       # |> validate_head_count(attrs["head_count"], attrs["purchase_id"])
     else
       model

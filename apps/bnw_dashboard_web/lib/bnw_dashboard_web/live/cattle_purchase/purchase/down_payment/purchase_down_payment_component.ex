@@ -29,12 +29,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent d
       down_payments_to_save =
         if down_payment_edit_phase do
           CattlePurchase.Purchase.changeset(purchase, %{down_payments: down_payments_in_form})
-
-          # |> remove_valid_key_add_purchase_id(purchase_id)
-          # |> Enum.with_index()
-          # |> Enum.map(fn {c, i} ->
-          #   DownPayments.update_validate(Enum.at(down_payments_from_db, i), c)
-          # end)
         else
           down_payments_in_form
           |> remove_valid_key_add_purchase_id(purchase_id)
@@ -197,6 +191,21 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent d
 
         valid = check_valid_down_payment(result)
         result = Map.put(result, :valid, valid)
+
+        if Map.has_key?(c, :read_only) do
+          Map.merge(
+            %{
+              description: c.description,
+              amount: c.amount,
+              date_paid: c.date_paid,
+              locked: c.locked,
+              read_only: c.read_only
+            },
+            result
+          )
+        else
+          result
+        end
       end)
 
     down_payments_in_form
@@ -205,8 +214,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent d
   defp check_valid_down_payment(down_payment) do
     if(
       down_payment.description != "" && down_payment.amount != "" &&
-        down_payment.amount >= 1 &&
-        down_payment.date_paid != ""
+        down_payment.amount >= 1
     ) do
       true
     else

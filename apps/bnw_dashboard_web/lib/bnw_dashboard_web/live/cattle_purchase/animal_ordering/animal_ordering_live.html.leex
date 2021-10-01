@@ -39,7 +39,8 @@
           uk_icon: "trash",
           phx_hook: "uk_icon",
           phx_click: "delete",
-          phx_value_id: sex.id %>
+          phx_value_id: sex.id,
+          data: [confirm: "Are you sure?"] %>
       </td>
     </tr>
       <% end %>
@@ -71,7 +72,8 @@
         uk_icon: "trash",
         phx_hook: "uk_icon",
         phx_click: "delete",
-        phx_value_id: sex.id %>
+        phx_value_id: sex.id,
+        data: [confirm: "Are you sure?"] %>
     </td>
   </tr>
     <% end %>

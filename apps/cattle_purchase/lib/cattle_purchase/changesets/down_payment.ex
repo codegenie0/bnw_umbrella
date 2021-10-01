@@ -24,8 +24,8 @@ defmodule CattlePurchase.DownPayment do
     timestamps()
   end
 
-  @required ~w(amount date_paid purchase_id)a
-  @optional ~w(description locked)a
+  @required ~w(amount purchase_id)a
+  @optional ~w(description locked date_paid)a
   @allowed @required ++ @optional
 
   def changeset(%__MODULE__{} = model, attrs \\ %{}) do
