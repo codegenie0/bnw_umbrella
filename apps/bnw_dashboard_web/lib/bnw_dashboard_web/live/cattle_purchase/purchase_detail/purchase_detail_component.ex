@@ -27,87 +27,100 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDetailComponent do
       PurchaseDetails.validate(purchase_detail_changeset.data, purchase_detail)
 
     purchase_details_in_form = format_purchase_details(purchase_detail, purchase_details_in_form)
+    is_single_purchase_page = validate_purchase_page(purchase_details_in_form)
     purchase = CattlePurchase.Repo.get(CattlePurchase.Purchase, purchase_id)
 
-    if is_all_purchase_details_valid(purchase_details_in_form) do
-      purchase_details_to_save =
-        if purchase_detail_edit_phase do
-          purchase_details_in_form =
-            remove_valid_key_add_purchase_id(purchase_details_in_form, purchase_id)
+    if(is_single_purchase_page) do
+      if is_all_purchase_details_valid(purchase_details_in_form) do
+        purchase_details_to_save =
+          if purchase_detail_edit_phase do
+            # purchase_details_in_form
+            # |> remove_valid_key_add_purchase_id(purchase_id)
+            # |> Enum.with_index()
+            # |> Enum.map(fn {purchase_detail, index} ->
+            #   PurchaseDetails.update_validate(
+            #     Enum.at(purchase_details_from_db, index),
+            #     purchase_detail
+            #   )
 
-          PurchaseDetails.update_validate(
-            purchase_details_from_db,
-            Enum.at(purchase_details_in_form, 0)
-          )
-        else
-          purchase_details_in_form
-          |> remove_valid_key_add_purchase_id(purchase_id)
-          |> Enum.map(fn purchase_detail ->
-            PurchaseDetails.validate(%PurchaseDetail{}, purchase_detail)
-          end)
-        end
-
-      result =
-        case purchase_detail_edit_phase do
-          true ->
-            CattlePurchase.Repo.update(purchase_details_to_save)
-
-          false ->
-            PurchaseDetails.create_or_update_multiple_purchase_details(
-              purchase_details_to_save,
-              purchase_detail_edit_phase
-            )
-        end
-
-      case result do
-        {:ok, _purchase_detail} ->
-          if(purchase_detail_edit_phase) do
-            send(
-              socket.assigns.parent_pid,
-              {:purchase_detail_updated, purchase_id: purchase.id}
-            )
-
-            {:noreply,
-             push_patch(socket,
-               to: Routes.live_path(socket, PurchaseDetailLive, id: purchase.id)
-             )}
+            CattlePurchase.Purchase.changeset(purchase, %{
+              purchase_details: purchase_details_in_form
+            })
           else
-            send(
-              socket.assigns.parent_pid,
-              {:purchase_detail_created, button: button, purchase_id: purchase.id}
-            )
-
-            {:noreply,
-             push_patch(socket,
-               to:
-                 Routes.live_path(
-                   socket,
-                   if(from_purchase_detail_page, do: PurchaseDetailLive, else: PurchaseLive)
-                 )
-             )}
+            purchase_details_in_form
+            |> remove_valid_key_add_purchase_id(purchase_id)
+            |> Enum.map(fn purchase_detail ->
+              PurchaseDetails.validate(%PurchaseDetail{}, purchase_detail)
+            end)
           end
 
-        {:error, %Ecto.Changeset{} = changest} ->
-          {:noreply,
-           assign(socket,
-             purchase_detail_changeset: changest,
-             purchase_details_in_form: purchase_details_in_form
-           )}
-      end
+        result =
+          case purchase_detail_edit_phase do
+            true ->
+              CattlePurchase.Repo.update(purchase_details_to_save)
 
-      {:noreply, socket}
+            false ->
+              PurchaseDetails.create_or_update_multiple_purchase_details(
+                purchase_details_to_save,
+                purchase_detail_edit_phase
+              )
+          end
+
+        case result do
+          {:ok, _purchase_detail} ->
+            if(purchase_detail_edit_phase) do
+              send(
+                socket.assigns.parent_pid,
+                {:purchase_detail_updated, purchase_id: purchase.id}
+              )
+
+              {:noreply,
+               push_patch(socket,
+                 to: Routes.live_path(socket, PurchaseLive)
+               )}
+            else
+              send(
+                socket.assigns.parent_pid,
+                {:purchase_detail_created, button: button, purchase_id: purchase.id}
+              )
+
+              {:noreply,
+               push_patch(socket,
+                 to:
+                   Routes.live_path(
+                     socket,
+                     if(from_purchase_detail_page, do: PurchaseDetailLive, else: PurchaseLive)
+                   )
+               )}
+            end
+
+          {:error, %Ecto.Changeset{} = changest} ->
+            {:noreply,
+             assign(socket,
+               purchase_detail_changeset: changest,
+               purchase_details_in_form: purchase_details_in_form,
+               error_purchase_page: false
+             )}
+        end
+
+        {:noreply, assign(socket, error_purchase_page: false)}
+      else
+        {:noreply,
+         assign(socket,
+           purchase_detail_changeset: purchase_detail_changeset,
+           purchase_details_in_form: purchase_details_in_form,
+           error_purchase_page: false
+         )}
+      end
     else
-      {:noreply,
-       assign(socket,
-         purchase_detail_changeset: purchase_detail_changeset,
-         purchase_details_in_form: purchase_details_in_form
-       )}
+      {:noreply, assign(socket, error_purchase_page: true)}
     end
   end
 
   def handle_event("validate", %{"purchase_detail" => params}, socket) do
     %{purchase_detail_changeset: purchase_detail_changeset} = socket.assigns
     %{purchase_details_in_form: purchase_details_in_form} = socket.assigns
+    validate_purchase_page(purchase_details_in_form)
 
     purchase_detail_changeset =
       purchase_detail_changeset.data
@@ -137,6 +150,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDetailComponent do
             projected_break_even: 0,
             projected_out_date: "",
             purchase_basis: "",
+            purchase_page: false,
             valid: true
           }
         ]
@@ -168,7 +182,9 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDetailComponent do
 
     purchase_detail = Enum.at(purchase_details_in_form, index)
 
-    PurchaseDetails.delete_purchase_detail(Repo.get(PurchaseDetail, purchase_detail.id))
+    if(Map.has_key?(purchase_detail, :id)) do
+      PurchaseDetails.delete_purchase_detail(Repo.get(PurchaseDetail, purchase_detail.id))
+    end
 
     purchase_details_in_form =
       cond do
@@ -205,6 +221,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDetailComponent do
         key_projected_out_date = Integer.to_string(i) <> "_projected_out_date"
         key_head_count = Integer.to_string(i) <> "_head_count"
         key_purchase_basis = Integer.to_string(i) <> "_purchase_basis"
+        key_purchase_page = Integer.to_string(i) <> "_purchase_page"
 
         purchase_detail_sex_id =
           if purchase_details_params[key_sex_id] != "",
@@ -241,6 +258,12 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDetailComponent do
             do: elem(Float.parse(purchase_details_params[key_purchase_basis]), 0),
             else: ""
 
+        purchase_detail_purchase_page =
+          if purchase_details_params[key_purchase_page] != "" and
+               purchase_details_params[key_purchase_page] == "true",
+             do: true,
+             else: false
+
         %{
           sex_id: purchase_detail_sex_id,
           average_weight: purchase_detail_average_weight,
@@ -249,6 +272,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDetailComponent do
           projected_out_date: purchase_detail_projected_out_date,
           head_count: purchase_detail_head_count,
           purchase_basis: purchase_detail_purchase_basis,
+          purchase_page: purchase_detail_purchase_page,
           valid:
             check_valid_purchase_detail(%{
               purchase_detail_sex_id: purchase_detail_sex_id,
@@ -292,5 +316,22 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDetailComponent do
       |> Map.delete(:valid)
       |> Map.put(:purchase_id, purchase_id)
     end)
+  end
+
+  defp validate_purchase_page(purchase_details_in_form) do
+    IO.inspect(purchase_details_in_form)
+
+    count =
+      Enum.count(purchase_details_in_form, fn item ->
+        item.purchase_page == "true" or item.purchase_page == true
+      end)
+
+    cond do
+      count == 1 ->
+        true
+
+      true ->
+        false
+    end
   end
 end
