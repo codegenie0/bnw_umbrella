@@ -13,6 +13,7 @@ defmodule CattlePurchase.Purchase do
     Commission,
     DownPayment,
     PurchaseDetail,
+    PurchaseDetails,
     Repo
   }
 
@@ -28,38 +29,39 @@ defmodule CattlePurchase.Purchase do
   @schema_prefix prefix
 
   schema "purchases" do
-    field :comment, :string
-    field :pasture, :string
-    field :purchase_order, :string
-    field :pcc_sort, :string
-    field :destination_group_name, :string
-    field :projected_out_month, :integer
-    field :projected_out_year, :integer
-    field :freight, :decimal
-    field :purchase_date, :date
-    field :estimated_ship_date, :date
-    field :projected_placement_date, :date
-    field :pricing_order_date, :date
-    field :customer_fill_date, :date
-    field :wcc_fill_date, :date
-    field :firm, :boolean, default: false
-    field :price_delivered, :boolean, default: false
-    field :verify, :boolean, default: false
-    field :complete, :boolean, default: false
-    belongs_to :destination_group, DestinationGroup
+    field(:comment, :string)
+    field(:pasture, :string)
+    field(:purchase_order, :string)
+    field(:pcc_sort, :string)
+    field(:destination_group_name, :string)
+    field(:projected_out_month, :integer)
+    field(:projected_out_year, :integer)
+    field(:freight, :decimal)
+    field(:purchase_date, :date)
+    field(:estimated_ship_date, :date)
+    field(:projected_placement_date, :date)
+    field(:pricing_order_date, :date)
+    field(:customer_fill_date, :date)
+    field(:wcc_fill_date, :date)
+    field(:firm, :boolean, default: false)
+    field(:price_delivered, :boolean, default: false)
+    field(:verify, :boolean, default: false)
+    field(:complete, :boolean, default: false)
+    belongs_to(:destination_group, DestinationGroup)
 
-    belongs_to :future_destination_group, DestinationGroup,
+    belongs_to(:future_destination_group, DestinationGroup,
       foreign_key: :future_destination_group_id,
       references: :id
+    )
 
-    belongs_to :purchase_type, PurchaseType
-    belongs_to :purchase_buyer, PurchaseBuyer, foreign_key: :buyer_id
-    belongs_to :purchase_group, PurchaseGroup
+    belongs_to(:purchase_type, PurchaseType)
+    belongs_to(:purchase_buyer, PurchaseBuyer, foreign_key: :buyer_id)
+    belongs_to(:purchase_group, PurchaseGroup)
     has_many(:purchase_purchase_flags, PurchasePurchaseFlag, on_replace: :delete)
     has_many(:shipments, Shipment, on_replace: :delete)
     has_many(:commissions, CattlePurchase.Commission, on_replace: :delete)
     has_many(:down_payments, CattlePurchase.DownPayment, on_replace: :delete)
-    has_many(:purchase_details, PurchaseDetail)
+    has_many(:purchase_details, PurchaseDetail, on_replace: :delete)
 
     many_to_many(:purchase_flags, PurchaseFlag,
       join_through: "purchase_purchase_flags",
@@ -85,7 +87,14 @@ defmodule CattlePurchase.Purchase do
   def changeset(%__MODULE__{} = model, attrs \\ %{}) do
     model =
       if(model.id != nil,
-        do: model |> Repo.preload([:purchase_purchase_flags, :commissions, :down_payments]),
+        do:
+          model
+          |> Repo.preload([
+            :purchase_purchase_flags,
+            :commissions,
+            :down_payments,
+            :purchase_details
+          ]),
         else: model
       )
 
@@ -100,6 +109,7 @@ defmodule CattlePurchase.Purchase do
       |> foreign_key_constraint(:purchase_group_id)
       |> cast_assoc(:commissions, with: &Commission.new_changeset/2)
       |> cast_assoc(:down_payments, with: &DownPayment.new_changeset/2)
+      |> cast_assoc(:purchase_details, with: &PurchaseDetail.new_changeset/2)
 
     if changeset.valid? && attrs["purchase_flag_ids"] && attrs["purchase_flag_ids"] != [] do
       purchase_purchase_flag_params =
