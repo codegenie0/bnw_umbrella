@@ -6,13 +6,15 @@ defmodule CattlePurchase.Purchase do
     DestinationGroup,
     PurchaseType,
     PurchaseBuyer,
+    PurchaseDetail,
     PurchaseGroup,
     PurchaseFlag,
     PurchasePurchaseFlag,
+    PurchaseSeller,
+    PurchasePayee,
     Shipment,
     Commission,
     DownPayment,
-    PurchaseDetail,
     Repo
   }
 
@@ -59,7 +61,13 @@ defmodule CattlePurchase.Purchase do
     has_many(:shipments, Shipment, on_replace: :delete)
     has_many(:commissions, CattlePurchase.Commission, on_replace: :delete)
     has_many(:down_payments, CattlePurchase.DownPayment, on_replace: :delete)
-    has_many(:purchase_details, PurchaseDetail)
+    has_many(:purchase_details, CattlePurchase.PurchaseDetail, on_replace: :delete)
+
+    has_one :purchase_seller, PurchaseSeller
+    has_one :seller, through: [:purchase_seller, :seller]
+
+    has_one :purchase_payee, PurchasePayee
+    has_one :payee, through: [:purchase_payee, :payee]
 
     many_to_many(:purchase_flags, PurchaseFlag,
       join_through: "purchase_purchase_flags",

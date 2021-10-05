@@ -1,7 +1,7 @@
 defmodule CattlePurchase.Seller do
   use Ecto.Schema
   import Ecto.Changeset
-  alias CattlePurchase.{State}
+  alias CattlePurchase.{State, PurchaseSeller}
 
   prefix = "bnw_dashboard_cattle_purchase"
 
@@ -23,6 +23,8 @@ defmodule CattlePurchase.Seller do
     field :longitude, :decimal
     field :active, :boolean, default: false
     belongs_to :state, State
+    has_one :purchase_seller, PurchaseSeller
+    has_one :purchase, through: [:purchase_seller, :purchase]
 
     timestamps()
   end

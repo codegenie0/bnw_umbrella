@@ -1,13 +1,17 @@
 defmodule CattlePurchase.Payee do
   use Ecto.Schema
   import Ecto.Changeset
+  alias CattlePurchase.PurchasePayee
 
   prefix = "bnw_dashboard_cattle_purchase"
-  prefix = case Mix.env do
-    :dev -> prefix <> "_dev"
-    :test -> prefix <> "_test"
-    _ -> prefix
-  end
+
+  prefix =
+    case Mix.env() do
+      :dev -> prefix <> "_dev"
+      :test -> prefix <> "_test"
+      _ -> prefix
+    end
+
   @schema_prefix prefix
   @primary_key {:id, :string, []}
   schema "payees" do
@@ -22,6 +26,9 @@ defmodule CattlePurchase.Payee do
     field :phone, :string
     field :contact_name, :string
     field :comments, :string
+
+    has_one :purchase_payee, PurchasePayee
+    has_one :purchase, through: [:purchase_payee, :purchase]
   end
 
   def changeset(payee, params \\ %{}) do
@@ -38,7 +45,7 @@ defmodule CattlePurchase.Payee do
       :zip,
       :phone,
       :contact_name,
-      :comments,
+      :comments
     ])
     |> validate_required([:name, :vendor_number])
     |> unique_constraint(:vendor_number, name: :payee_number_unique_index)
