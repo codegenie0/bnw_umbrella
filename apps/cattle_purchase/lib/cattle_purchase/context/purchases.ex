@@ -309,6 +309,7 @@ defmodule CattlePurchase.Purchases do
       :shipments,
       :down_payments,
       :purchase_details,
+      :seller,
       commissions: :commission_payee
     ])
   end

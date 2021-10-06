@@ -8,10 +8,15 @@
         <h2 class="uk-modal-title">
           Seller
         </h2>
+        <%= if @seller_error do%>
+        <h2 class="uk-modal-title">
+          Please select seller
+        </h2>
+        <% end  %>
       </div>
       <div class="uk-modal-body uk-background-secondary uk-light uk-overflow-auto uk-height-max-large">
       <h3>Search Seller</h3>
-      <input type="text"  phx-target="<%= @myself %>" phx-keyup="on_input_search" >
+      <input type="text"  phx-target="<%= @myself %>" value="<%= @search_query %>" phx-keyup="on_input_search" >
       <h3>Active Seller<h3>
       <h4><%= if @selected_seller , do: @selected_seller.producer, else: "" %></h4>
         <button class="uk-button uk-button-default"
@@ -46,15 +51,20 @@
        <button class="uk-button uk-button-default"
                 type="button"
                 phx-click="cancel">Cancel</button>
-
-
-              <%= if true do %>
-                    <%= submit "Next", [id: "Next",
-                          class: "uk-button uk-button-primary", phx_hook: "set_save"] %>
-              <% end %>
-
-          <%= submit "Save", [phx_disable_with: "Saving...",
-                          class: "uk-button uk-button-primary"] %>
+        <button class="uk-button uk-button-default"
+                type="button"
+                phx-value-purchase-id="<%= @purchase_id %>"
+                phx-value-button="save"
+                phx-target="<%= @myself %>"
+                phx-click="save">Save</button>
+                <%= if  !@seller_edit_phase do%>
+        <button class="uk-button uk-button-default"
+                type="button"
+                phx-value-purchase-id="<%=@purchase_id %>"
+                phx-target="<%= @myself %>"
+                phx-value-button="Next"
+                phx-click="save">Next</button>
+                <% end %>
 
       </div>
   </div>

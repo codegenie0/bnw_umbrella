@@ -124,6 +124,7 @@
             <td class="uk-text-nowrap"><%= if purchase.firm do %>
               <span class="uk-preserve-width check-color" uk-icon="icon: check; ratio: 2.5" phx-hook="uk_icon"></span>
             <% end %></td>
+
             <td><%=if length(purchase.purchase_details) > 1 do %>
                     <span style="color:orange" uk-tooltip="<%= Enum.map(purchase.purchase_details, fn item -> "Sex #{item.sex_id}<br>" end)%>">
                       M
@@ -166,6 +167,13 @@
               <%= if is_list(purchase.purchase_details) do%>
                 <%= Enum.find(purchase.purchase_details,%{purchase_basis: ""} ,&(&1.purchase_page == true)).purchase_basis %>
               <% end %>
+            <td>
+                <%=if purchase.seller do%>
+                 <%= link "Edit", to: "#",
+                      phx_value_id: purchase.id,
+                      class: "uk-button uk-button-primary uk-align-center ",
+                      phx_click: "edit_purchase_seller" %>
+                <% end %>
             </td>
             <td class="uk-text-nowrap">
               <%= link "", to: "#", class: "uk-padding-remove-vertical uk-preserve-width uk-margin-small-right complete-check-color",
@@ -298,9 +306,14 @@
       @socket,
       PurchaseSellerComponent,
       id: "#{@current_user.id}",
+      purchase_id: @purchase_id,
+      parent_id: @parent_id,
       parent_pid: self(),
       sellers: Sellers.get_active_sellers(),
-      selected_seller: nil,
+      selected_seller: @selected_seller,
+      seller_error: @seller_error,
+      seller_edit_phase: @seller_edit_phase,
+      search_query: @search_query,
       form_step: @form_step
       )
   end %>

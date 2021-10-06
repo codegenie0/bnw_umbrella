@@ -11,10 +11,12 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     PurchaseTypeFilters,
     Commissions,
     DownPayments,
+    PurchaseSellers,
     PurchaseDetails,
     Sexes,
     Repo,
-    Sellers
+    Sellers,
+    Seller
   }
 
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent
@@ -81,6 +83,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       },
       %{name: "projected_out_date", title: "Projected Out Date", sort_by: nil, is_sort: false},
       %{name: "purchase_basis", title: "Purchase Basis", sort_by: nil, is_sort: false},
+      %{name: "Seller", title: "Seller", sort_by: nil, is_sort: false},
       %{name: "Commission", title: "comm", sort_by: nil, is_sort: false},
       %{name: "Down Payment", title: "DP", sort_by: nil, is_sort: false},
       %{name: "Shipment", title: "shipment", sort_by: nil, is_sort: false},
@@ -183,9 +186,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   end
 
   def handle_info({:purchase_created, button: button, purchase_id: purchase_id}, socket) do
-
     if button == "Next" do
-
       socket =
         assign(socket,
           form_step: 2,
@@ -238,7 +239,11 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
           form_step: 3,
           modal: :change_purchase,
           parent_id: purchase_id,
-          sellers: Sellers.get_active_sellers()
+          sellers: Sellers.get_active_sellers(),
+          selected_seller: nil,
+          seller_error: false,
+          seller_edit_phase: false,
+          search_query: ""
         )
 
       {:noreply, socket}
@@ -250,11 +255,31 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     end
   end
 
-  def handle_info({:commission_created, button: button}, socket) do
+  def handle_info({:purchase_seller_created, button: button, purchase_id: purchase_id}, socket) do
+
     if button == "Next" do
       socket =
         assign(socket,
           form_step: 4,
+          modal: :change_purchase,
+          parent_id: purchase_id
+        )
+
+      {:noreply, socket}
+    else
+
+      socket = assign(socket, form_step: 1, modal: nil)
+
+      socket = fetch_purchase(socket)
+      {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
+    end
+  end
+
+  def handle_info({:commission_created, button: button}, socket) do
+    if button == "Next" do
+      socket =
+        assign(socket,
+          form_step: 5,
           model: :change_purchase,
           commission_edit_phase: false,
           commissions_from_db: [],
@@ -517,6 +542,30 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         commission_changeset: Commissions.new_commission(),
         parent_id: id,
         commission_edit_phase: true
+      )
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("edit_purchase_seller", params, socket) do
+    {purchase_id, ""} = Integer.parse(params["id"])
+
+    selected_seller = PurchaseSellers.get_seller_from_purchase_id(purchase_id)
+    selected_seller = CattlePurchase.Repo.get(Seller, selected_seller.seller_id)
+
+    socket =
+      assign(socket,
+        modal: :change_purchase,
+        form_step: 3,
+        purchase_id: purchase_id,
+        parent_id: purchase_id,
+        parent_pid: self(),
+        sellers: Sellers.get_active_sellers(),
+        selected_seller: selected_seller,
+        seller_error: false,
+        seller_edit_phase: true,
+        search_query: ""
       )
 
     {:noreply, socket}
@@ -874,6 +923,24 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         4 ->
           assign(socket,
             form_step: 5,
+            modal: nil,
+            down_payment_edit_phase: false,
+            down_payment_from_db: [],
+            down_payment_changeset: DownPayments.new_down_payment(),
+            down_payments_in_form: [
+              %{
+                description: "",
+                amount: 0,
+                date_paid: "",
+                locked: "",
+                valid: true
+              }
+            ]
+          )
+
+        _ ->
+          assign(socket,
+            form_step: 1,
             modal: nil,
             down_payment_edit_phase: false,
             down_payment_from_db: [],

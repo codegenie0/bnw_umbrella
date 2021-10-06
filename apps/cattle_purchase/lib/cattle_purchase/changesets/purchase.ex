@@ -14,6 +14,7 @@ defmodule CattlePurchase.Purchase do
     DownPayment,
     PurchaseDetail,
     PurchaseDetails,
+    PurchaseSeller,
     Repo
   }
 
@@ -62,6 +63,8 @@ defmodule CattlePurchase.Purchase do
     has_many(:commissions, CattlePurchase.Commission, on_replace: :delete)
     has_many(:down_payments, CattlePurchase.DownPayment, on_replace: :delete)
     has_many(:purchase_details, PurchaseDetail, on_replace: :delete)
+    has_one(:purchase_seller, PurchaseSeller)
+    has_one(:seller, through: [:purchase_seller, :seller])
 
     many_to_many(:purchase_flags, PurchaseFlag,
       join_through: "purchase_purchase_flags",

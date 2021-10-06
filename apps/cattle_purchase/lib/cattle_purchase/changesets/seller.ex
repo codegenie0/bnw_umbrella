@@ -15,15 +15,17 @@ defmodule CattlePurchase.Seller do
   @schema_prefix prefix
 
   schema "sellers" do
-    field :producer, :string
-    field :seller_location, :string
-    field :origin_code, :string
-    field :description, :string
-    field :latitude, :decimal
-    field :longitude, :decimal
-    field :active, :boolean, default: false
-    belongs_to :state, State
+    field(:producer, :string)
+    field(:seller_location, :string)
+    field(:origin_code, :string)
+    field(:description, :string)
+    field(:latitude, :decimal)
+    field(:longitude, :decimal)
+    field(:active, :boolean, default: false)
+    belongs_to(:state, State)
 
+    has_one(:purchase_seller, PurchaseSeller)
+    has_one(:purchase, through: [:purchase_seller, :purchase])
     timestamps()
   end
 
