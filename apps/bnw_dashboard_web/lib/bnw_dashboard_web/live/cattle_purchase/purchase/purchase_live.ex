@@ -256,18 +256,22 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   end
 
   def handle_info({:purchase_seller_created, button: button, purchase_id: purchase_id}, socket) do
-
     if button == "Next" do
       socket =
         assign(socket,
           form_step: 4,
           modal: :change_purchase,
-          parent_id: purchase_id
+          parent_id: purchase_id,
+          commission_edit_phase: false,
+          commissions_from_db: nil,
+          commission_changeset: Commissions.new_commission(),
+          commissions_in_form: [
+            %{commission_payee_id: "", commission_per_hundred: 0, valid: true}
+          ]
         )
 
       {:noreply, socket}
     else
-
       socket = assign(socket, form_step: 1, modal: nil)
 
       socket = fetch_purchase(socket)
