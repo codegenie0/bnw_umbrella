@@ -17,14 +17,7 @@
       <h3>Down Payment </h3>
       <%= for {c, i} <- Enum.with_index(@down_payments_in_form)  do %>
       <div id="<%= i%>">
-      <div class="uk-margin-small" id="commission_description" phx-update="ignore">
-      <%= label :down_payment, :description, class: "uk-form-label" do %>
-            Description
-      <% end %>
-     <div class="uk-form-controls">
-        <%= text_input :down_payment, "#{i}_description", class: "uk-input", placeholder: "Description", value: c.description %>
-      </div>
-    </div>
+
     <div class="uk-margin-small" >
         <%= label f, :amount, class: "uk-form-label" do %>
               Amount
@@ -58,6 +51,14 @@
           <%= checkbox(:down_payment, "#{i}_locked", class: "uk-checkbox", value: c.locked )  %> Locked
         </label>
       </div>
+      <div class="uk-margin-small" id="commission_description" phx-update="ignore">
+      <%= label :down_payment, :description, class: "uk-form-label" do %>
+            Description
+      <% end %>
+     <div class="uk-form-controls">
+        <%= textarea :down_payment, "#{i}_description", class: "uk-textarea", placeholder: "Description", value: c.description, rows: 3 %>
+      </div>
+    </div>
       <% end %>
       <%= link "", to: "#", class: "uk-preserve-width uk-padding-small uk-padding-remove-vertical",
       uk_icon: "trash",
