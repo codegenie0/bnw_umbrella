@@ -36,16 +36,22 @@
       <tr>
         <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default"></th>
       <%= for weight_category <- @weight_categories do %>
-       <th colspan= <%= "#{Enum.count(@sexes)}"%> class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default"><%= weight_category.start_weight  %></th>
+       <th colspan= <%= "#{Enum.count(@sexes)}"%> class="uk-text-center uk-width-1-4 uk-table-middle uk-table-shrink uk-text-nowrap uk-background-default"><%= weight_category.start_weight  %></th>
        <% end %>
        <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default"></th>
        <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default"></th>
       </tr>
       <tr>
-       <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default">Date</th>
+       <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default border-left-black">Date</th>
       <%= for _weight_category <- @weight_categories do %>
-        <%= for sex <- @sexes do %>
-          <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default"><%= sex  %></th>
+        <%= for {sex,counter} <- Enum.with_index(@sexes) do %>
+        <%= if counter == length(@sexes)-1 do %>
+        <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default border-left-black">
+        <% else %>
+        <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default">
+        <% end %>
+          <%= sex  %>
+          </th>
         <% end %>
       <% end %>
        <th class="uk-width-1-2 uk-table-shrink uk-text-nowrap uk-background-default">Comment</th>
@@ -87,12 +93,16 @@
       </tr>
       <% else %>
           <tr phx-click="row-editable" phx-value-id="<%= price_sheet.id%>">
-            <td class="uk-text-nowrap">
+            <td class="uk-text-nowrap border-left-black">
               <%= price_sheet.price_date %>
             </td>
         <%= for wc <- @weight_categories do %>
-          <%= for sexes <- price_sheet.price_sheet_details[wc.start_weight] do %>
+          <%= for {sexes, counter} <- Enum.with_index(price_sheet.price_sheet_details[wc.start_weight]) do %>
+          <%= if counter == length(price_sheet.price_sheet_details[wc.start_weight])-1 do %>
+              <td class="border-left-black">
+          <% else %>
               <td>
+          <% end %>
                 <%= "$#{sexes.value}" %>
               </td>
           <% end %>
