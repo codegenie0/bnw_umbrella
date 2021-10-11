@@ -900,9 +900,9 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
     socket =
       case step do
-        3 ->
+        4 ->
           assign(socket,
-            form_step: 4,
+            form_step: 5,
             commission_edit_phase: false,
             commissions_from_db: nil,
             commission_changeset: Commissions.new_commission(),
@@ -924,9 +924,9 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
             down_payment_edit_phase: false
           )
 
-        4 ->
+        5 ->
           assign(socket,
-            form_step: 5,
+            form_step: 1,
             modal: nil,
             down_payment_edit_phase: false,
             down_payment_from_db: [],
