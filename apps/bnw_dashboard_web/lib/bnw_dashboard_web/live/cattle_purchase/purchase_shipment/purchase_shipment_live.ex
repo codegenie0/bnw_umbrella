@@ -143,7 +143,16 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.PurchaseShipmentLive d
         modal: :change_purchase_shipment,
         destinations: Purchases.get_destination("") |> format_destination_group(),
         sexes: Sexes.get_active_sexes(),
-        max_head_count: 50
+        max_head_count: 50,
+        shipment_form_data: %{
+          "destination_group_id" => "",
+          "estimated_ship_date" => "",
+          "firm" => "false",
+          "head_count" => "",
+          "projected_out_date" => "",
+          "purchase_id" => purchase.id,
+          "sex_id" => ""
+        }
       )
 
     {:noreply, socket}

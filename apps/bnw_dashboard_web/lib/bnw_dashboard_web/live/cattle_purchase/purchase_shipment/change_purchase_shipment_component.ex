@@ -28,41 +28,67 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
         Enum.map(changesets, fn changeset ->
           %{changes: shipment} = changeset
 
-          if is_integer(shipment.destination_group_id) do
-            changeset = Map.put(changeset, :changes, shipment)
-            Map.put(changeset, :action, :insert)
-          else
-            %{id: id, name: name} = extract_data_from_destination(shipment.destination_group_id)
+          shipment =
+            if Map.has_key?(shipment, :destination_group_id) and
+                 !is_integer(shipment.destination_group_id) and
+                 shipment.destination_group_id != "",
+               do:
+                 Map.put(
+                   shipment,
+                   :destination_group_id,
+                   String.to_integer(shipment.destination_group_id)
+                 ),
+               else: shipment
 
-            parent_destination =
-              Enum.find(socket.assigns.destinations, %{id: "", name: ""}, fn item ->
-                if(String.trim(id) == "") do
-                  item.id == id && !item.child
-                else
-                  item.id == String.to_integer(id) && !item.child
-                end
-              end)
+          changeset =
+            if Map.has_key?(shipment, :destination_group_id) do
+              if is_integer(shipment.destination_group_id) do
+                changeset = Map.put(changeset, :changes, shipment)
+                Map.put(changeset, :action, :insert)
+              else
+                %{id: id, name: name} =
+                  extract_data_from_destination(shipment.destination_group_id)
 
-            shipment = Map.put(shipment, :destination_group_id, id |> String.to_integer())
+                parent_destination =
+                  Enum.find(socket.assigns.destinations, %{id: "", name: ""}, fn item ->
+                    if(String.trim(id) == "") do
+                      item.id == id && !item.child
+                    else
+                      item.id == String.to_integer(id) && !item.child
+                    end
+                  end)
 
-            shipment =
-              Map.put(
-                shipment,
-                :destination_group_name,
-                "#{parent_destination.name}#{if name == "", do: "", else: " > #{name}"}"
-              )
+                shipment = Map.put(shipment, :destination_group_id, id |> String.to_integer())
 
-            changeset = Map.put(changeset, :changes, shipment)
-            Map.put(changeset, :action, :insert)
-          end
+                shipment =
+                  Map.put(
+                    shipment,
+                    :destination_group_name,
+                    "#{parent_destination.name}#{if name == "", do: "", else: " > #{name}"}"
+                  )
+
+                changeset = Map.put(changeset, :changes, shipment)
+                Map.put(changeset, :action, :insert)
+              end
+            else
+              changeset
+            end
+
+          Map.put(changeset, :action, :insert)
         end)
 
-      Shipments.create_multiple_shipments(cs_list)
+      is_all_valid = Enum.all?(cs_list, fn item -> item.valid? end)
 
-      {:noreply,
-       push_patch(socket,
-         to: Routes.live_path(socket, PurchaseShipmentLive, id: socket.assigns.purchase.id)
-       )}
+      if(is_all_valid) do
+        Shipments.create_multiple_shipments(cs_list)
+
+        {:noreply,
+         push_patch(socket,
+           to: Routes.live_path(socket, PurchaseShipmentLive, id: socket.assigns.purchase.id)
+         )}
+      end
+
+      {:noreply, assign(socket, changesets: cs_list)}
     else
       changeset = List.last(changesets)
 
@@ -214,15 +240,27 @@ defmodule BnwDashboardWeb.CattlePurchase.PurchaseShipment.ChangePurchaseShipment
       |> Map.put(:action, :update)
 
     changesets = List.replace_at(changesets, length(changesets) - 1, changeset)
-
-    max_head_count =
-      socket.assigns.max_head_count - (shipment["head_count"] |> String.to_integer())
+    head_count = if is_integer(shipment["head_count"]), do: shipment["head_count"], else: "0"
+    max_head_count = socket.assigns.max_head_count - (head_count |> String.to_integer())
 
     if changeset.valid? do
       changesets = changesets ++ [Shipments.new_shipment() |> Map.put(:action, :update)]
 
       {:noreply,
-       assign(socket, changesets: changesets, add_feedback: false, max_head_count: max_head_count)}
+       assign(socket,
+         changesets: changesets,
+         shipment_form_data: %{
+           "destination_group_id" => "",
+           "estimated_ship_date" => "",
+           "firm" => "false",
+           "head_count" => "",
+           "projected_out_date" => "",
+           "purchase_id" => socket.assigns.purchase.id,
+           "sex_id" => ""
+         },
+         add_feedback: false,
+         max_head_count: max_head_count
+       )}
     else
       {:noreply,
        assign(socket, changesets: changesets, add_feedback: true, max_head_count: max_head_count)}
