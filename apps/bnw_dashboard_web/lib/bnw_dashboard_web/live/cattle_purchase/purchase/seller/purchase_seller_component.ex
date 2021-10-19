@@ -3,7 +3,18 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseSellerComponent do
   ### Live view component for the add/update purchase modal.
   """
   use BnwDashboardWeb, :live_component
-  alias CattlePurchase.{Purchases, Sellers, PurchaseSellers, PurchaseSeller, Seller, Repo}
+
+  alias CattlePurchase.{
+    Purchases,
+    Sellers,
+    PurchaseSellers,
+    PurchaseSeller,
+    Seller,
+    Repo,
+    PurchaseDetails,
+    PurchaseDetail
+  }
+
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive
 
   def mount(socket) do
@@ -23,28 +34,65 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseSellerComponent do
     # purchase_id = 1
 
     if(selected_seller) do
-      if(seller_edit_phase) do
-        seller_to_delete = PurchaseSellers.get_seller_from_purchase_id(purchase_id)
-        PurchaseSellers.delete_purchase_seller(seller_to_delete)
-      end
+      if button == "Next" do
+        send(
+          socket.assigns.parent_pid,
+          {:next_step_from_seller_, selected_seller: selected_seller}
+        )
 
-      case PurchaseSellers.create_or_update_purchase_seller(%PurchaseSeller{}, %{
-             purchase_id: purchase_id,
-             seller_id: selected_seller.id
-           }) do
-        {:ok, _} ->
-          send(
-            socket.assigns.parent_pid,
-            {:purchase_seller_created, button: button, purchase_id: purchase_id}
-          )
+        {:noreply, push_patch(socket, to: Routes.live_path(socket, PurchaseLive))}
+      else
+        if(seller_edit_phase) do
+          seller_to_delete = PurchaseSellers.get_seller_from_purchase_id(purchase_id)
+          PurchaseSellers.delete_purchase_seller(seller_to_delete)
+        end
 
-          {:noreply,
-           push_patch(socket,
-             to: Routes.live_path(socket, PurchaseLive)
-           )}
+        purchase_id =
+          if seller_edit_phase do
+            purchase_id
+          else
+            %{
+              purchase_changeset: purchase_changeset,
+              purchase_param: purchase_param,
+              purchase_details_in_form: purchase_details_in_form
+            } = socket.assigns
 
-        {:error, %Ecto.Changeset{} = changest} ->
-          {:noreply, assign(socket, seller_changeset: changest, seller_error: false)}
+            {:ok, purchase} =
+              Purchases.create_or_update_purchase(purchase_changeset.data, purchase_param)
+
+            purchase_details_to_save =
+              purchase_details_in_form
+              |> PurchaseDetails.remove_valid_key_add_purchase_id(purchase.id)
+              |> Enum.map(fn purchase_detail ->
+                PurchaseDetails.validate(%PurchaseDetail{}, purchase_detail)
+              end)
+
+            PurchaseDetails.create_or_update_multiple_purchase_details(
+              purchase_details_to_save,
+              false
+            )
+
+            purchase.id
+          end
+
+        case PurchaseSellers.create_or_update_purchase_seller(%PurchaseSeller{}, %{
+               purchase_id: purchase_id,
+               seller_id: selected_seller.id
+             }) do
+          {:ok, _} ->
+            send(
+              socket.assigns.parent_pid,
+              {:purchase_seller_created, button: button, purchase_id: purchase_id}
+            )
+
+            {:noreply,
+             push_patch(socket,
+               to: Routes.live_path(socket, PurchaseLive)
+             )}
+
+          {:error, %Ecto.Changeset{} = changest} ->
+            {:noreply, assign(socket, seller_changeset: changest, seller_error: false)}
+        end
       end
     else
       {:noreply, assign(socket, seller_error: true)}
@@ -58,6 +106,17 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseSellerComponent do
       assign(socket,
         sellers_in_form: format_sellers(params, sellers_in_form)
       )
+
+    {:noreply, socket}
+  end
+
+  def handle_event("back_step", _, socket) do
+    %{sellers_in_form: sellers_in_form, selected_seller: selected_seller} = socket.assigns
+
+    send(
+      socket.assigns.parent_pid,
+      {:back_step_from_seller, sellers_in_form: sellers_in_form, selected_seller: selected_seller}
+    )
 
     {:noreply, socket}
   end

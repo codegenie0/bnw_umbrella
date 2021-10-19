@@ -59,4 +59,12 @@ defmodule CattlePurchase.Commissions do
   def delete_commission(%Commission{} = commission) do
     Repo.delete(commission)
   end
+
+  def remove_valid_key_add_purchase_id(commissions, purchase_id) do
+    Enum.map(commissions, fn item ->
+      item
+      |> Map.delete(:valid)
+      |> Map.put(:purchase_id, purchase_id)
+    end)
+  end
 end

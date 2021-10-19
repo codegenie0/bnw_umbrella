@@ -60,4 +60,12 @@ defmodule CattlePurchase.PurchaseDetails do
   def delete_purchase_detail(%PurchaseDetail{} = purchase_detail) do
     Repo.delete(purchase_detail)
   end
+
+  def remove_valid_key_add_purchase_id(purchase_details, purchase_id) do
+    Enum.map(purchase_details, fn item ->
+      item
+      |> Map.delete(:valid)
+      |> Map.put(:purchase_id, purchase_id)
+    end)
+  end
 end

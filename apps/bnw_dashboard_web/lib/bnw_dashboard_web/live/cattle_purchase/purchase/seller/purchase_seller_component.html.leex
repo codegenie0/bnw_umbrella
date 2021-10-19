@@ -48,6 +48,12 @@
 
     </div>
        <div class="uk-modal-footer uk-text-right">
+         <%= if !@seller_edit_phase do %>
+            <button class="uk-button uk-button-default"
+                  type="button"
+                  phx-target="<%= @myself %>"
+                  phx-click="back_step">Back</button>
+  <% end %>
        <button class="uk-button uk-button-default"
                 type="button"
                 phx-click="cancel">Cancel</button>

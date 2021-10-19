@@ -104,6 +104,12 @@
       </div>
 
       <div class="uk-modal-footer uk-text-right">
+       <%= if !@purchase_detail_edit_phase do %>
+       <button class="uk-button uk-button-default"
+                type="button"
+                phx-target="<%= @myself %>"
+                phx-click="back_step">Back</button>
+                <% end %>
       <%= if @purchase_detail_edit_phase || @from_purchase_detail_page do%>
        <button class="uk-button uk-button-default"
                 type="button"
