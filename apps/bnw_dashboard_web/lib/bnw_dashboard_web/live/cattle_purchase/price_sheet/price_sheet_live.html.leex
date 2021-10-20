@@ -43,9 +43,15 @@
       </tr>
       <tr>
        <th class="uk-width-1-4 uk-table-shrink uk-text-nowrap uk-background-default">Date</th>
-      <%= for _weight_category <- @weight_categories do %>
-        <%= for sex <- @sexes do %>
-          <th class="uk-table-shrink uk-text-nowrap uk-background-default"><%= sex  %></th>
+     <%= for _weight_category <- @weight_categories do %>
+        <%= for {sex,counter} <- Enum.with_index(@sexes) do %>
+        <%= if counter == length(@sexes)-1 do %>
+        <th class=" uk-table-shrink uk-text-nowrap uk-background-default border-left-black" style="min-width:75px;max-width: 150px">
+        <% else %>
+        <th class=" uk-table-shrink uk-text-nowrap uk-background-default" style="min-width:75px; max-width: 150px;">
+        <% end %>
+          <%= sex  %>
+          </th>
         <% end %>
       <% end %>
        <th class="uk-width-1-2 uk-table-shrink uk-text-nowrap uk-background-default">Comment</th>
