@@ -81,10 +81,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       },
       %{name: "projected_out_date", title: "Projected Out Date", sort_by: nil, is_sort: false},
       %{name: "purchase_basis", title: "Purchase Basis", sort_by: nil, is_sort: false},
-      %{name: "Commission", title: "comm", sort_by: nil, is_sort: false},
-      %{name: "Down Payment", title: "DP", sort_by: nil, is_sort: false},
       %{name: "Shipment", title: "shipment", sort_by: nil, is_sort: false},
-      %{name: "Detail", title: "Details", sort_by: nil, is_sort: false},
       %{name: "complete", title: "Complete", sort_by: nil, is_sort: true}
     ]
 
