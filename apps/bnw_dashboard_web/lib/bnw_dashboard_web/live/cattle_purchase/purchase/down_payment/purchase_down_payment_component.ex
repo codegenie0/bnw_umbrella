@@ -13,6 +13,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent d
     Repo,
     PurchaseSellers,
     PurchaseSeller,
+    PurchasePayees,
+    PurchasePayee,
     Commission,
     Commissions
   }
@@ -38,7 +40,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent d
 
     if is_all_down_payment_valid(down_payments_in_form) do
       if button == "Next" do
-        IO.inspect("")
+        ""
       else
         down_payments_to_save =
           if down_payment_edit_phase do
@@ -51,7 +53,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent d
               purchase_param: purchase_param,
               purchase_details_in_form: purchase_details_in_form,
               selected_seller: selected_seller,
-              commissions_in_form: commissions_in_form
+              commissions_in_form: commissions_in_form,
+              selected_payee: selected_payee
             } = socket.assigns
 
             {:ok, purchase} =
@@ -74,15 +77,24 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent d
               seller_id: selected_seller.id
             })
 
-            commissions_to_save =
-              commissions_in_form
-              |> Commissions.remove_valid_key_add_purchase_id(purchase.id)
-              |> Enum.map(fn commission -> Commissions.validate(%Commission{}, commission) end)
+            PurchasePayees.create_or_update_purchase_payee(%PurchasePayee{}, %{
+              purchase_id: purchase.id,
+              payee_id: selected_payee.id
+            })
 
-            Commissions.create_or_update_multiple_commissions(
-              commissions_to_save,
-              false
-            )
+            first_commission = Enum.at(commissions_in_form, 0)
+
+            if(first_commission.commission_payee_id != "") do
+              commissions_to_save =
+                commissions_in_form
+                |> Commissions.remove_valid_key_add_purchase_id(purchase.id)
+                |> Enum.map(fn commission -> Commissions.validate(%Commission{}, commission) end)
+
+              Commissions.create_or_update_multiple_commissions(
+                commissions_to_save,
+                false
+              )
+            end
 
             down_payments_in_form
             |> remove_valid_key_add_purchase_id(purchase.id)
@@ -136,6 +148,30 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDownPaymentComponent d
       assign(socket,
         down_payments_in_form: format_down_payments(params, down_payments_in_form)
       )
+
+    {:noreply, socket}
+  end
+
+  def handle_event("skip_step", _param, socket) do
+    %{
+      purchase_changeset: purchase_changeset,
+      purchase_param: purchase_param,
+      purchase_details_in_form: purchase_details_in_form,
+      selected_seller: selected_seller,
+      commissions_in_form: commissions_in_form,
+      selected_payee: selected_payee
+    } = socket.assigns
+
+    send(
+      socket.assigns.parent_pid,
+      {:down_payments_skip,
+       purchase_changeset: purchase_changeset,
+       purchase_param: purchase_param,
+       purchase_details_in_form: purchase_details_in_form,
+       selected_seller: selected_seller,
+       selected_payee: selected_payee,
+       commissions_in_form: commissions_in_form}
+    )
 
     {:noreply, socket}
   end

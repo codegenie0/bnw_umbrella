@@ -12,7 +12,9 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
     PurchaseDetails,
     Purchases,
     PurchaseSellers,
-    PurchaseSeller
+    PurchaseSeller,
+    PurchasePayees,
+    PurchasePayee
   }
 
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive
@@ -57,7 +59,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
               purchase_changeset: purchase_changeset,
               purchase_param: purchase_param,
               purchase_details_in_form: purchase_details_in_form,
-              selected_seller: selected_seller
+              selected_seller: selected_seller,
+              selected_payee: selected_payee
             } = socket.assigns
 
             {:ok, purchase} =
@@ -78,6 +81,11 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
             PurchaseSellers.create_or_update_purchase_seller(%PurchaseSeller{}, %{
               purchase_id: purchase.id,
               seller_id: selected_seller.id
+            })
+
+            PurchasePayees.create_or_update_purchase_payee(%PurchasePayee{}, %{
+              purchase_id: purchase.id,
+              payee_id: selected_payee.id
             })
 
             commissions_in_form
@@ -258,5 +266,4 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
     commissions = Enum.filter(commissions, fn item -> !item.valid end)
     if length(commissions) >= 1, do: false, else: true
   end
-
 end

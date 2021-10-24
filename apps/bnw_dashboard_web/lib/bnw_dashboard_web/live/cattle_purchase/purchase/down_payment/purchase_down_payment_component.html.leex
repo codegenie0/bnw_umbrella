@@ -100,6 +100,7 @@
                       <%= if !@down_payment_edit_phase do %>
                         <button class="uk-button uk-button-default"
                           type="button"
+                          phx-target="<%= @myself %>"
                           phx-value-step="<%= @form_step %>"
                           phx-click="skip_step">Skip</button>
                 <% end %>

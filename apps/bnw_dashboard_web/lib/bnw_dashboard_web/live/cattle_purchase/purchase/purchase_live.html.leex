@@ -324,7 +324,31 @@
       form_step: @form_step
       )
   end %>
-  <%= if @modal == :change_purchase and @form_step == 4 do
+
+  <%= if   @modal == :change_purchase and @form_step == 4 do
+    live_component(
+      @socket,
+      PurchasePayeeComponent,
+      id: "#{@current_user.id}",
+      purchase_id: @purchase_id,
+      parent_id: @parent_id,
+      parent_pid: self(),
+      purchase_param: @purchase_param,
+      purchase_changeset: @changeset,
+      purchase_detail_changeset: @purchase_detail_changeset,
+      purchase_details_in_form: @purchase_details_in_form,
+      sellers: Sellers.get_active_sellers(),
+      selected_seller: @selected_seller,
+      payees: @payees,
+      selected_payee: @selected_payee,
+      payee_error: @payee_error,
+      payee_edit_phase: @payee_edit_phase,
+      payees_in_form: [],
+      search_query: @search_query,
+      form_step: @form_step
+      )
+  end %>
+  <%= if @modal == :change_purchase and @form_step == 5 do
     live_component(
       @socket,
       PurchaseCommissionComponent,
@@ -339,13 +363,14 @@
       purchase_detail_changeset: @purchase_detail_changeset,
       purchase_details_in_form: @purchase_details_in_form,
       selected_seller: @selected_seller,
+      selected_payee: @selected_payee,
       parent_pid: self(),
       commission_edit_phase: @commission_edit_phase,
       commissions_from_db: @commissions_from_db,
       form_step: @form_step
       )
   end %>
-  <%= if @modal == :change_purchase and @form_step == 5 do
+  <%= if @modal == :change_purchase and @form_step == 6 do
   live_component(
     @socket,
     PurchaseDownPaymentComponent,
@@ -358,6 +383,7 @@
     purchase_detail_changeset: @purchase_detail_changeset,
     purchase_details_in_form: @purchase_details_in_form,
     selected_seller: @selected_seller,
+    selected_payee: @selected_payee,
     commission_changeset: @commission_changeset,
     commissions_in_form: @commissions_in_form,
     down_payments_in_form: @down_payments_in_form,

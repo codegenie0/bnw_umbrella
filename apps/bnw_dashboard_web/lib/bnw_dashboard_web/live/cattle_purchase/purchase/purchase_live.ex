@@ -10,13 +10,20 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     PurchaseFlags,
     PurchaseTypeFilters,
     Commissions,
+    Commission,
     DownPayments,
     PurchaseSellers,
+    PurchaseSeller,
     PurchaseDetails,
+    PurchasePayee,
+    PurchasePayees,
+    PurchaseDetail,
     Sexes,
     Repo,
     Sellers,
-    Seller
+    Seller,
+    Payees,
+    Payee
   }
 
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent
@@ -28,6 +35,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   alias BnwDashboardWeb.CattlePurchase.PurchaseDetail.PurchaseDetailLive
   alias BnwDashboardWeb.CattlePurchase.CattleReceive.CattleReceiveLive
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseSellerComponent
+  alias BnwDashboardWeb.CattlePurchase.Purchase.PurchasePayeeComponent
 
   defp authenticate(socket) do
     current_user = Map.get(socket.assigns, :current_user)
@@ -138,6 +146,10 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         seller_error: false,
         seller_edit_phase: false,
         search_query: "",
+        payees: Payees.list_payees(),
+        selected_payee: nil,
+        payee_error: false,
+        payee_edit_phase: false,
         is_commission_init: false,
         commission_edit_phase: false,
         down_payment_edit_phase: false,
@@ -227,7 +239,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         {:purchase_on_held, changeset: changeset, purchase_param: purchase_param},
         socket
       ) do
-    IO.inspect(socket.assigns.purchase_details_in_form)
 
     socket =
       assign(socket,
@@ -311,6 +322,25 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       socket =
         assign(socket,
           form_step: 4,
+          modal: :change_purchase,
+          parent_id: purchase_id
+        )
+
+      {:noreply, socket}
+    else
+      socket = clear_create_state(socket)
+      socket = assign(socket, form_step: 1, modal: nil)
+
+      socket = fetch_purchase(socket)
+      {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
+    end
+  end
+
+  def handle_info({:purchase_payee_created, button: button, purchase_id: purchase_id}, socket) do
+    if button == "Next" do
+      socket =
+        assign(socket,
+          form_step: 5,
           modal: :change_purchase,
           parent_id: purchase_id,
           commission_edit_phase: false,
@@ -975,7 +1005,21 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
      assign(socket,
        form_step: form_step,
        sellers: Sellers.get_active_sellers(),
-       selected_seller: selected_seller,
+       selected_seller: selected_seller
+     )}
+  end
+
+  def handle_info(
+        {:next_step_from_payee_, selected_payee: selected_payee},
+        socket
+      ) do
+    form_step = socket.assigns.form_step + 1
+
+    {:noreply,
+     assign(socket,
+       form_step: form_step,
+       payees: Payees.list_payees(),
+       selected_payee: selected_payee,
        commission_edit_phase: false,
        commissions_from_db: nil
      )}
@@ -1060,14 +1104,67 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
      )}
   end
 
+  def handle_info(
+        {:down_payments_skip,
+         purchase_changeset: purchase_changeset,
+         purchase_param: purchase_param,
+         purchase_details_in_form: purchase_details_in_form,
+         selected_seller: selected_seller,
+         selected_payee: selected_payee,
+         commissions_in_form: commissions_in_form},
+        socket
+      ) do
+    {:ok, purchase} = Purchases.create_or_update_purchase(purchase_changeset.data, purchase_param)
+
+    purchase_details_to_save =
+      purchase_details_in_form
+      |> PurchaseDetails.remove_valid_key_add_purchase_id(purchase.id)
+      |> Enum.map(fn purchase_detail ->
+        PurchaseDetails.validate(%PurchaseDetail{}, purchase_detail)
+      end)
+
+    PurchaseDetails.create_or_update_multiple_purchase_details(
+      purchase_details_to_save,
+      false
+    )
+
+    PurchaseSellers.create_or_update_purchase_seller(%PurchaseSeller{}, %{
+      purchase_id: purchase.id,
+      seller_id: selected_seller.id
+    })
+
+
+    PurchasePayees.create_or_update_purchase_payee(%PurchasePayee{}, %{
+      purchase_id: purchase.id,
+      payee_id: selected_payee.id
+    })
+
+    first_commission = Enum.at(commissions_in_form, 0)
+
+    if(first_commission.commission_payee_id != "") do
+      commissions_to_save =
+        commissions_in_form
+        |> Commissions.remove_valid_key_add_purchase_id(purchase.id)
+        |> Enum.map(fn commission -> Commissions.validate(%Commission{}, commission) end)
+
+      Commissions.create_or_update_multiple_commissions(
+        commissions_to_save,
+        false
+      )
+    end
+
+    socket = clear_create_state(socket)
+    {:noreply, socket}
+  end
+
   def handle_event("skip_step", params, socket) do
     {step, ""} = Integer.parse(params["step"])
 
     socket =
       case step do
-        4 ->
+        5 ->
           assign(socket,
-            form_step: 5,
+            form_step: 6,
             commission_edit_phase: false,
             commissions_from_db: nil,
             commission_changeset: Commissions.new_commission(),
@@ -1089,7 +1186,9 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
             down_payment_edit_phase: false
           )
 
-        5 ->
+        6 ->
+          socket = clear_create_state(socket)
+
           assign(socket,
             form_step: 1,
             modal: nil,
@@ -1233,6 +1332,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   defp clear_create_state(socket) do
     assign(socket,
       changeset: nil,
+      form_step: 1,
       purchase_detail_edit_phase: false,
       purchase_detail_changeset: PurchaseDetails.new_purchase_detail(),
       purchase_details_in_form: [
