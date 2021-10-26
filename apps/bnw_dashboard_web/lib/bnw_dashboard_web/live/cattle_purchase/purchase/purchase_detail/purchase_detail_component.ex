@@ -339,8 +339,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseDetailComponent do
         purchase_detail.purchase_detail_price != "" &&
         purchase_detail.purchase_detail_projected_break_even != "" &&
         purchase_detail.purchase_detail_projected_out_date != "" &&
-        purchase_detail.purchase_detail_head_count != "" &&
-        purchase_detail.purchase_detail_purchase_basis != ""
+        purchase_detail.purchase_detail_head_count != ""
+        # purchase_detail.purchase_detail_purchase_basis != ""
     ) do
       true
     else

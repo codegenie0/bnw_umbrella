@@ -57,6 +57,23 @@ Hooks.uk_nav = {
   mounted() {UIkit.nav(this.el, {})},
   updated() {UIkit.nav(this.el, {})}
 }
+Hooks.uk_dropdown = {
+  mounted() {
+    UIkit.dropdown(this.el, {})
+    let hook = this
+    jQuery(hook.el).find(".kkk").off().on("click", function(){
+      UIkit.dropdown(hook.el).hide(false);
+    })
+
+  },
+  updated() {
+    UIkit.dropdown(this.el, {})
+    let hook = this
+    jQuery(hook.el).find(".kkk").off().on("click", function(){
+      UIkit.dropdown(hook.el).hide(false);
+    })
+  }
+}
 Hooks.uk_navbar = {
   mounted() {UIkit.navbar(this.el, {})},
   updated() {UIkit.navbar(this.el, {})}
