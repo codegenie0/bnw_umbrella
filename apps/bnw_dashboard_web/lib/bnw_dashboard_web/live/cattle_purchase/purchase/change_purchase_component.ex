@@ -31,7 +31,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
         end
       end)
 
-    purchase = Map.put(purchase, "destination_group_id", id)
+    purchase_1 = Map.put(purchase, "destination_group_id", id)
 
     # purchase_adjustment =
     #   if changeset.data.id != nil && changeset.data.estimated_ship_date &&
@@ -52,7 +52,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
 
     purchase =
       Map.put(
-        purchase,
+        purchase_1,
         "destination_group_name",
         "#{parent_destination.name}#{if name == "", do: "", else: " > #{name}"}"
       )
@@ -60,22 +60,42 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.ChangePurchaseComponent do
     changeset = Purchases.validate(changeset.data, purchase)
 
     if changeset.valid? do
-      case Purchases.create_or_update_purchase(changeset.data, purchase) do
-        {:ok, purchase} ->
-          send(
-            socket.assigns.parent_pid,
-            {:purchase_created, button: button, purchase_id: purchase.id}
-          )
+      if button == "Next" do
+        changeset =
+          changeset.data
+          |> Purchases.change_purchase(purchase_1)
+          |> Map.put(:action, :update)
 
-          {:noreply,
-           push_patch(socket,
-             to: Routes.live_path(socket, PurchaseLive)
-           )}
+        result = if name == "", do: id, else: "#{id}|#{name}"
+        changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
 
-        {:error, %Ecto.Changeset{} = _changest} ->
-          result = if name == "", do: id, else: "#{id}|#{name}"
-          changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
-          {:noreply, assign(socket, changeset: changeset)}
+        send(
+          socket.assigns.parent_pid,
+          {:purchase_on_held, changeset: changeset, purchase_param: purchase}
+        )
+
+        {:noreply,
+         push_patch(socket,
+           to: Routes.live_path(socket, PurchaseLive)
+         )}
+      else
+        case Purchases.create_or_update_purchase(changeset.data, purchase) do
+          {:ok, purchase} ->
+            send(
+              socket.assigns.parent_pid,
+              {:purchase_created, button: button, purchase_id: purchase.id}
+            )
+
+            {:noreply,
+             push_patch(socket,
+               to: Routes.live_path(socket, PurchaseLive)
+             )}
+
+          {:error, %Ecto.Changeset{} = _changest} ->
+            result = if name == "", do: id, else: "#{id}|#{name}"
+            changeset = Ecto.Changeset.put_change(changeset, :destination_group_id, result)
+            {:noreply, assign(socket, changeset: changeset)}
+        end
       end
     else
       result = if name == "", do: id, else: "#{id}|#{name}"

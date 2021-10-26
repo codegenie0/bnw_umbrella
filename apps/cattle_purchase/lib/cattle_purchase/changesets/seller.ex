@@ -1,7 +1,7 @@
 defmodule CattlePurchase.Seller do
   use Ecto.Schema
   import Ecto.Changeset
-  alias CattlePurchase.{State}
+  alias CattlePurchase.{State, PurchaseSeller}
 
   prefix = "bnw_dashboard_cattle_purchase"
 
@@ -24,6 +24,9 @@ defmodule CattlePurchase.Seller do
     field :active, :boolean, default: false
     belongs_to :state, State
 
+    has_one :purchase_seller, PurchaseSeller
+    has_one :purchase, through: [:purchase_seller, :purchase]
+
     timestamps()
   end
 
@@ -35,6 +38,7 @@ defmodule CattlePurchase.Seller do
     model
     |> cast(attrs, @allowed)
     |> validate_required(@required)
+    |> unique_constraint(:producer, name: :prducer_seller_location_state_id_unique_index)
     |> foreign_key_constraint(:state_id)
   end
 

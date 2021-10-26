@@ -6,41 +6,37 @@
               uk-close phx-hook="uk_close"></button>
       <div class="uk-modal-header">
         <h2 class="uk-modal-title">
-          Seller
+          Payee
         </h2>
-        <%= if @seller_error do%>
+        <%= if @payee_error do%>
         <h2 class="uk-modal-title">
-          Please select seller
+          Please select payee
         </h2>
         <% end  %>
       </div>
       <div class="uk-modal-body uk-background-secondary uk-light uk-overflow-auto uk-height-max-large">
-      <h3>Search Seller</h3>
+      <h3>Search Payee</h3>
       <input type="text"  phx-target="<%= @myself %>" value="<%= @search_query %>" phx-keyup="on_input_search" >
-      <h3>Active Seller<h3>
-      <h4><%= if @selected_seller , do: @selected_seller.producer, else: "" %></h4>
+      <h3>Active Payee<h3>
+      <h4><%= if @selected_payee , do: @selected_payee.name, else: "" %></h4>
         <button class="uk-button uk-button-default"
                 type="button"
                 phx-target="<%= @myself %>"
-                phx-click="clear_selected_seller">Clear</button>
-      <table class="uk-table uk-table-middle uk-table-hover modal-seller-table">
+                phx-click="clear_selected_payee">Clear</button>
+      <table class="uk-table uk-table-middle uk-table-hover modal-payee-table">
     <thead>
       <tr>
        <th>ID</th>
-       <th>Producer</th>
-       <th>Seller Location</th>
-       <th>States</th>
-       <th>Origin Code</th>
+       <th>Vendor Number</th>
+       <th>Payee Name</th>
       </tr>
     </thead>
     <tbody>
-      <%= for seller <- @sellers do %>
-    <tr phx-click="on_row_selected" phx-value-id="<%= seller.id %>" phx-target="<%= @myself %>">
-    <td><%= seller.id %></td>
-    <td><%= seller.producer %></td>
-    <td><%= seller.seller_location %></td>
-    <td><%= seller.state.name %></td>
-    <td><%= seller.origin_code %></td>
+      <%= for payee <- @payees do %>
+    <tr phx-click="on_row_selected" phx-value-id="<%= payee.id %>" phx-target="<%= @myself %>">
+    <td><%= payee.id %></td>
+    <td><%= payee.vendor_number %></td>
+    <td><%= payee.name %></td>
     </tr>
     <% end  %>
     </tbody>
@@ -48,7 +44,7 @@
 
     </div>
        <div class="uk-modal-footer uk-text-right">
-         <%= if !@seller_edit_phase do %>
+         <%= if !@payee_edit_phase do %>
             <button class="uk-button uk-button-default"
                   type="button"
                   phx-target="<%= @myself %>"
@@ -63,7 +59,7 @@
                 phx-value-button="save"
                 phx-target="<%= @myself %>"
                 phx-click="save">Save</button>
-                <%= if  !@seller_edit_phase do%>
+                <%= if  !@payee_edit_phase do%>
         <button class="uk-button uk-button-default"
                 type="button"
                 phx-value-purchase-id="<%=@purchase_id %>"

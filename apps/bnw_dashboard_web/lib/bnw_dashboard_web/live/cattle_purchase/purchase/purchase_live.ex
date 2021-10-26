@@ -10,11 +10,20 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     PurchaseFlags,
     PurchaseTypeFilters,
     Commissions,
+    Commission,
     DownPayments,
+    PurchaseSellers,
+    PurchaseSeller,
     PurchaseDetails,
+    PurchasePayee,
+    PurchasePayees,
+    PurchaseDetail,
     Sexes,
     Repo,
-    Sellers
+    Sellers,
+    Seller,
+    Payees,
+    Payee
   }
 
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent
@@ -26,6 +35,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   alias BnwDashboardWeb.CattlePurchase.PurchaseDetail.PurchaseDetailLive
   alias BnwDashboardWeb.CattlePurchase.CattleReceive.CattleReceiveLive
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseSellerComponent
+  alias BnwDashboardWeb.CattlePurchase.Purchase.PurchasePayeeComponent
 
   defp authenticate(socket) do
     current_user = Map.get(socket.assigns, :current_user)
@@ -69,6 +79,19 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       %{name: "destination", title: "Destination", sort_by: nil, is_sort: false},
       %{name: "estimated_ship_date", title: "Ship Date", sort_by: nil, is_sort: true},
       %{name: "firm", title: "Firm", sort_by: nil, is_sort: true},
+      %{name: "Sex", title: "Sex", sort_by: nil, is_sort: false},
+      %{name: "head_count", title: "Head Count", sort_by: nil, is_sort: false},
+      %{name: "weight", title: "Weight ", sort_by: nil, is_sort: false},
+      %{name: "price", title: "Price", sort_by: nil, is_sort: false},
+      %{
+        name: "projected_break_even",
+        title: "Projected Break-even",
+        sort_by: nil,
+        is_sort: false
+      },
+      %{name: "projected_out_date", title: "Projected Out Date", sort_by: nil, is_sort: false},
+      %{name: "purchase_basis", title: "Purchase Basis", sort_by: nil, is_sort: false},
+      %{name: "Seller", title: "Seller", sort_by: nil, is_sort: false},
       %{name: "Commission", title: "comm", sort_by: nil, is_sort: false},
       %{name: "Down Payment", title: "DP", sort_by: nil, is_sort: false},
       %{name: "Shipment", title: "shipment", sort_by: nil, is_sort: false},
@@ -87,6 +110,46 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         search_columns: search_columns,
         sort_columns: sort_columns,
         all_open: false,
+        purchase_param: nil,
+        changeset: nil,
+        sexes: Sexes.get_active_sexes(),
+        purchase_detail_edit_phase: false,
+        purchase_detail_changeset: PurchaseDetails.new_purchase_detail(),
+        purchase_details_in_form: [
+          %{
+            sex_id: "",
+            head_count: 0,
+            average_weight: 0,
+            price: 0,
+            projected_break_even: 0,
+            projected_out_date: "",
+            purchase_basis: "",
+            purchase_page: true,
+            valid: true
+          }
+        ],
+        purchase_details_from_db: [
+          %{
+            sex_id: "",
+            head_count: 0,
+            average_weight: 0,
+            price: 0,
+            projected_break_even: 0,
+            projected_out_date: "",
+            purchase_basis: "",
+            purchase_page: true,
+            valid: true
+          }
+        ],
+        sellers: Sellers.get_active_sellers(),
+        selected_seller: nil,
+        seller_error: false,
+        seller_edit_phase: false,
+        search_query: "",
+        payees: Payees.list_payees(),
+        selected_payee: nil,
+        payee_error: false,
+        payee_edit_phase: false,
         is_commission_init: false,
         commission_edit_phase: false,
         down_payment_edit_phase: false,
@@ -103,6 +166,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
             valid: true
           }
         ],
+        down_payments_from_db: nil,
+        down_payment_edit_phase: false,
         parent_id: nil,
         form_step: 1,
         commissions: [],
@@ -170,6 +235,23 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
      )}
   end
 
+  def handle_info(
+        {:purchase_on_held, changeset: changeset, purchase_param: purchase_param},
+        socket
+      ) do
+
+    socket =
+      assign(socket,
+        form_step: 2,
+        changeset: changeset,
+        purchase_param: purchase_param,
+        modal: :change_purchase,
+        parent_id: nil
+      )
+
+    {:noreply, socket}
+  end
+
   def handle_info({:purchase_created, button: button, purchase_id: purchase_id}, socket) do
     if button == "Next" do
       socket =
@@ -189,6 +271,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
               projected_break_even: 0,
               projected_out_date: "",
               purchase_basis: "",
+              purchase_page: true,
               valid: true
             }
           ],
@@ -201,6 +284,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
               projected_break_even: 0,
               projected_out_date: "",
               purchase_basis: "",
+              purchase_page: true,
               valid: true
             }
           ]
@@ -209,7 +293,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       {:noreply, socket}
     else
       socket = assign(socket, form_step: 1, model: nil)
-
+      socket = clear_create_state(socket)
       socket = fetch_purchase(socket)
       {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
     end
@@ -221,13 +305,56 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         assign(socket,
           form_step: 3,
           modal: :change_purchase,
-          parent_id: purchase_id,
-          sellers: Sellers.get_active_sellers()
+          parent_id: purchase_id
         )
 
       {:noreply, socket}
     else
       socket = assign(socket, form_step: 1, model: nil)
+      socket = clear_create_state(socket)
+      socket = fetch_purchase(socket)
+      {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
+    end
+  end
+
+  def handle_info({:purchase_seller_created, button: button, purchase_id: purchase_id}, socket) do
+    if button == "Next" do
+      socket =
+        assign(socket,
+          form_step: 4,
+          modal: :change_purchase,
+          parent_id: purchase_id
+        )
+
+      {:noreply, socket}
+    else
+      socket = clear_create_state(socket)
+      socket = assign(socket, form_step: 1, modal: nil)
+
+      socket = fetch_purchase(socket)
+      {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
+    end
+  end
+
+  def handle_info({:purchase_payee_created, button: button, purchase_id: purchase_id}, socket) do
+    if button == "Next" do
+      socket =
+        assign(socket,
+          form_step: 5,
+          modal: :change_purchase,
+          parent_id: purchase_id,
+          commission_edit_phase: false,
+          commissions_from_db: nil,
+          commission_changeset: Commissions.new_commission(),
+          commissions_in_form: [
+            %{commission_payee_id: "", commission_per_hundred: 0, valid: true}
+          ]
+        )
+
+      {:noreply, socket}
+    else
+      socket = clear_create_state(socket)
+      socket = assign(socket, form_step: 1, modal: nil)
 
       socket = fetch_purchase(socket)
       {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
@@ -238,7 +365,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     if button == "Next" do
       socket =
         assign(socket,
-          form_step: 4,
+          form_step: 5,
           model: :change_purchase,
           commission_edit_phase: false,
           commissions_from_db: [],
@@ -261,6 +388,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
       {:noreply, socket}
     else
+      socket = clear_create_state(socket)
+
       socket =
         assign(socket,
           form_step: 1,
@@ -275,6 +404,21 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       socket = fetch_purchase(socket)
       {:noreply, push_patch(socket, to: Routes.live_path(socket, __MODULE__))}
     end
+  end
+
+  def handle_info({:purchase_detail_updated, purchase_id: purchase_id}, socket) do
+    socket =
+      assign(socket,
+        sexes: [],
+        purchase_detail_edit_phase: false,
+        purchase_detail_changeset: PurchaseDetails.new_purchase_detail(),
+        purchase_details_in_form: [],
+        purchase_details_from_db: [],
+        modal: nil
+      )
+
+    socket = fetch_purchase(socket)
+    {:noreply, socket}
   end
 
   def handle_info({:down_payments_created, true}, socket) do
@@ -293,6 +437,24 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
             valid: true
           }
         ]
+      )
+
+    socket = clear_create_state(socket)
+    socket = fetch_purchase(socket)
+    {:noreply, socket}
+  end
+
+  def handle_info({:delete_purchase_detail_in_db, length, purchase_id}, socket) do
+    purchase_details_in_form =
+      PurchaseDetails.get_purchase_detail_from_purchase(purchase_id)
+      |> Enum.map(&Map.put(&1, :valid, true))
+
+    socket = assign(socket, modal: if(length < 1, do: nil, else: :change_purchase))
+
+    socket =
+      assign(socket,
+        purchase_details_in_form: purchase_details_in_form,
+        purchase_details_from_db: purchase_details_in_form
       )
 
     socket = fetch_purchase(socket)
@@ -475,6 +637,30 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
   end
 
   @impl true
+  def handle_event("edit_purchase_seller", params, socket) do
+    {purchase_id, ""} = Integer.parse(params["id"])
+
+    selected_seller = PurchaseSellers.get_seller_from_purchase_id(purchase_id)
+    selected_seller = CattlePurchase.Repo.get(Seller, selected_seller.seller_id)
+
+    socket =
+      assign(socket,
+        modal: :change_purchase,
+        form_step: 3,
+        purchase_id: purchase_id,
+        parent_id: purchase_id,
+        parent_pid: self(),
+        sellers: Sellers.get_active_sellers(),
+        selected_seller: selected_seller,
+        seller_error: false,
+        seller_edit_phase: true,
+        search_query: ""
+      )
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("edit_down_payment", params, socket) do
     {id, ""} = Integer.parse(params["id"])
 
@@ -495,6 +681,27 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         down_payment_changeset: DownPayments.new_down_payment(),
         parent_id: id,
         down_payment_edit_phase: true
+      )
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("edit_purchase_detail", params, socket) do
+    {id, ""} = Integer.parse(params["id"])
+    purchase_details = PurchaseDetails.get_purchase_detail_from_purchase(id)
+
+    socket =
+      assign(socket,
+        modal: :change_purchase,
+        form_step: 2,
+        parent_id: id,
+        sexes: Sexes.get_active_sexes(),
+        purchase_detail_edit_phase: true,
+        purchase_detail_changeset: PurchaseDetails.new_purchase_detail(),
+        purchase_details_in_form: Enum.map(purchase_details, &Map.put(&1, :valid, true)),
+        purchase_details_from_db: purchase_details,
+        error_purchase_page: false
       )
 
     {:noreply, socket}
@@ -773,14 +980,191 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     {:noreply, socket}
   end
 
+  def handle_info(
+        {:next_step_from_commission,
+         commissions_in_form: commissions_in_form, commission_changeset: commission_changeset},
+        socket
+      ) do
+    form_step = socket.assigns.form_step + 1
+
+    {:noreply,
+     assign(socket,
+       form_step: form_step,
+       commission_changeset: commission_changeset,
+       commissions_in_form: commissions_in_form
+     )}
+  end
+
+  def handle_info(
+        {:next_step_from_seller_, selected_seller: selected_seller},
+        socket
+      ) do
+    form_step = socket.assigns.form_step + 1
+
+    {:noreply,
+     assign(socket,
+       form_step: form_step,
+       sellers: Sellers.get_active_sellers(),
+       selected_seller: selected_seller
+     )}
+  end
+
+  def handle_info(
+        {:next_step_from_payee_, selected_payee: selected_payee},
+        socket
+      ) do
+    form_step = socket.assigns.form_step + 1
+
+    {:noreply,
+     assign(socket,
+       form_step: form_step,
+       payees: Payees.list_payees(),
+       selected_payee: selected_payee,
+       commission_edit_phase: false,
+       commissions_from_db: nil
+     )}
+  end
+
+  def handle_info(
+        {:next_step_from_detail,
+         purchase_detail_changeset: purchase_detail_changeset,
+         purchase_details_in_form: purchase_details_in_form},
+        socket
+      ) do
+    form_step = socket.assigns.form_step + 1
+
+    {:noreply,
+     assign(socket,
+       form_step: form_step,
+       sellers: Sellers.get_active_sellers(),
+       seller_error: false,
+       seller_edit_phase: false,
+       search_query: "",
+       purchase_detail_changeset: purchase_detail_changeset,
+       purchase_details_in_form: purchase_details_in_form
+     )}
+  end
+
+  def handle_info(
+        {:back_step_from_down_payment, down_payments_in_form: down_payments_in_form},
+        socket
+      ) do
+    form_step = socket.assigns.form_step - 1
+
+    {:noreply,
+     assign(socket,
+       form_step: form_step,
+       down_payments_in_form: down_payments_in_form
+     )}
+  end
+
+  def handle_info(
+        {:back_step_from_detail,
+         purchase_detail_changeset: purchase_detail_changeset,
+         purchase_details_in_form: purchase_details_in_form},
+        socket
+      ) do
+    form_step = socket.assigns.form_step - 1
+
+    {:noreply,
+     assign(socket,
+       form_step: form_step,
+       purchase_detail_changeset: purchase_detail_changeset,
+       purchase_details_in_form: purchase_details_in_form
+     )}
+  end
+
+  def handle_info(
+        {:back_step_from_seller,
+         sellers_in_form: sellers_in_form, selected_seller: selected_seller},
+        socket
+      ) do
+    form_step = socket.assigns.form_step - 1
+
+    {:noreply,
+     assign(socket,
+       form_step: form_step,
+       sellers_in_form: sellers_in_form,
+       selected_seller: selected_seller
+     )}
+  end
+
+  def handle_info(
+        {:back_step_from_commission,
+         commissions_in_form: commissions_in_form, commission_changeset: commission_changeset},
+        socket
+      ) do
+    form_step = socket.assigns.form_step - 1
+
+    {:noreply,
+     assign(socket,
+       form_step: form_step,
+       commissions_in_form: commissions_in_form,
+       commission_changeset: commission_changeset
+     )}
+  end
+
+  def handle_info(
+        {:down_payments_skip,
+         purchase_changeset: purchase_changeset,
+         purchase_param: purchase_param,
+         purchase_details_in_form: purchase_details_in_form,
+         selected_seller: selected_seller,
+         selected_payee: selected_payee,
+         commissions_in_form: commissions_in_form},
+        socket
+      ) do
+    {:ok, purchase} = Purchases.create_or_update_purchase(purchase_changeset.data, purchase_param)
+
+    purchase_details_to_save =
+      purchase_details_in_form
+      |> PurchaseDetails.remove_valid_key_add_purchase_id(purchase.id)
+      |> Enum.map(fn purchase_detail ->
+        PurchaseDetails.validate(%PurchaseDetail{}, purchase_detail)
+      end)
+
+    PurchaseDetails.create_or_update_multiple_purchase_details(
+      purchase_details_to_save,
+      false
+    )
+
+    PurchaseSellers.create_or_update_purchase_seller(%PurchaseSeller{}, %{
+      purchase_id: purchase.id,
+      seller_id: selected_seller.id
+    })
+
+
+    PurchasePayees.create_or_update_purchase_payee(%PurchasePayee{}, %{
+      purchase_id: purchase.id,
+      payee_id: selected_payee.id
+    })
+
+    first_commission = Enum.at(commissions_in_form, 0)
+
+    if(first_commission.commission_payee_id != "") do
+      commissions_to_save =
+        commissions_in_form
+        |> Commissions.remove_valid_key_add_purchase_id(purchase.id)
+        |> Enum.map(fn commission -> Commissions.validate(%Commission{}, commission) end)
+
+      Commissions.create_or_update_multiple_commissions(
+        commissions_to_save,
+        false
+      )
+    end
+
+    socket = clear_create_state(socket)
+    {:noreply, socket}
+  end
+
   def handle_event("skip_step", params, socket) do
     {step, ""} = Integer.parse(params["step"])
 
     socket =
       case step do
-        2 ->
+        5 ->
           assign(socket,
-            form_step: 3,
+            form_step: 6,
             commission_edit_phase: false,
             commissions_from_db: nil,
             commission_changeset: Commissions.new_commission(),
@@ -802,7 +1186,27 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
             down_payment_edit_phase: false
           )
 
-        3 ->
+        6 ->
+          socket = clear_create_state(socket)
+
+          assign(socket,
+            form_step: 1,
+            modal: nil,
+            down_payment_edit_phase: false,
+            down_payment_from_db: [],
+            down_payment_changeset: DownPayments.new_down_payment(),
+            down_payments_in_form: [
+              %{
+                description: "",
+                amount: 0,
+                date_paid: "",
+                locked: "",
+                valid: true
+              }
+            ]
+          )
+
+        _ ->
           assign(socket,
             form_step: 1,
             modal: nil,
@@ -923,5 +1327,63 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
 
     total_pages = Purchases.get_purchases_data_total_pages(per_page, search)
     assign(socket, :total_pages, total_pages)
+  end
+
+  defp clear_create_state(socket) do
+    assign(socket,
+      changeset: nil,
+      form_step: 1,
+      purchase_detail_edit_phase: false,
+      purchase_detail_changeset: PurchaseDetails.new_purchase_detail(),
+      purchase_details_in_form: [
+        %{
+          sex_id: "",
+          head_count: 0,
+          average_weight: 0,
+          price: 0,
+          projected_break_even: 0,
+          projected_out_date: "",
+          purchase_basis: "",
+          purchase_page: true,
+          valid: true
+        }
+      ],
+      purchase_details_from_db: [
+        %{
+          sex_id: "",
+          head_count: 0,
+          average_weight: 0,
+          price: 0,
+          projected_break_even: 0,
+          projected_out_date: "",
+          purchase_basis: "",
+          purchase_page: true,
+          valid: true
+        }
+      ],
+      sellers: Sellers.get_active_sellers(),
+      selected_seller: nil,
+      seller_error: false,
+      seller_edit_phase: false,
+      search_query: "",
+      is_commission_init: false,
+      commission_edit_phase: false,
+      down_payment_edit_phase: false,
+      commissions_from_db: nil,
+      commission_changeset: Commissions.new_commission(),
+      commissions_in_form: [%{commission_payee_id: "", commission_per_hundred: 0, valid: true}],
+      down_payment_changeset: DownPayments.new_down_payment(),
+      down_payments_in_form: [
+        %{
+          description: "",
+          amount: 0,
+          date_paid: "",
+          locked: "",
+          valid: true
+        }
+      ],
+      down_payments_from_db: nil,
+      down_payment_edit_phase: false
+    )
   end
 end

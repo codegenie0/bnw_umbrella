@@ -17,6 +17,7 @@ defmodule CattlePurchase.PurchaseDetail do
   schema "purchase_details" do
     field :head_count, :integer
     field :average_weight, :integer
+    field :purchase_page, :boolean, default: false
     field :price, :decimal
     field :projected_break_even, :decimal
     field :purchase_basis, :decimal
@@ -30,7 +31,7 @@ defmodule CattlePurchase.PurchaseDetail do
     timestamps()
   end
 
-  @required ~w(head_count average_weight price projected_break_even  sex_id purchase_id)a
+  @required ~w(head_count average_weight price projected_break_even purchase_page  sex_id purchase_id)a
   @optional ~w(futures_order_price cash_price projected_out_date order_date fill_date purchase_basis)a
   @allowed @required ++ @optional
 

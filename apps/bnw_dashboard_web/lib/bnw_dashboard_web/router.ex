@@ -127,7 +127,6 @@ defmodule BnwDashboardWeb.Router do
       live "/purchase_type_filters", CattlePurchase.PurchaseTypeFilter.PurchaseTypeFilterLive
       live "/purchase_receives", CattlePurchase.CattleReceive.CattleReceiveLive
       live "/purchase_shipments", CattlePurchase.PurchaseShipment.PurchaseShipmentLive
-      live "/purchase_details", CattlePurchase.PurchaseDetail.PurchaseDetailLive
       live "/sellers", CattlePurchase.Seller.SellerLive
       live "/states", CattlePurchase.State.StateLive
       live "/treatments", CattlePurchase.Treatment.TreatmentLive

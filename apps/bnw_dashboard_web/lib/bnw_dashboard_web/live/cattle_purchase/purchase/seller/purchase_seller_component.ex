@@ -3,80 +3,99 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseSellerComponent do
   ### Live view component for the add/update purchase modal.
   """
   use BnwDashboardWeb, :live_component
-  alias CattlePurchase.{Purchases, Sellers, Seller, Repo}
+
+  alias CattlePurchase.{
+    Purchases,
+    Sellers,
+    PurchaseSellers,
+    PurchaseSeller,
+    Seller,
+    Repo,
+    PurchaseDetails,
+    PurchaseDetail
+  }
+
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive
 
   def mount(socket) do
     {:ok, socket}
   end
 
-  def handle_event("save", %{"seller" => seller}, socket) do
+  def handle_event("save", params, socket) do
+    %{"button" => button} = params
+
     %{
-      seller_changeset: seller_changeset,
-      sellers_in_form: sellers_in_form,
       seller_edit_phase: seller_edit_phase,
-      sellers_from_db: sellers_from_db
+      selected_seller: selected_seller,
+      parent_id: purchase_id
     } = socket.assigns
 
-    %{"button" => button} = seller
-    {purchase_id, ""} = Integer.parse(seller["purchase_id"] || 1)
-    purchase = CattlePurchase.Repo.get(CattlePurchase.Purchase, purchase_id)
+    # {purchase_id, ""} = Integer.parse(params["purchase_id"] || 1)
+    # purchase_id = 1
 
-    seller_changeset = Sellers.validate(seller_changeset.data, seller)
-    sellers_in_form = format_sellers(seller, sellers_in_form)
+    if(selected_seller) do
+      if button == "Next" do
+        send(
+          socket.assigns.parent_pid,
+          {:next_step_from_seller_, selected_seller: selected_seller}
+        )
 
-    if is_all_seller_valid(sellers_in_form) do
-      sellers_to_save =
-        if seller_edit_phase do
-          CattlePurchase.Purchase.changeset(purchase, %{sellers: sellers_in_form})
-
-          # |> remove_valid_key_add_purchase_id(purchase_id)
-          # |> Enum.with_index()
-          # |> Enum.map(fn {c, i} ->
-          #   Sellers.update_validate(Enum.at(sellers_from_db, i), c)
-          # end)
-        else
-          sellers_in_form
-          |> remove_valid_key_add_purchase_id(purchase_id)
-          |> Enum.map(fn seller -> Sellers.validate(%Seller{}, seller) end)
+        {:noreply, push_patch(socket, to: Routes.live_path(socket, PurchaseLive))}
+      else
+        if(seller_edit_phase) do
+          seller_to_delete = PurchaseSellers.get_seller_from_purchase_id(purchase_id)
+          PurchaseSellers.delete_purchase_seller(seller_to_delete)
         end
 
-      result =
-        case seller_edit_phase do
-          true ->
-            CattlePurchase.Repo.update(sellers_to_save)
+        purchase_id =
+          if seller_edit_phase do
+            purchase_id
+          else
+            %{
+              purchase_changeset: purchase_changeset,
+              purchase_param: purchase_param,
+              purchase_details_in_form: purchase_details_in_form
+            } = socket.assigns
 
-          false ->
-            Sellers.create_or_update_multiple_commissions(
-              sellers_to_save,
-              seller_edit_phase
+            {:ok, purchase} =
+              Purchases.create_or_update_purchase(purchase_changeset.data, purchase_param)
+
+            purchase_details_to_save =
+              purchase_details_in_form
+              |> PurchaseDetails.remove_valid_key_add_purchase_id(purchase.id)
+              |> Enum.map(fn purchase_detail ->
+                PurchaseDetails.validate(%PurchaseDetail{}, purchase_detail)
+              end)
+
+            PurchaseDetails.create_or_update_multiple_purchase_details(
+              purchase_details_to_save,
+              false
             )
+
+            purchase.id
+          end
+
+        case PurchaseSellers.create_or_update_purchase_seller(%PurchaseSeller{}, %{
+               purchase_id: purchase_id,
+               seller_id: selected_seller.id
+             }) do
+          {:ok, _} ->
+            send(
+              socket.assigns.parent_pid,
+              {:purchase_seller_created, button: button, purchase_id: purchase_id}
+            )
+
+            {:noreply,
+             push_patch(socket,
+               to: Routes.live_path(socket, PurchaseLive)
+             )}
+
+          {:error, %Ecto.Changeset{} = changest} ->
+            {:noreply, assign(socket, seller_changeset: changest, seller_error: false)}
         end
-
-      case result do
-        {:ok, _commission} ->
-          send(socket.assigns.parent_pid, {:sellers_created, true})
-
-          {:noreply,
-           push_patch(socket,
-             to: Routes.live_path(socket, PurchaseLive)
-           )}
-
-        {:error, %Ecto.Changeset{} = changest} ->
-          {:noreply,
-           assign(socket,
-             seller_changeset: changest,
-             sellers_in_form: sellers_in_form
-           )}
       end
-
-      {:noreply, socket}
     else
-      {:noreply,
-       assign(socket,
-         seller_changeset: seller_changeset,
-         sellers_in_form: sellers_in_form
-       )}
+      {:noreply, assign(socket, seller_error: true)}
     end
   end
 
@@ -87,6 +106,17 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseSellerComponent do
       assign(socket,
         sellers_in_form: format_sellers(params, sellers_in_form)
       )
+
+    {:noreply, socket}
+  end
+
+  def handle_event("back_step", _, socket) do
+    %{sellers_in_form: sellers_in_form, selected_seller: selected_seller} = socket.assigns
+
+    send(
+      socket.assigns.parent_pid,
+      {:back_step_from_seller, sellers_in_form: sellers_in_form, selected_seller: selected_seller}
+    )
 
     {:noreply, socket}
   end
@@ -104,55 +134,8 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseSellerComponent do
 
   def handle_event("on_input_search", params, socket) do
     %{"value" => value} = params
-    {:noreply, socket}
-  end
-
-  def handle_event("delete_seller", params, socket) do
-    {index, ""} = Integer.parse(params["index"])
-    %{sellers_in_form: sellers_in_form} = socket.assigns
-
-    sellers_in_form =
-      cond do
-        length(sellers_in_form) > 1 ->
-          List.delete_at(sellers_in_form, index)
-
-        true ->
-          sellers_in_form
-      end
-
-    socket = assign(socket, sellers_in_form: sellers_in_form)
-    {:noreply, socket}
-  end
-
-  def handle_event("delete_seller_in_db", params, socket) do
-    {index, ""} = Integer.parse(params["index"])
-    %{sellers_in_form: sellers_in_form} = socket.assigns
-
-    seller = Enum.at(sellers_in_form, index)
-
-    Sellers.delete_seller(Repo.get(Seller, seller.id))
-
-    sellers_in_form =
-      cond do
-        length(sellers_in_form) > 1 ->
-          List.delete_at(sellers_in_form, index)
-
-        true ->
-          []
-      end
-
-    send(
-      socket.assigns.parent_pid,
-      {:delete_seller_in_db, length(sellers_in_form), socket.assigns.parent_id}
-    )
-
-    socket =
-      assign(socket,
-        sellers_in_form: sellers_in_form,
-        sellers_from_db: sellers_in_form
-      )
-
-    {:noreply, socket}
+    sellers = Sellers.search_query(value)
+    {:noreply, assign(socket, search_query: value, sellers: sellers)}
   end
 
   defp format_sellers(sellers_params, sellers_in_form) do

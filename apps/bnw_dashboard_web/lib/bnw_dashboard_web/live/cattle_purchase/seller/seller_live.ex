@@ -56,7 +56,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Seller.SellerLive do
       assign(socket,
         changeset: changeset,
         modal: :change_seller,
-        states: States.get_active_states()
+        states: States.get_active_states() |> Enum.sort_by(fn record -> record.name end)
       )
 
     {:noreply, socket}
@@ -71,7 +71,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Seller.SellerLive do
       seller
       |> Sellers.change_seller()
 
-    states = States.get_active_states()
+    states = States.get_active_states() |> Enum.sort_by(fn record -> record.name end)
 
     socket =
       assign(socket,

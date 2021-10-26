@@ -33,6 +33,7 @@ defmodule CattlePurchase.Purchases do
       :purchase_buyer,
       :destination_group,
       :down_payments,
+      purchase_details: :sex,
       commissions: :commission_payee
     ])
   end
@@ -307,6 +308,7 @@ defmodule CattlePurchase.Purchases do
       :destination_group,
       :shipments,
       :down_payments,
+      purchase_details: :sex,
       commissions: :commission_payee
     ])
   end

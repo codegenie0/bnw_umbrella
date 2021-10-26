@@ -9,6 +9,11 @@
               <h2 class="uk-modal-title">
                 Purchase Detail
               </h2>
+              <h4>
+              <%= if  @error_purchase_page do%>
+                Please select one purchase page
+              <% end %>
+              </h4>
             </div>
             <div class="uk-modal-body uk-background-secondary uk-light uk-overflow-auto uk-height-max-large">
          <%= hidden_input f, :purchase_id,  class: "uk-input", value: @parent_id %>
@@ -71,6 +76,11 @@
             <%= number_input :purchase_detail, "#{i}_purchase_basis", value: p.purchase_basis, class: "uk-input", placeholder: "Purchase Basis" %>
           </div>
         </div>
+        <div class="uk-margin-small">
+          <label class="uk-padding-small uk-padding-remove-left">
+            <%= checkbox(:purchase_detail, "#{i}_purchase_page", class: "uk-checkbox", value: p.purchase_page) %> Purchase Page
+          </label>
+        </div>
               <%= link "", to: "#", class: "uk-preserve-width uk-padding-small uk-padding-remove-vertical",
                         uk_icon: "trash",
                         phx_hook: "uk_icon",
@@ -84,17 +94,22 @@
               Invalid Purchase Details
            </span>
          <% end %>
-         <div class="uk-padding uk-padding-remove-horizontal uk-padding-remove-top">
+       <% end %>
+       <div class="uk-padding uk-padding-remove-horizontal uk-padding-remove-top">
           <button class="uk-button uk-button-default uk-border-pill uk-width-3-4 uk-align-center"
                   type="button"
                   phx-target="<%= @myself %>"
                   phx-click="add_purchase_detail">Add Purchase Detail</button>
         </div>
-
-       <% end %>
       </div>
 
       <div class="uk-modal-footer uk-text-right">
+       <%= if !@purchase_detail_edit_phase do %>
+       <button class="uk-button uk-button-default"
+                type="button"
+                phx-target="<%= @myself %>"
+                phx-click="back_step">Back</button>
+                <% end %>
       <%= if @purchase_detail_edit_phase || @from_purchase_detail_page do%>
        <button class="uk-button uk-button-default"
                 type="button"

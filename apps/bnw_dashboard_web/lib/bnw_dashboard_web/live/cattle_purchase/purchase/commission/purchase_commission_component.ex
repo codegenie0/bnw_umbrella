@@ -3,7 +3,20 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
   ### Live view component for the add/update purchase modal.
   """
   use BnwDashboardWeb, :live_component
-  alias CattlePurchase.{Commissions, Commission, Repo}
+
+  alias CattlePurchase.{
+    Commissions,
+    Commission,
+    Repo,
+    PurchaseDetail,
+    PurchaseDetails,
+    Purchases,
+    PurchaseSellers,
+    PurchaseSeller,
+    PurchasePayees,
+    PurchasePayee
+  }
+
   alias BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive
 
   def mount(socket) do
@@ -19,48 +32,98 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
     } = socket.assigns
 
     %{"button" => button} = commission
-    {purchase_id, ""} = Integer.parse(commission["purchase_id"] || 1)
+
     commission_changeset = Commissions.validate(commission_changeset.data, commission)
     commissions_in_form = format_commissions(commission, commissions_in_form)
-    purchase = CattlePurchase.Repo.get(CattlePurchase.Purchase, purchase_id)
 
     if is_all_commissions_valid(commissions_in_form) do
-      commissions_to_save =
-        if commission_edit_phase do
-          CattlePurchase.Purchase.changeset(purchase, %{commissions: commissions_in_form})
-        else
-          commissions_in_form
-          |> remove_valid_key_add_purchase_id(purchase_id)
-          |> Enum.map(fn commission -> Commissions.validate(%Commission{}, commission) end)
-        end
+      if button == "Next" do
+        send(
+          socket.assigns.parent_pid,
+          {:next_step_from_commission,
+           commissions_in_form: commissions_in_form, commission_changeset: commission_changeset}
+        )
 
-      result =
-        case commission_edit_phase do
-          true ->
-            CattlePurchase.Repo.update(commissions_to_save)
+        {:noreply,
+         push_patch(socket,
+           to: Routes.live_path(socket, PurchaseLive)
+         )}
+      else
+        commissions_to_save =
+          if commission_edit_phase do
+            {purchase_id, ""} = Integer.parse(commission["purchase_id"] || 1)
+            purchase = CattlePurchase.Repo.get(CattlePurchase.Purchase, purchase_id)
+            CattlePurchase.Purchase.changeset(purchase, %{commissions: commissions_in_form})
+          else
+            %{
+              purchase_changeset: purchase_changeset,
+              purchase_param: purchase_param,
+              purchase_details_in_form: purchase_details_in_form,
+              selected_seller: selected_seller,
+              selected_payee: selected_payee
+            } = socket.assigns
 
-          false ->
-            Commissions.create_or_update_multiple_commissions(
-              commissions_to_save,
-              commission_edit_phase
+            {:ok, purchase} =
+              Purchases.create_or_update_purchase(purchase_changeset.data, purchase_param)
+
+            purchase_details_to_save =
+              purchase_details_in_form
+              |> PurchaseDetails.remove_valid_key_add_purchase_id(purchase.id)
+              |> Enum.map(fn purchase_detail ->
+                PurchaseDetails.validate(%PurchaseDetail{}, purchase_detail)
+              end)
+
+            PurchaseDetails.create_or_update_multiple_purchase_details(
+              purchase_details_to_save,
+              false
             )
+
+            PurchaseSellers.create_or_update_purchase_seller(%PurchaseSeller{}, %{
+              purchase_id: purchase.id,
+              seller_id: selected_seller.id
+            })
+
+            PurchasePayees.create_or_update_purchase_payee(%PurchasePayee{}, %{
+              purchase_id: purchase.id,
+              payee_id: selected_payee.id
+            })
+
+            commissions_in_form
+            |> Commissions.remove_valid_key_add_purchase_id(purchase.id)
+            |> Enum.map(fn commission -> Commissions.validate(%Commission{}, commission) end)
+          end
+
+        result =
+          case commission_edit_phase do
+            true ->
+              CattlePurchase.Repo.update(commissions_to_save)
+
+            false ->
+              Commissions.create_or_update_multiple_commissions(
+                commissions_to_save,
+                commission_edit_phase
+              )
+          end
+
+        case result do
+          {:ok, _commission} ->
+            send(socket.assigns.parent_pid, {:commission_created, button: button})
+
+            {:noreply,
+             push_patch(socket,
+               to: Routes.live_path(socket, PurchaseLive)
+             )}
+
+          {:error, %Ecto.Changeset{} = changest} ->
+            {:noreply,
+             assign(socket,
+               commission_changeset: changest,
+               commissions_in_form: commissions_in_form
+             )}
         end
 
-      case result do
-        {:ok, _commission} ->
-          send(socket.assigns.parent_pid, {:commission_created, button: button})
-
-          {:noreply,
-           push_patch(socket,
-             to: Routes.live_path(socket, PurchaseLive)
-           )}
-
-        {:error, %Ecto.Changeset{} = changest} ->
-          {:noreply,
-           assign(socket, commission_changeset: changest, commissions_in_form: commissions_in_form)}
+        {:noreply, socket}
       end
-
-      {:noreply, socket}
     else
       {:noreply,
        assign(socket,
@@ -84,6 +147,19 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
         commission_changeset: commission_changeset,
         commissions_in_form: format_commissions(params, commissions_in_form)
       )
+
+    {:noreply, socket}
+  end
+
+  def handle_event("back_step", _, socket) do
+    %{commission_changeset: commission_changeset} = socket.assigns
+    %{commissions_in_form: commissions_in_form} = socket.assigns
+
+    send(
+      socket.assigns.parent_pid,
+      {:back_step_from_commission,
+       commissions_in_form: commissions_in_form, commission_changeset: commission_changeset}
+    )
 
     {:noreply, socket}
   end
@@ -189,13 +265,5 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseCommissionComponent do
   defp is_all_commissions_valid(commissions) do
     commissions = Enum.filter(commissions, fn item -> !item.valid end)
     if length(commissions) >= 1, do: false, else: true
-  end
-
-  defp remove_valid_key_add_purchase_id(commissions, purchase_id) do
-    Enum.map(commissions, fn item ->
-      item
-      |> Map.delete(:valid)
-      |> Map.put(:purchase_id, purchase_id)
-    end)
   end
 end
