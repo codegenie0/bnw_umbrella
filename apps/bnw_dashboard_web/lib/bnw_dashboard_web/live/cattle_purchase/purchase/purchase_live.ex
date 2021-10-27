@@ -91,11 +91,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       },
       %{name: "projected_out_date", title: "Projected Out Date", sort_by: nil, is_sort: false},
       %{name: "purchase_basis", title: "Purchase Basis", sort_by: nil, is_sort: false},
-      %{name: "Seller", title: "Seller", sort_by: nil, is_sort: false},
-      %{name: "Commission", title: "comm", sort_by: nil, is_sort: false},
-      %{name: "Down Payment", title: "DP", sort_by: nil, is_sort: false},
       %{name: "Shipment", title: "shipment", sort_by: nil, is_sort: false},
-      %{name: "Detail", title: "Details", sort_by: nil, is_sort: false},
       %{name: "complete", title: "Complete", sort_by: nil, is_sort: true}
     ]
 
@@ -625,12 +621,35 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     socket =
       assign(socket,
         modal: :change_purchase,
-        form_step: 4,
+        form_step: 5,
         commissions_in_form: commissions_in_form,
         commissions_from_db: commissions_in_form,
         commission_changeset: Commissions.new_commission(),
         parent_id: id,
         commission_edit_phase: true
+      )
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("edit_purchase_payee", params, socket) do
+    {purchase_id, ""} = Integer.parse(params["id"])
+
+    selected_payee = PurchasePayees.get_payee_from_purchase_id(purchase_id)
+    selected_payee = CattlePurchase.Repo.get(Payee, selected_payee.payee_id)
+
+    socket =
+      assign(socket,
+        modal: :change_purchase,
+        form_step: 4,
+        purchase_id: purchase_id,
+        parent_id: purchase_id,
+        parent_pid: self(),
+        payees: Payees.list_payees(),
+        selected_payee: selected_payee,
+        payee_error: false,
+        payee_edit_phase: true,
       )
 
     {:noreply, socket}
@@ -675,7 +694,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
     socket =
       assign(socket,
         modal: :change_purchase,
-        form_step: 5,
+        form_step: 6,
         down_payments_in_form: down_payments_in_form,
         down_payments_from_db: down_payments_in_form,
         down_payment_changeset: DownPayments.new_down_payment(),

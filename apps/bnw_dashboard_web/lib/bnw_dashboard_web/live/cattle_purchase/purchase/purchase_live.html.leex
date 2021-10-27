@@ -167,48 +167,47 @@
               <%= if is_list(purchase.purchase_details) do%>
                 <%= Enum.find(purchase.purchase_details,%{purchase_basis: ""} ,&(&1.purchase_page == true)).purchase_basis %>
               <% end %>
-            <td>
-                <%=if purchase.seller do%>
-                 <%= link "Edit", to: "#",
-                      phx_value_id: purchase.id,
-                      class: "uk-button uk-button-primary uk-align-center ",
-                      phx_click: "edit_purchase_seller" %>
-                <% end %>
-            </td>
-            <td class="uk-text-nowrap">
-              <%= link "", to: "#", class: "uk-padding-remove-vertical uk-preserve-width uk-margin-small-right complete-check-color",
-                uk_icon: "icon: link",
-              phx_hook: "uk_icon",
-              phx_click: "edit_commission",
-              uk_tooltip: Enum.map(purchase.commissions, fn item -> "Payee #{item.commission_payee.name} -- Commission #{item.commission_per_hundred}<br>" end),
-              phx_value_id: purchase.id %>
-            </td>
-             <td class="uk-text-nowrap">
-               <%= link "", to: "#", class: "uk-padding-remove-vertical uk-preserve-width uk-margin-small-right complete-check-color",
-                uk_icon: "icon: link",
-                phx_hook: "uk_icon",
-                phx_click: "edit_down_payment",
-                uk_tooltip: Enum.map(purchase.down_payments, fn item -> "Amount #{item.amount}<br>" end),
-                phx_value_id: purchase.id %>
-              </td>
             <td class="uk-text-nowrap">
               <%= live_redirect "Shipments", to: Routes.live_path(@socket, PurchaseShipmentLive, id: purchase.id), class: "uk-padding-remove-vertical uk-preserve-width uk-margin-small-right complete-check-color"  %>
-            </td>
-            <td class="uk-text-nowrap">
-              <%= link "Edit", to: "#",
-                      phx_value_id: purchase.id,
-                      class: "uk-button uk-button-primary uk-align-center ",
-                      phx_click: "edit_purchase_detail" %>
             </td>
             <td class="uk-text-nowrap">
               <%= live_component(@socket, CompletePurchaseComponent, purchase: purchase)%>
             </td>
             <td class="uk-text-nowrap" >
-              <%= link "", to: "#", class: "uk-padding-remove-vertical uk-preserve-width uk-margin-small-right",
-              uk_icon: "icon: pencil",
-              phx_hook: "uk_icon",
-              phx_click: "edit",
-              phx_value_id: purchase.id %>
+              <div class="uk-inline" phx-update="ignore">
+              <button class="uk-button uk-button-default " type="button">Edit</button>
+              <div uk-dropdown="mode: click;pos: bottom-down;flip: x;"   phx-hook="uk_dropdown" >
+
+              <%= link "Edit Purchase", to: "#",
+                      phx_value_id: purchase.id,
+                      class: "uk-button uk-button-primary uk-button-small uk-align-center kkk",
+                      phx_click: "edit" %>
+              <%= link "Edit Detail", to: "#",
+                      phx_value_id: purchase.id,
+                      class: "uk-button uk-button-primary uk-button-small uk-align-center kkk",
+                      phx_click: "edit_purchase_detail" %>
+              <%= link "Edit Payee", to: "#",
+                      phx_value_id: purchase.id,
+                      class: "uk-button uk-button-primary uk-button-small uk-align-center kkk",
+                      phx_click: "edit_purchase_payee" %>
+              <%= link "Edit Seller", to: "#",
+                      phx_value_id: purchase.id,
+                      class: "uk-button uk-button-primary uk-button-small uk-align-center kkk",
+                      phx_click: "edit_purchase_seller" %>
+
+              <%= link "Edit Commission", to: "#",
+                      phx_value_id: purchase.id,
+                      uk_tooltip: Enum.map(purchase.commissions, fn item -> "Payee #{item.commission_payee.name} -- Commission #{item.commission_per_hundred}<br>" end),
+                      class: "uk-button uk-button-primary uk-button-small uk-align-center kkk",
+                      phx_click: "edit_commission" %>
+
+              <%= link "Edit Down Payment", to: "#",
+                      phx_value_id: purchase.id,
+                      uk_tooltip: Enum.map(purchase.down_payments, fn item -> "Amount #{item.amount}<br>" end),
+                      class: "uk-button uk-button-primary uk-button-small uk-align-center kkk",
+                      phx_click: "edit_down_payment" %>
+              </div>
+              </div>
               <%= link "", to: "#", class: "uk-padding-remove-vertical uk-preserve-width",
               uk_icon: "icon: trash",
               phx_hook: "uk_icon",
