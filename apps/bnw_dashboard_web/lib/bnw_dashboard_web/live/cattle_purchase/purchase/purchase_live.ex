@@ -235,7 +235,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         {:purchase_on_held, changeset: changeset, purchase_param: purchase_param},
         socket
       ) do
-
     socket =
       assign(socket,
         form_step: 2,
@@ -649,7 +648,7 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
         payees: Payees.list_payees(),
         selected_payee: selected_payee,
         payee_error: false,
-        payee_edit_phase: true,
+        payee_edit_phase: true
       )
 
     {:noreply, socket}
@@ -1151,7 +1150,6 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseLive do
       purchase_id: purchase.id,
       seller_id: selected_seller.id
     })
-
 
     PurchasePayees.create_or_update_purchase_payee(%PurchasePayee{}, %{
       purchase_id: purchase.id,

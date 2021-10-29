@@ -146,6 +146,64 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchasePayeeComponent do
     {:noreply, assign(socket, search_query: value, payees: payees)}
   end
 
+  @impl true
+  def handle_event("load_more", _params, socket) do
+
+    socket = assign_total_pages(socket)
+    socket = load_more(socket)
+    {:noreply, socket}
+  end
+
+  defp assign_total_pages(socket) do
+    %{
+      per_page: per_page,
+      search_query: search_query
+    } = socket.assigns
+
+    total_pages = Payees.get_payees_data_total_pages(per_page, search_query)
+    assign(socket, :total_pages, total_pages)
+  end
+
+  defp load_more(socket) do
+    %{
+      page: page,
+      total_pages: total_pages
+    } = socket.assigns
+
+    cond do
+      page < total_pages ->
+        socket
+        |> assign(:page, page + 1)
+        |> assign(:update_action, "append")
+        |> assign_payees()
+
+      true ->
+        socket
+    end
+  end
+
+  defp assign_payees(socket) do
+    %{
+      page: page,
+      per_page: per_page,
+      search_query: search_query,
+      update_action: update_action
+    } = socket.assigns
+
+    new_payees = Payees.list_payees(page, per_page, search_query)
+
+    payees =
+      cond do
+        update_action == "append" ->
+          Map.get(socket.assigns, :payees, []) ++ new_payees
+
+        true ->
+          new_payees
+      end
+
+    assign(socket, :payees, payees)
+  end
+
   defp format_payees(payees_params, payees_in_form) do
     payees_in_form =
       payees_in_form

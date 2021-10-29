@@ -14,7 +14,7 @@ defmodule CattlePurchase.Payees do
 
   def get_payee!(id), do: Repo.get!(Payee, id)
 
-  def list_payees(current_page \\ 1, per_page \\ 10, search \\ "") do
+  def list_payees(current_page \\ 1, per_page \\ 5, search \\ "") do
     search = "%#{search}%"
 
     Payee
@@ -30,6 +30,26 @@ defmodule CattlePurchase.Payees do
     |> Repo.all()
   end
 
+
+  def get_payees_data_total_pages(per_page \\ 5, search \\ "") do
+    search = "%#{search}%"
+    payee_count =
+      Payee
+      |> where(
+        [p],
+        like(p.name, ^search) or
+          like(p.vendor_number, ^search) or
+          like(p.lienholder, ^search)
+      )
+      |> Repo.all()
+      |> Enum.count()
+
+    (payee_count / per_page)
+    |> Decimal.from_float()
+    |> Decimal.round(0, :up)
+    |> Decimal.to_integer()
+  end
+
   def search_query(query) do
     query = "%#{query}%"
     Payee
@@ -43,7 +63,7 @@ defmodule CattlePurchase.Payees do
     |> Repo.all()
   end
 
-  def total_pages(per_page \\ 10, search \\ "") do
+  def total_pages(per_page \\ 5, search \\ "") do
     search = "%#{search}%"
 
     payee_count =

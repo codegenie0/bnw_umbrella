@@ -138,6 +138,64 @@ defmodule BnwDashboardWeb.CattlePurchase.Purchase.PurchaseSellerComponent do
     {:noreply, assign(socket, search_query: value, sellers: sellers)}
   end
 
+  @impl true
+  def handle_event("load_more", _params, socket) do
+
+    socket = assign_total_pages(socket)
+    socket = load_more(socket)
+    {:noreply, socket}
+  end
+
+  defp assign_total_pages(socket) do
+    %{
+      per_page: per_page,
+      search_query: search_query
+    } = socket.assigns
+
+    total_pages = Sellers.get_sellers_data_total_pages(per_page, search_query)
+    assign(socket, :total_pages, total_pages)
+  end
+
+  defp load_more(socket) do
+    %{
+      page: page,
+      total_pages: total_pages
+    } = socket.assigns
+
+    cond do
+      page < total_pages ->
+        socket
+        |> assign(:page, page + 1)
+        |> assign(:update_action, "append")
+        |> assign_sellers()
+
+      true ->
+        socket
+    end
+  end
+
+  defp assign_sellers(socket) do
+    %{
+      page: page,
+      per_page: per_page,
+      search_query: search_query,
+      update_action: update_action
+    } = socket.assigns
+
+    new_sellers = Sellers.list_sellers_by_page(page, per_page, search_query)
+
+    sellers =
+      cond do
+        update_action == "append" ->
+          Map.get(socket.assigns, :sellers, []) ++ new_sellers
+
+        true ->
+          new_sellers
+      end
+
+    assign(socket, :sellers, sellers)
+  end
+
   defp format_sellers(sellers_params, sellers_in_form) do
     sellers_in_form =
       sellers_in_form

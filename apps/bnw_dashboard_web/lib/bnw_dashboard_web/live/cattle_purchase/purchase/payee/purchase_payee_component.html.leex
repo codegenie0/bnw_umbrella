@@ -14,7 +14,14 @@
         </h2>
         <% end  %>
       </div>
-      <div class="uk-modal-body uk-background-secondary uk-light uk-overflow-auto uk-height-max-large">
+      <div class="uk-modal-body uk-background-secondary uk-light uk-overflow-auto uk-height-max-large"
+         id="sellers-scroller"
+         phx-hook="infinite_scroll_small_modal"
+         phx-target="<%= @myself %>"
+         data-page="<%= @page %>"
+         phx-update="<%= @update_action %>"
+         style="height: 450px;"
+      >
       <h3>Search Payee</h3>
       <input type="text"  phx-target="<%= @myself %>" value="<%= @search_query %>" phx-keyup="on_input_search" >
       <h3>Active Payee<h3>

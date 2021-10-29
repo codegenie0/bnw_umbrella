@@ -4,7 +4,7 @@ defmodule CattlePurchase.Sellers do
     Repo
   }
 
-  import Ecto.Query, only: [from: 2]
+  import Ecto.Query
 
   @topic "cattle_purchase:sellers"
   def subscribe(), do: Phoenix.PubSub.subscribe(CattlePurchase.PubSub, @topic)
@@ -19,6 +19,55 @@ defmodule CattlePurchase.Sellers do
   def list_sellers() do
     Repo.all(Seller)
     |> Repo.preload([:state])
+  end
+
+  def list_sellers_by_page(current_page \\ 1, per_page \\ 5, search \\ "") do
+    offset = per_page * (current_page - 1)
+    search = "%#{search}%"
+
+    Seller
+    |> where(
+      [p],
+      like(p.producer, ^search) or
+        like(p.description, ^search)
+    )
+    |> offset(^offset)
+    |> limit(^per_page)
+    |> Repo.all()
+    |> Repo.preload([
+      :state
+    ])
+  end
+
+  def total_pages(per_page \\ 5) do
+    seller_count =
+      Seller
+      |> Repo.aggregate(:count, :id)
+
+    (seller_count / per_page)
+    |> Decimal.from_float()
+    |> Decimal.round(0, :up)
+    |> Decimal.to_integer()
+  end
+
+  def get_sellers_data_total_pages(per_page \\ 5, search \\ "") do
+    search = "%#{search}%"
+
+    seller_count =
+      Seller
+      |> where(
+        [p],
+        like(p.producer, ^search) or
+          like(p.description, ^search) or
+          like(p.seller_location, ^search)
+      )
+      |> Repo.all()
+      |> Enum.count()
+
+    (seller_count / per_page)
+    |> Decimal.from_float()
+    |> Decimal.round(0, :up)
+    |> Decimal.to_integer()
   end
 
   def get_inactive_sellers() do
